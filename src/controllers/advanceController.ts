@@ -5,6 +5,76 @@ import { PoolClient } from 'pg';
 
 export class AdvanceController {
   
+  /**
+   * @openapi
+   * /api/v1/advances/request:
+   *   post:
+   *     summary: Request a new credit advance payout
+   *     description: Processes a credit advance request, executing strict multi-tenant validations, row locking, and cumulative monthly balance limits using 64-bit integer cents.
+   *     tags:
+   *       - Advances
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - endUserId
+   *               - requestedAmountCents
+   *               - installmentsTotal
+   *             properties:
+   *               endUserId:
+   *                 type: string
+   *                 format: uuid
+   *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
+   *               requestedAmountCents:
+   *                 type: integer
+   *                 format: int64
+   *                 example: 50000
+   *                 description: Value in raw cents (e.g., 50000 represents R$ 500,00)
+   *               installmentsTotal:
+   *                 type: integer
+   *                 example: 1
+   *                 description: Number of split months selected for billing
+   *     responses:
+   *       201:
+   *         description: Advance approved and registered successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 result:
+   *                   type: string
+   *                   example: "success"
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     requestId:
+   *                       type: string
+   *                       format: uuid
+   *                       example: "e43b171c-4b53-4877-bbdf-a226bc2ef1e0"
+   *                     netPayoutCents:
+   *                       type: string
+   *                       example: "48250"
+   *                     dispatchedToPixKey:
+   *                       type: string
+   *                       example: "12345678900"
+   *       422:
+   *         description: Unprocessable entity due to business or risk rule violation
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 result:
+   *                   type: string
+   *                   example: "error"
+   *                 reason:
+   *                   type: string
+   *                   example: "The cumulative requested volume breaches the real monthly allowable margin for this installment tier."
+   */
   public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
 

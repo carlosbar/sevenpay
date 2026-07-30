@@ -1,0 +1,33 @@
+{
+  "name": "sevenpay",
+  "version": "1.0.0",
+  "description": "Welcome to the official technical documentation of the **SevenPay** core financial and risk architecture. SevenPay is a high-performance, robust, and secure **B2B2C Multi-Tenant Structured Credit Platform** (Earned Wage Access / Salary on Demand) built with Node.js, TypeScript, and a highly strict PostgreSQL relational database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosbar/sevenpay.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carlosbar/sevenpay/issues"
+  },
+  "homepage": "https://github.com/carlosbar/sevenpay#readme",
+  "devDependencies": {
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "tsx": "^4.23.1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pg": "^8.22.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
