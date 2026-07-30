@@ -39,9 +39,10 @@ When an authorized user requests a credit advance, the engine processes the requ
 * **Action:** The engine issues an isolated write lock on the user's record inside `end_users` utilizing the `FOR UPDATE` statement.
 * **Math Execution:** The maximum allowable credit capacity is calculated using 64-bit integer values (`BIGINT`) to prevent IEEE 754 float precision issues:
 
-$$\text{Max Allowable Capacity} = \text{monthly\_contract\_value\_cents} \times \left(\frac{\text{max\_advance\_percentage}}{100}\right)$$
-
-$$\text{Real Available Margin} = \text{Max Allowable Capacity} - \text{total\_advanced\_this\_month\_cents}$$
+```text
+Max Allowable Capacity = monthly_contract_value_cents * (max_advance_percentage / 100)
+Real Available Margin  = Max Allowable Capacity - total_advanced_this_month_cents
+```
 
 > [!CAUTION]
 > If the requested amount exceeds either the Real Available Margin or the user static available margin, the entire transaction triggers an immediate database ROLLBACK.
@@ -52,10 +53,13 @@ $$\text{Real Available Margin} = \text{Max Allowable Capacity} - \text{total\_ad
 
 ### 🧮 Step 6: Immutable Fee and Payout Calculations
 * **Action:** The financial engine runs deterministic calculations over the inputs:
-  * `fee_amount_cents` = $\text{Math.round}(\text{requested\_amount\_cents} \times (\text{fee\_percentage} / 100))$
-  * `net_payout_cents` = $\text{requested\_amount\_cents} - \text{fee\_amount\_cents}$
+```text
+fee_amount_cents = Math.round(requested_amount_cents * (fee_percentage / 100))
+net_payout_cents = requested_amount_cents - fee_amount_cents
+```
 
-### 🔑 Step 7: Pix Dispatch Routing Optimization
+<h3> 🔑 Step 7: Pix Dispatch Routing Optimization</h3>
+
 * **Action:** The core fetches the user's registered keys from `pix_accounts` sorted by `priority ASC`.
 * **Logic:** The engine routes the payout command using the root key registered at priority level `0`. If the settlement layer returns a transport error, the system safely falls back to subsequent priority records (`1`, `2`, etc.).
 
