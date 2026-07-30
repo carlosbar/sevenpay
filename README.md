@@ -44,7 +44,7 @@ $$\text{Max Allowable Capacity} = \text{monthly\_contract\_value\_cents} \times 
 $$\text{Real Available Margin} = \text{Max Allowable Capacity} - \text{total\_advanced\_this\_month\_cents}$$
 
 > [!CAUTION]
-> If `requested_amount_cents` exceeds either the `Real Available Margin` or the user's current static `margin_available_cents`, the entire transaction triggers an immediate database `ROLLBACK`.
+> If the requested amount exceeds either the Real Available Margin or the user static available margin, the entire transaction triggers an immediate database ROLLBACK.
 
 ### 🌐 Step 5: Tenant B2B Global Limit Verification
 * **Action:** The engine computes the total volume of all active, outstanding loans managed under the client company's umbrella.
@@ -95,4 +95,4 @@ To guarantee clean, standardized API parsing across SevenPay's **3 distinct User
 
 ---
 > [!NOTE]
-> *SevenPay Engineering Core Guidelines: All monetary rows utilize strict integer cents data types (`BIGINT`) to isolate the application ledger from math inconsistencies.*
+> *SevenPay Engineering Core Guidelines: All monetary rows utilize strict integer cents data types (BIGINT) to isolate the application ledger from math inconsistencies.*
