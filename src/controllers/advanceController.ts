@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
 
-export class AdvanceController {
+class AdvanceController {
   
   /**
    * @openapi
@@ -167,3 +167,11 @@ export class AdvanceController {
     }
   }
 }
+
+const advanceController = new AdvanceController();
+
+export const routeConfig = {
+  method: 'post',
+  path: '/api/v1/advances/request',
+  handler: (req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
+};
