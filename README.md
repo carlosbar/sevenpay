@@ -101,6 +101,65 @@ To guarantee clean, standardized API parsing across SevenPay's **3 distinct User
 }
 ```
 
+## ⚙️ 4. Environment Variables Configuration (`.env`)
+
+Create a `.env` file in the root directory of the infrastructure workspace. The application engine parses these parameters strictly during initialization to establish ledger cryptographic signatures, PostgreSQL pool limits, and network permission vectors.
+
+```env
+# ==============================================================================
+# 🌐 NETWORK & SECURITY LAYER (CROSS-ORIGIN BOUNDARIES)
+# ==============================================================================
+# Port where the SevenPay Node.js backend engine listens for incoming requests
+PORT=3000
+
+# Strict CORS global override switch for Test Drive Cockpit / MiniUI connectivity
+# Set to "true" to append dynamic HTTP headers and bypass browser preflight blocks
+CORS_ALLOWED=true
+
+# ==============================================================================
+# 🗄️ INFRASTRUCTURE DATABASE ENGINE (POSTGRESQL 18 CORE)
+# ==============================================================================
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=sevenpay_db
+DB_USER=sevenpay_user
+DB_PASSWORD=SuaSenhaSeguraAqui
+
+# Connection pool sizing directives
+DB_POOL_MIN=2
+DB_POOL_MAX=10
+
+# ==============================================================================
+# 🔐 CRYPTOGRAPHIC MATRIX SETTINGS (JWT SECURITY SUBSYSTEM)
+# ==============================================================================
+# Cryptographic secret used by authMiddleware to sign and verify operator sessions
+# CAUTION: Never share this token across production nodes
+JWT_SECRET=sevenpay_secure_cryptographic_secret_matrix_key_v1
+
+# Token life span availability window (matches the strict 8h duration gate)
+JWT_EXPIRES_IN=8h
+```
+
+### 🛠️ Implementing the `CORS_ALLOWED` flag in `server.ts`
+
+To ensure the engine honors the new environment variable configuration inside the node subsystem pipeline, inject this validation layer immediately before parsing routes:
+
+```typescript
+// Strict operational evaluation of the network permission vector flag
+if (process.env.CORS_ALLOWED === 'true') {
+	app.use((req, res, next) => {
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+		
+		if (req.method === 'OPTIONS') {
+			res.sendStatus(200);
+			return;
+		}
+		return next();
+	});
+}
+```
 ---
 > [!NOTE]
 > *SevenPay Engineering Core Guidelines: All monetary rows utilize strict integer cents data types (BIGINT) to isolate the application ledger from math inconsistencies.*
