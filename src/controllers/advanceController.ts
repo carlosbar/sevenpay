@@ -1,7 +1,15 @@
-// vim: set nowrap ts=4:
+// src/controllers/advanceController.ts
 import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
+import { authorize } from '../middlewares/authMiddleware';
+import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+
+const advanceSchema: ValidationSchema = {
+	endUserId: { type: 'string', required: true, format: 'uuid' },
+	requestedAmountCents: { type: 'number', required: true, format: 'cents' },
+	installmentsTotal: { type: 'number', required: true }
+};
 
 class AdvanceController {
 
@@ -44,16 +52,7 @@ class AdvanceController {
 	 *         description: Business rule or risk constraint violation
 	 */
 	public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
-		const { requestedAmountCents, installmentsTotal } = req.body;
-
-		// Instead of getting endUserId blindly from body: const { endUserId } = req.body;
-		// Get it directly from the secure, authenticated token context:
-		const endUserId = req.userContext?.endUserId;
-
-		if (!endUserId) {
-			throw { statusCode: 403, message: 'Context violation. This account operator is not bound to a credit consumer profile.' };
-		}
-
+		const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
 		const client: PoolClient = await db.getClient();
 
 		try {
@@ -61,12 +60,12 @@ class AdvanceController {
 
 			// STEP 2 & 5: Fetch Risk Matrix, Base Contract and apply row-level write lock (FOR UPDATE)
 			const userQuery = `
-			SELECT u.id, u.tenant_id, u.monthly_contract_value_cents, u.margin_available_cents,
-			m.fee_percentage, m.max_advance_percentage
-			FROM end_users u
-			JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = $2
-			WHERE u.id = $1 AND u.status = 'ACTIVE'
-			FOR UPDATE;
+				SELECT u.id, u.tenant_id, u.monthly_contract_value_cents, u.margin_available_cents,
+				       m.fee_percentage, m.max_advance_percentage
+				FROM end_users u
+				JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = $2
+				WHERE u.id = $1 AND u.status = 'ACTIVE'
+				FOR UPDATE;
 			`;
 			const userRes = await client.query(userQuery, [endUserId, installmentsTotal]);
 
@@ -78,9 +77,9 @@ class AdvanceController {
 
 			// STEP 3: Delinquency and Overdue Check (Risk Gate)
 			const overdueQuery = `
-			SELECT COUNT(*) as overdue_count 
-			FROM advance_installments 
-			WHERE end_user_id = $1 AND status = 'OVERDUE';
+				SELECT COUNT(*) as overdue_count 
+				FROM advance_installments 
+				WHERE end_user_id = $1 AND status = 'OVERDUE';
 			`;
 			const overdueRes = await client.query(overdueQuery, [endUserId]);
 			if (parseInt(overdueRes.rows[0].overdue_count, 10) > 0) {
@@ -89,11 +88,11 @@ class AdvanceController {
 
 			// STEP 4: Monthly Cumulative Spending Audit
 			const cumulativeQuery = `
-			SELECT COALESCE(SUM(requested_amount_cents), 0) as total_advanced
-			FROM advance_requests
-			WHERE end_user_id = $1 
-			AND status != 'REJECTED'
-			AND created_at >= date_trunc('month', current_timestamp);
+				SELECT COALESCE(SUM(requested_amount_cents), 0) as total_advanced
+				FROM advance_requests
+				WHERE end_user_id = $1 
+				  AND status != 'REJECTED'
+				  AND created_at >= date_trunc('month', current_timestamp);
 			`;
 			const cumulativeRes = await client.query(cumulativeQuery, [endUserId]);
 			const totalAdvancedThisMonth = BigInt(cumulativeRes.rows[0].total_advanced);
@@ -112,12 +111,12 @@ class AdvanceController {
 
 			// STEP 6: Tenant B2B Global Limit Verification
 			const globalLimitQuery = `
-			SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
-			FROM tenants t
-			LEFT JOIN end_users u ON u.tenant_id = t.id
-			LEFT JOIN advance_requests r ON r.end_user_id = u.id AND r.status != 'REJECTED'
-			WHERE t.id = $1
-			GROUP BY t.global_credit_limit_cents;
+				SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
+				FROM tenants t
+				LEFT JOIN end_users u ON u.tenant_id = t.id
+				LEFT JOIN advance_requests r ON r.end_user_id = u.id AND r.status != 'REJECTED'
+				WHERE t.id = $1
+				GROUP BY t.global_credit_limit_cents;
 			`;
 			const globalLimitRes = await client.query(globalLimitQuery, [user.tenant_id]);
 			const tenantLimit = BigInt(globalLimitRes.rows[0].global_credit_limit_cents);
@@ -134,9 +133,9 @@ class AdvanceController {
 
 			// STEP 8: Pix Dispatch Routing Optimization (Priority 0)
 			const pixQuery = `
-			SELECT key_value FROM pix_accounts 
-			WHERE end_user_id = $1 
-			ORDER BY priority ASC LIMIT 1;
+				SELECT key_value FROM pix_accounts 
+				WHERE end_user_id = $1 
+				ORDER BY priority ASC LIMIT 1;
 			`;
 			const pixRes = await client.query(pixQuery, [endUserId]);
 
@@ -148,10 +147,10 @@ class AdvanceController {
 
 			// STEP 9: Batch Ledger Persistence
 			await client.query(`UPDATE end_users SET margin_available_cents = margin_available_cents - $1 WHERE id = $2`, [requestedAmount.toString(), endUserId]);
-
+			
 			const insertRequest = `
-			INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
-			VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
+				INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
+				VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
 			`;
 			const requestRes = await client.query(insertRequest, [endUserId, requestedAmount.toString(), installmentsTotal, feePercentage, feeAmountCents.toString(), netPayoutCents.toString()]);
 			const requestId = requestRes.rows[0].id;
@@ -172,22 +171,20 @@ class AdvanceController {
 		} catch (error) {
 			await client.query('ROLLBACK');
 			next(error);
-		} finally {
+		} catch (error) {
 			client.release();
 		}
 	}
 }
-
-import { authorize } from '../middlewares/authMiddleware';
 
 const advanceController = new AdvanceController();
 
 export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/advances/request',
-	// Chain execution: execute authorize check, then execute requestAdvance controller
 	handler: [
-		authorize('create'), 
-		(req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
+		authorize('create'),
+		validateBody(advanceSchema),
+		(req: Request, res: Response, next: NextFunction) => advanceController.requestAdvance(req, res, next)
 	]
 };
