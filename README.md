@@ -39,17 +39,21 @@ When an authorized user requests a credit advance, the engine processes the requ
 * **Action:** The engine executes an aggregation query on `advance_requests` to summarize all funds already advanced to the specific user during the current month competence where the status is **NOT** `'REJECTED'`.
 * **Output:** Establishes the real dollar volume consumed by the user in the current billing cycle:
 
-$$\mathit{total\_advanced\_this\_month\_cents}$$
-
-$$\text{total\_advanced\_this\_month\_cents}$$
+```text
+total_advanced_this_month_cents
+```
 
 ### 🛡️ Step 5: Individual Margin Validation & Row Locking
 * **Action:** The engine issues an isolated write lock on the user's record inside `end_users` utilizing the `FOR UPDATE` statement.
 * **Math Execution:** The maximum allowable credit capacity is calculated dynamically using 64-bit integer values (`BIGINT`) to prevent float precision issues. The equations are computed in real-time as follows:
 
-$$\mathit{Max\ Allowable\ Capacity} = \mathit{monthly\_contract\_value\_cents} \times \left( \frac{\mathit{max\_advance\_percentage}}{100} \right)$$
+```text
+Max Allowable Capacity = monthly_contract_value_cents * (max_advance_percentage / 100)
+Real Available Margin  = Max Allowable Capacity - total_advanced_this_month_cents
+```
 
-$$\mathit{Real\ Available\ Margin} = \mathit{Max\ Allowable\ Capacity} - \mathit{total\_advanced\_this\_month\_cents}$$
+> [!CAUTION]
+> If the requested amount exceeds the dynamic Real Available Margin calculated from the live ledger history, the entire transaction triggers an immediate database ROLLBACK.
 
 > [!CAUTION]
 > If the requested amount exceeds the dynamic Real Available Margin calculated from the live ledger history, the entire transaction triggers an immediate database ROLLBACK.
@@ -61,9 +65,10 @@ $$\mathit{Real\ Available\ Margin} = \mathit{Max\ Allowable\ Capacity} - \mathit
 ### 🧮 Step 7: Immutable Fee and Payout Calculations
 * **Action:** The financial engine runs deterministic calculations over the inputs, mapping strict mathematical rounding to ensure ledger integrity:
 
-$$\mathit{fee\_amount\_cents} = \left\lfloor \mathit{requested\_amount\_cents} \times \left( \frac{\mathit{fee\_percentage}}{100} \right) \right\rceil$$
-
-$$\mathit{net\_payout\_cents} = \mathit{requested\_amount\_cents} - \mathit{fee\_amount\_cents}$$
+```text
+fee_amount_cents = Math.round(requested_amount_cents * (fee_percentage / 100))
+net_payout_cents = requested_amount_cents - fee_amount_cents
+```
 
 ### 🔑 Step 8: Pix Dispatch Routing Optimization
 * **Action:** The core fetches the user's registered keys from `pix_accounts` sorted by `priority ASC`.
