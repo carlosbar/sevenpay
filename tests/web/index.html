@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SevenPay - Interactive Core Test Drive UI</title>
+	<!-- Tailwind CSS CDN for high-fidelity fintech styling -->
+	<script src="https://jsdelivr.net"></script>
+	<style>
+		/* Custom style to enforce default system tab behavior if needed */
+		tab-content { display: none; }
+		tab-content.active { display: block; }
+	</style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+	<!-- Header Brand Section -->
+	<header class="border-b border-slate-800 bg-slate-950 p-4 sticky top-0 z-50 shadow-md">
+		<div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+			<div class="flex items-center gap-3">
+				<span class="text-2xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+				<span class="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-400 border border-slate-700">v1.0.0-3FN</span>
+			</div>
+			
+			<!-- Global Token Vault Indicator -->
+			<div class="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-lg border border-slate-800 max-w-full">
+				<span class="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">Active Token:</span>
+				<input id="globalTokenStorage" type="text" readonly placeholder="No token generated. Please perform a login first." 
+					class="text-xs font-mono text-emerald-400 bg-transparent border-none outline-none w-64 truncate">
+			</div>
+		</div>
+	</header>
+
+	<!-- Main Navigation Dashboard Switcher -->
+	<main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+		<div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4 mb-6">
+			<button onclick="switchTab('ui-auth')" id="btn-ui-auth" class="tab-btn px-4 py-2 font-bold text-sm uppercase tracking-wider rounded-lg transition bg-emerald-500 text-slate-950 shadow-md shadow-emerald-900/20">
+				🔐 1. Auth Gate
+			</button>
+			<button onclick="switchTab('ui-admin')" id="btn-ui-admin" class="tab-btn px-4 py-2 font-bold text-sm uppercase tracking-wider rounded-lg transition bg-slate-800 text-slate-400 hover:bg-slate-700">
+				👑 2. UI Admin (Fintech)
+			</button>
+			<button onclick="switchTab('ui-tenant')" id="btn-ui-tenant" class="tab-btn px-4 py-2 font-bold text-sm uppercase tracking-wider rounded-lg transition bg-slate-800 text-slate-400 hover:bg-slate-700">
+				🏢 3. UI Tenant (Company)
+			</button>
+			<button onclick="switchTab('ui-client')" id="btn-ui-client" class="tab-btn px-4 py-2 font-bold text-sm uppercase tracking-wider rounded-lg transition bg-slate-800 text-slate-400 hover:bg-slate-700">
+				📱 4. UI Client (Consumer)
+			</button>
+		</div>
+
+		<!-- ============================================================================ -->
+		<!-- TAB 1: AUTHENTICATION GATEWAY -->
+		<!-- ============================================================================ -->
+		<div id="ui-auth" class="tab-content active">
+			<div class="max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+				<h2 class="text-xl font-black border-b border-slate-800 pb-3 mb-4">Operator Authentication</h2>
+				<p class="text-slate-400 text-xs mb-4 leading-relaxed">
+					Logs into the cryptographic core matrix system. Passwords are remounted under the strict rule: <code class="text-emerald-400 font-mono font-bold">&lt;password&gt;:salt</code>.
+				</p>
+				<form id="authForm" onsubmit="executeLogin(event)" class="space-y-4">
+					<div>
+						<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+						<input id="authEmail" type="email" required value="admin@sevenpay.com.br"
+							class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm focus:border-emerald-500 focus:outline-none transition">
+					</div>
+					<div>
+						<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Secret Password</label>
+						<input id="authPassword" type="password" required value="YourPasswordHere"
+							class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm focus:border-emerald-500 focus:outline-none transition">
+					</div>
+					<button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-3 text-sm uppercase tracking-widest rounded-lg cursor-pointer transition shadow-lg shadow-emerald-500/10">
+						Generate Security Token
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- ============================================================================ -->
+		<!-- TAB 2: UI ADMIN (THE FINTECH CONTROL TOWER) -->
+		<!-- ============================================================================ -->
+		<div id="ui-admin" class="tab-content hidden">
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				
+				<!-- Left Panel: Manual Onboard Form (Upsert Framework) -->
+				<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
+					<h2 class="text-lg font-black border-b border-slate-800 pb-3 mb-4 text-emerald-400">Provision B2B Tenant</h2>
+					<p class="text-slate-400 text-xs mb-4 leading-relaxed">
+						Registers a corporate client manually. Under the hood, this triggers the atomic <code class="text-emerald-400 font-mono">ON CONFLICT (cnpj) DO UPDATE</code> upsert script matrix.
+					</p>
+					<form id="tenantUpsertForm" onsubmit="executeTenantUpsert(event)" class="space-y-4">
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">CNPJ (14 Numeric Digits)</label>
+							<input id="admTenantCnpj" type="text" required placeholder="12345678000199" max_length="14"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Company Name</label>
+							<input id="admTenantName" type="text" required placeholder="Imobiliaria Alfa LTDA"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Business Vertical Type</label>
+							<select id="admTenantType" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+								<option value="REAL_ESTATE">REAL_ESTATE (Rent Advance)</option>
+								<option value="HR">HR (Salary on Demand)</option>
+							</select>
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Global Funding Credit Limit (BRL)</label>
+							<input id="admTenantLimit" type="number" required placeholder="50000.00" step="0.01"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-2.5 text-xs uppercase tracking-widest rounded-lg cursor-pointer transition">
+							Execute Tenant Upsert
+						</button>
+					</form>
+				</div>
+
+				<!-- Right Panel: Analytics Telemetry Monitor -->
+				<div class="lg:col-span-2 space-y-6">
+					<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+						<div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+							<h2 class="text-lg font-black text-slate-200">Global Financial Metrics Log</h2>
+							<button onclick="fetchAdminMetrics()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1 text-xs font-bold rounded-lg cursor-pointer transition">
+								🔄 Refresh Analytics
+							</button>
+						</div>
+						<!-- Aggregated Grid Data Cards -->
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="metricsSummaryGrid">
+							<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+								<span class="block text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Total Advanced</span>
+								<span id="m-advanced" class="text-sm md:text-base font-black text-slate-100 font-mono">R$ 0,00</span>
+							</div>
+							<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+								<span class="block text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Fees Revenue</span>
+								<span id="m-revenue" class="text-sm md:text-base font-black text-emerald-400 font-mono">R$ 0,00</span>
+							</div>
+							<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+								<span class="block text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Total Overdue</span>
+								<span id="m-overdue" class="text-sm md:text-base font-black text-red-400 font-mono">R$ 0,00</span>
+							</div>
+							<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
+								<span class="block text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Default Rate</span>
+								<span id="m-rate" class="text-sm md:text-base font-black text-amber-500 font-mono">0.00%</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Real-Time Tenant Portfolios Monitoring Grid -->
+					<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+						<h2 class="text-base font-black text-slate-200 border-b border-slate-800 pb-3 mb-4">Active B2B Landscapes</h2>
+						<div class="overflow-x-auto">
+							<table class="w-full text-left text-xs border-collapse">
+								<thead>
+									<tr class="border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+										<th class="pb-2">Company Name</th>
