@@ -40,7 +40,7 @@ export function authorize(requiredPermission: 'read' | 'create' | 'update' | 'de
       // 2. Cryptographically verifies token signature and expiration
       const secretKey = process.env.JWT_SECRET;
       
-      // CRITICAL RISK GATE: Prevent initialization or validation using insecure hardcoded fallback strings
+      // CRITICAL RISK GATE: Prevent validation using missing operational secrets
       if (!secretKey) {
         console.error('[SECURITY COMPROMISED]: JWT_SECRET environment variable is missing on this node infrastructure.');
         throw { statusCode: 500, message: 'Internal ledger protection configuration error. Cryptographic subsystem unavailable.' };
