@@ -1,10 +1,10 @@
-# 🐘 PostgreSQL 16 Installation & Database Setup Guide
+# 🐘 PostgreSQL 18 Installation & Database Setup Guide
 
-This guide describes the step-by-step process to install **PostgreSQL 16** on an Ubuntu Server/Desktop environment, create the dedicated **SevenPay** database user, and initialize the system schema.
+This guide describes the step-by-step process to install **PostgreSQL 18** on an Ubuntu Server/Desktop environment, create the dedicated **SevenPay** database user, and initialize the system schema.
 
 ---
 
-## 🛠️ 1. Install PostgreSQL 16
+## 🛠️ 1. Install PostgreSQL
 
 To ensure you receive official security patches and performance updates directly from the source, add the official PostgreSQL repository instead of relying on the outdated default Ubuntu packages.
 
@@ -18,8 +18,8 @@ curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearm
 # 2. Add the repository to your system sources list
 echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://postgresql.org \$(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 
-# 3. Update system package lists and install PostgreSQL 16
-sudo apt update && sudo apt install -y postgresql-16 postgresql-contrib-16
+# 3. Update system package lists and install PostgreSQL
+sudo apt update && sudo apt install -y postgresql-18 postgresql-contrib-18
 ```
 
 ### Verify Service Status
