@@ -3,6 +3,12 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+
+const loginSchema: ValidationSchema = {
+	email: { type: 'string', required: true, format: 'email' },
+	password: { type: 'string', required: true }
+};
 
 class AuthController {
 
@@ -153,9 +159,11 @@ class AuthController {
 	// Instantiate the private controller context
 	const authController = new AuthController();
 
-	// Export the dynamic automated discovery route specification mapping contract
-	export const routeConfig = {
-		method: 'post',
-		path: '/api/v1/auth/login',
-		handler: (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next)
-	};
+export const routeConfig = {
+	method: 'post',
+	path: '/api/v1/auth/login',
+	handler: [
+		validateBody(loginSchema),
+		(req: Request, res: Response, next: NextFunction) => authController.login(req, res, next)
+	]
+};
