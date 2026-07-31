@@ -90,7 +90,7 @@ class StatementController {
 				}
 
 				statementQuery = `
-					SELECT id, advance_request_id, type, amount_cents::text AS "amountCents", created_at AS "createdAt"
+					SELECT id, advance_request_id AS "advanceRequestId", type, amount_cents::text AS "amountCents", created_at AS "createdAt"
 					FROM financial_transactions
 					WHERE end_user_id = $3
 					ORDER BY created_at DESC
@@ -104,7 +104,7 @@ class StatementController {
 				}
 
 				statementQuery = `
-					SELECT t.id, t.advance_request_id, t.type, t.amount_cents::text AS "amountCents", t.created_at AS "createdAt"
+					SELECT t.id, t.advance_request_id AS "advanceRequestId", t.type, t.amount_cents::text AS "amountCents", t.created_at AS "createdAt"
 					FROM financial_transactions t
 					JOIN end_users u ON u.id = t.end_user_id
 					WHERE u.tenant_id = $3
@@ -115,7 +115,7 @@ class StatementController {
 			} else {
 				// Global master dashboard visibility access for auditing management teams (SYSADMIN, MASTER_ADMIN)
 				statementQuery = `
-					SELECT id, advance_request_id, type, amount_cents::text AS "amountCents", created_at AS "createdAt"
+					SELECT id, advance_request_id AS "advanceRequestId", type, amount_cents::text AS "amountCents", created_at AS "createdAt"
 					FROM financial_transactions
 					ORDER BY created_at DESC
 					LIMIT $1 OFFSET $2;
