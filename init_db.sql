@@ -1,18 +1,18 @@
 -- ============================================================================
 -- 1. DATABASE CLEANUP (TOTAL RESET)
 -- ============================================================================
-DROP TABLE IF EXISTS pix_accounts CASCADE;
+DROP TABLE IF EXISTS tenant_settlement_batches CASCADE;
+DROP TABLE IF EXISTS financial_transactions CASCADE;
+DROP TABLE IF EXISTS advance_installments CASCADE;
+DROP TABLE IF EXISTS advance_requests CASCADE;
 DROP TABLE IF EXISTS operator_profiles CASCADE;
 DROP TABLE IF EXISTS system_operators CASCADE;
-DROP TABLE IF EXISTS advance_installments CASCADE;
-DROP TABLE IF EXISTS financial_transactions CASCADE;
-DROP TABLE IF EXISTS advance_requests CASCADE;
-DROP TABLE IF EXISTS tenant_fee_matrices CASCADE;
+DROP TABLE IF EXISTS pix_accounts CASCADE;
 DROP TABLE IF EXISTS end_users CASCADE;
+DROP TABLE IF EXISTS tenant_fee_matrices CASCADE;
 DROP TABLE IF EXISTS tenants CASCADE;
 DROP TABLE IF EXISTS system_roles CASCADE;
 
-DROP TYPE IF EXISTS user_role CASCADE;
 DROP TYPE IF EXISTS tenant_type CASCADE;
 DROP TYPE IF EXISTS global_status CASCADE;
 DROP TYPE IF EXISTS role_scope CASCADE;
@@ -34,10 +34,10 @@ CREATE TYPE request_status AS ENUM ('PENDING', 'APPROVED', 'PAID', 'REJECTED', '
 CREATE TYPE pix_key_type AS ENUM ('CPF', 'CNPJ', 'EMAIL', 'PHONE', 'EVP');
 
 -- ============================================================================
--- 3. CORE MANAGEMENT TABLES
+-- 3. TABLES CREATION (STRICT FOREIGN KEY DEPENDENCY ORDER)
 -- ============================================================================
 
--- RBAC Roles and Permissions Lookup Table
+-- RBAC Roles and Permissions Lookup Table (Matrix Permission Pattern with Scope ENUM)
 CREATE TABLE system_roles (
 	name VARCHAR(30) PRIMARY KEY,
 	scope role_scope NOT NULL,
@@ -91,16 +91,12 @@ CREATE TABLE pix_accounts (
 	end_user_id UUID NOT NULL REFERENCES end_users(id) ON DELETE CASCADE,
 	key_type pix_key_type NOT NULL,
 	key_value VARCHAR(77) NOT NULL,
-	priority INT NOT NULL DEFAULT 0, -- Lower value indicates higher execution order (0 is root priority)
+	priority INT NOT NULL DEFAULT 0, -- Lower integer value indicates higher payout dispatch order execution (0 is root priority)
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- ============================================================================
--- 4. AUTHENTICATION AND MULTI-TENANT PROFILE TABLES
--- ============================================================================
-
--- System Operators (Base Authentication Table)
+-- System Operators (Base Authentication Table - Isolated from Domain Scopes)
 CREATE TABLE system_operators (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	email VARCHAR(100) UNIQUE NOT NULL,
@@ -112,7 +108,7 @@ CREATE TABLE system_operators (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Operator Profiles (The bridge table handling multi-tenant isolation)
+-- Operator Profiles (The elegant bridge table handling Tenant and End-User multi-tenant isolation)
 CREATE TABLE operator_profiles (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	operator_id UUID NOT NULL REFERENCES system_operators(id) ON DELETE CASCADE,
@@ -121,10 +117,6 @@ CREATE TABLE operator_profiles (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 	CONSTRAINT unique_operator_profile UNIQUE(operator_id)
 );
-
--- ============================================================================
--- 5. FINANCIAL MOVEMENT AND LEDGER TABLES
--- ============================================================================
 
 -- Core Financial Ledger Table for Advance Requests (Payouts)
 CREATE TABLE advance_requests (
@@ -140,14 +132,14 @@ CREATE TABLE advance_requests (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Amortization Installments for Multi-Month Scheduling
+-- Amortization Installments for Multi-Month Competence Scheduling
 CREATE TABLE advance_installments (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	advance_request_id UUID REFERENCES advance_requests(id) ON DELETE CASCADE,
 	end_user_id UUID REFERENCES end_users(id) ON DELETE RESTRICT,
 	installment_number INT NOT NULL,
 	gross_amount_cents BIGINT NOT NULL,
-	billing_competence VARCHAR(7) NOT NULL, -- Format 'YYYY-MM'
+	billing_competence VARCHAR(7) NOT NULL, -- Target competence in 'YYYY-MM' format
 	status request_status NOT NULL DEFAULT 'PENDING',
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -163,8 +155,17 @@ CREATE TABLE financial_transactions (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- B2B Settlement Batches tracking consolidated corporate bulk repayments
+CREATE TABLE tenant_settlement_batches (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE RESTRICT,
+	billing_competence VARCHAR(7) NOT NULL, -- Target competence month liquidated (e.g., '2026-08')
+	total_settled_cents BIGINT NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ============================================================================
--- 6. SYSTEM ROLES INITIAL INJECTION (PRE-POPULATING LOOKUP)
+-- 4. DATA SEEDING FOR ROLES (PRE-POPULATING LOOKUP MATRIX)
 -- ============================================================================
 INSERT INTO system_roles (name, scope, can_read, can_create, can_update, can_delete) VALUES
 ('SYSADMIN',         'MASTER',   TRUE,  TRUE,  TRUE,  TRUE),
@@ -175,7 +176,7 @@ INSERT INTO system_roles (name, scope, can_read, can_create, can_update, can_del
 ('END_USER',         'END_USER', TRUE,  TRUE,  FALSE, FALSE);
 
 -- ============================================================================
--- 7. PERFORMANCE INDEXES (QUERY OPTIMIZATION)
+-- 5. PERFORMANCE INDEXES (QUERY OPTIMIZATION)
 -- ============================================================================
 CREATE INDEX idx_end_users_tenant ON end_users(tenant_id);
 CREATE INDEX idx_operators_email ON system_operators(email);
@@ -183,3 +184,4 @@ CREATE INDEX idx_operator_profiles_bridge ON operator_profiles(operator_id, tena
 CREATE INDEX idx_pix_accounts_order ON pix_accounts(end_user_id, priority ASC);
 CREATE INDEX idx_installments_competence ON advance_installments(billing_competence, status);
 CREATE INDEX idx_transactions_user ON financial_transactions(end_user_id);
+CREATE INDEX idx_settlements_tenant_competence ON tenant_settlement_batches(tenant_id, billing_competence);
