@@ -171,6 +171,8 @@ if (process.env.CORS_ALLOWED === 'true') {
 ```
 ---
 
+---
+
 ## 🕹️ 5. Test Drive Cockpit & MiniUI Execution
 
 The platform includes a lightweight, 100% native frontend suite designed to test the entire transactional pipeline of the SevenPay engine end-to-end without external internet or CDN dependencies.
@@ -179,7 +181,7 @@ The platform includes a lightweight, 100% native frontend suite designed to test
 To execute the interactive cockpit interface on your Ubuntu Desktop setup, use the pre-configured Node.js runtime utility:
 ```bash
 # 1. Navigate to the folder containing the index.html file
-cd sevenpay/tests/web
+cd /home/cbarcellos/workspace/sevenpay/
 
 # 2. Fire up a micro-server bypassing browser Preflight blocks
 npx http-server --cors -p 8080
@@ -196,7 +198,7 @@ The engine comes pre-populated with three multi-tenant authority layers inside `
 | **TENANT_ADMIN** | `gestor@alfaimoveis.com.br` | **🏢 3. UI Tenant** (To onboard final consumers and check active portfolio limits) |
 | **END_USER** | `joao.silva@clientapp.com` | **📱 4. UI Client** (To request cash advances and track dynamic 360 ledger logs) |
 
-### 🧭 Strict E2E Verification Workflow
+### 🧭 7. Strict E2E Verification Workflow
 To validate the real-time core architecture engine via the Cockpit panel, execute the steps sequentially:
 1. **Authenticate:** Go to tab **1. Auth Gate**, insert the `SYSADMIN` credentials, and hit *Generate Security Token*.
 2. **Sync Corporate Entity:** Go to tab **2. UI Admin**, fill in the CNPJ matrix, and click *Execute Tenant Upsert*.
@@ -205,5 +207,127 @@ To validate the real-time core architecture engine via the Cockpit panel, execut
 
 ---
 
+## 🐘 8. PostgreSQL 18 Installation & Database Setup Guide
+
+This section describes the step-by-step process to install **PostgreSQL 18** on an Ubuntu Server/Desktop environment, create the dedicated **SevenPay** database user, and initialize the system schema.
+
+### Install PostgreSQL
+To ensure you receive official security patches and performance updates directly from the source, add the official PostgreSQL repository instead of relying on the outdated default Ubuntu packages.
+
+Open your terminal (`Ctrl+Alt+T`) and execute the following batch commands:
+```bash
+# 1. Add the official PostgreSQL signing key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://postgresql.org | sudo gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg
+
+# 2. Add the repository to your system sources list
+echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://postgresql.org \$(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+
+# 3. Update system package lists and install PostgreSQL
+sudo apt update && sudo apt install -y postgresql-18 postgresql-contrib-18
+```
+
+Verify database service status:
+```bash
+sudo systemctl status postgresql
+```
+
+---
+
+## 🔑 9. Create SevenPay User and Database
+
+To secure your fintech application, avoid using the default `postgres` superuser inside your Node.js runtime. Create an isolated, dedicated user acting as the owner of the system database.
+
+1. Access the native interactive terminal shell (`psql`) utilizing the default administrative system profile:
+   ```bash
+   sudo -i -u postgres psql
+   ```
+2. Copy and paste the following queries into the active `psql` console:
+   ```sql
+   -- 1. Set how postgres saves the passwords
+   SET password_encryption = 'scram-sha-256';
+
+   -- 2. Create a dedicated database operator with database creation privileges
+   CREATE USER sevenpay_user WITH PASSWORD 'SuaSenhaSeguraAqui' CREATEDB;
+
+   -- 3. Set user as superuser to allow initial structural seeding migrations
+   ALTER USER sevenpay_user SUPERUSER;
+
+   -- 4. Provision the official isolated system database assigning ownership
+   CREATE DATABASE sevenpay_db OWNER sevenpay_user;
+
+   -- 5. Grant full schema manipulation privileges to the operator
+   GRANT ALL PRIVILEGES ON DATABASE sevenpay_db TO sevenpay_user;
+
+   -- 6. Terminate the active console session
+   \q
+   ```
+
+---
+
+## 🚀 10. Initialize Database Schema & Feed Data
+
+Once your database is provisioned and the user is set up, you can inject your migration files directly from your project repository folder. Run the following commands to construct your 3FN relational tables and populate mock metrics:
+
+```bash
+# 1. Build structural tables dropping pre-existing schemas
+psql -h localhost -U sevenpay_user -d sevenpay_db -f init_db.sql
+
+# 2. Feed testing massa data directly on operational tables
+psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
+```
+
+> [!NOTE]
+> *The system terminal will prompt for the password you assigned to `sevenpay_user` (`SuaSenhaSeguraAqui`) before executing the batch migrations.*
+
+---
+
+## 🗄️ 11. PostgreSQL 18 Infrastructure Setup (Ubuntu Desktop)
+
+By default, PostgreSQL on Ubuntu blocks TCP/IP connections and restricts authentication to local UNIX sockets. To allow the Node.js backend pool connection to communicate via `localhost`, follow these strict environmental configuration steps.
+
+### 1. Enable TCP/IP Networking (`postgresql.conf`)
+Open the main server configuration file in your Ubuntu terminal:
+```bash
+sudo nano /etc/postgresql/18/main/postgresql.conf
+```
+Locate the network addressing block and uncomment the `listen_addresses` directive by removing the `#` symbol. Ensure it matches the syntax below:
+```text
+listen_addresses = 'localhost'
+```
+*Save and close (`Ctrl + O`, `Enter`, `Ctrl + X`).*
+
+### 2. Configure Authentication Matrix Policies (`pg_hba.conf`)
+Open the host-based authentication security policy file:
+```bash
+sudo nano /etc/postgresql/18/main/pg_hba.conf
+```
+Scroll to the very bottom of the file where IPv4 and IPv6 rules are declared. Change the authentication method from `peer` or `scram-sha-256` to **`md5`** to ensure universal cryptographic alignment with the `pg` native Node.js driver architecture:
+```text
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+```
+*Save and close (`Ctrl + O`, `Enter`, `Ctrl + X`).*
+
+### 3. Apply Infrastructure Changes
+Restart the PostgreSQL system service on your Linux subsystem to bind the new TCP/IP loops and flush connection cache:
+```bash
+sudo systemctl restart postgresql
+```
+
+### 4. Verify Local Loopback Connectivity
+Test the network pipe channel by forcing a remote connection vector to populate our testing data layer:
+```bash
+psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
+```
+
+---
+
 > [!NOTE]
 > *SevenPay Engineering Core Guidelines: All monetary rows utilize strict integer cents data types (BIGINT) to isolate the application ledger from math inconsistencies.*
+
