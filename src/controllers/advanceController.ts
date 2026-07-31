@@ -18,38 +18,9 @@ class AdvanceController {
 	 * /api/v1/advances/request:
 	 *   post:
 	 *     summary: Request a new credit advance payout
-	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking, cumulative monthly limits, and automatically provisions future amortization installments using 64-bit integer cents.
+	 *     description: Processes a credit advance request using strictly real-time dynamic margin calculations, verifying monthly spending velocity without relying on static balance columns.
 	 *     tags:
 	 *       - Advances
-	 *     requestBody:
-	 *       required: true
-	 *       content:
-	 *         application/json:
-	 *           schema:
-	 *             type: object
-	 *             required:
-	 *               - endUserId
-	 *               - requestedAmountCents
-	 *               - installmentsTotal
-	 *             properties:
-	 *               endUserId:
-	 *                 type: string
-	 *                 format: uuid
-	 *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
-	 *               requestedAmountCents:
-	 *                 type: integer
-	 *                 format: int64
-	 *                 example: 50000
-	 *               installmentsTotal:
-	 *                 type: integer
-	 *                 example: 1
-	 *     responses:
-	 *       201:
-	 *         description: Advance approved and registered successfully
-	 *       403:
-	 *         description: Access denied due to overdue/delinquent accounts
-	 *       422:
-	 *         description: Business rule or risk constraint violation
 	 */
 	public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
 		const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
@@ -58,9 +29,9 @@ class AdvanceController {
 		try {
 			await client.query('BEGIN');
 
-			// STEP 2 & 5: Fetch Risk Matrix, Base Contract and apply row-level write lock (FOR UPDATE)
+			// STEP 2 & 5: Fetch Risk Matrix and Base Contract with row-level lock (FOR UPDATE)
 			const userQuery = `
-				SELECT u.id, u.tenant_id, u.monthly_contract_value_cents, u.margin_available_cents,
+				SELECT u.id, u.tenant_id, u.monthly_contract_value_cents,
 				       m.fee_percentage, m.max_advance_percentage
 				FROM end_users u
 				JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = $2
@@ -86,7 +57,7 @@ class AdvanceController {
 				throw { statusCode: 403, message: 'Access denied. This user account has outstanding overdue installments pending settlement.' };
 			}
 
-			// STEP 4: Monthly Cumulative Spending Audit
+			// STEP 4: Monthly Cumulative Spending Audit (The Truth Layer)
 			const cumulativeQuery = `
 				SELECT COALESCE(SUM(requested_amount_cents), 0) as total_advanced
 				FROM advance_requests
@@ -97,19 +68,20 @@ class AdvanceController {
 			const cumulativeRes = await client.query(cumulativeQuery, [endUserId]);
 			const totalAdvancedThisMonth = BigInt(cumulativeRes.rows[0].total_advanced);
 
-			// STEP 5: Math Calculations in 64-bit BigInt Cents
+			// STEP 5: Real-Time Dynamic Math Calculations in 64-bit BigInt Cents
 			const monthlyContractValue = BigInt(user.monthly_contract_value_cents);
 			const maxAdvancePercentage = Number(user.max_advance_percentage);
 			const requestedAmount = BigInt(requestedAmountCents);
 
+			// Dynamic calculations instead of static available column reads
 			const maxAllowableCapacity = (monthlyContractValue * BigInt(Math.round(maxAdvancePercentage * 100))) / BigInt(10000);
 			const realAvailableMargin = maxAllowableCapacity - totalAdvancedThisMonth;
 
-			if (requestedAmount > realAvailableMargin || requestedAmount > BigInt(user.margin_available_cents)) {
-				throw { statusCode: 422, message: 'The cumulative requested volume breaches the real monthly allowable margin for this installment tier.' };
+			// Boundary Check against real-time ledger metrics
+			if (requestedAmount > realAvailableMargin) {
+				throw { statusCode: 422, message: 'The requested volume breaches the dynamic real-time monthly allowable margin for this user.' };
 			}
-
-			// STEP 6: Tenant B2B Global Limit Verification
+			// STEP 6: Tenant B2B Global Limit Verification (Real-Time Aggregate)
 			const globalLimitQuery = `
 				SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
 				FROM tenants t
@@ -145,11 +117,8 @@ class AdvanceController {
 
 			const activePixKey = pixRes.rows[0].key_value;
 
-			// STEP 9: Batch Ledger Persistence
-			// 1. Deduct static available margin
-			await client.query(`UPDATE end_users SET margin_available_cents = margin_available_cents - $1 WHERE id = $2`, [requestedAmount.toString(), endUserId]);
-			
-			// 2. Insert Advance Request Header
+			// STEP 9: Batch Ledger Persistence (No static update on end_users table)
+			// 1. Insert Advance Request Header
 			const insertRequest = `
 				INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
 				VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
@@ -157,7 +126,7 @@ class AdvanceController {
 			const requestRes = await client.query(insertRequest, [endUserId, requestedAmount.toString(), installmentsTotal, feePercentage, feeAmountCents.toString(), netPayoutCents.toString()]);
 			const requestId = requestRes.rows[0].id;
 
-			// 3. Dynamic Plurimensal Installment Schedule Loop Provisioning
+			// 2. Dynamic Plurimensal Installment Schedule Loop Provisioning
 			const baseInstallmentAmount = requestedAmount / BigInt(installmentsTotal);
 			const remainderCents = requestedAmount % BigInt(installmentsTotal);
 
@@ -186,7 +155,7 @@ class AdvanceController {
 				]);
 			}
 
-			// 4. Append Immutable Audit Ledger Log (DEBIT)
+			// 3. Append Immutable Audit Ledger Log (DEBIT)
 			await client.query(`INSERT INTO financial_transactions (advance_request_id, end_user_id, type, amount_cents) VALUES ($1, $2, 'DEBIT', $3)`, [requestId, endUserId, requestedAmount.toString()]);
 
 			await client.query('COMMIT');
