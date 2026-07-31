@@ -22,7 +22,7 @@ The data ecosystem is fully optimized in the **Third Normal Form (3FN)** and rel
 
 ## ⚙️ 2. Core Credit Engine Business Logic Flow
 
-When an authorized user requests a credit advance, the engine processes the request through **8 sequential verification steps** wrapped inside a isolated, deterministic database transaction (`BEGIN ... COMMIT`) utilizing strict row-level write locking (`FOR UPDATE`).
+When an authorized user requests a credit advance, the engine processes the request through **9 sequential verification steps** wrapped inside an isolated, deterministic database transaction (`BEGIN ... COMMIT`) utilizing strict row-level write locking (`FOR UPDATE`).
 
 ### 📦 Step 1: Payout Request & Installment Setup
 * **Action:** The consumer profile (`end_user_id`) invokes the API endpoint providing a raw gross value in cents (`requested_amount_cents`) and the required amortization split count (`installments_total`).
@@ -31,13 +31,17 @@ When an authorized user requests a credit advance, the engine processes the requ
 * **Action:** The engine queries `tenant_fee_matrices` filtering by the user's `tenant_id` and the chosen `installments_total`.
 * **Output:** Extracts the locked transaction fee percentage (`fee_percentage`) and the dynamic safety ceiling constraint (`max_advance_percentage`).
 
-### 📊 Step 3: Monthly Cumulative Spending Audit
+### 📊 Step 3: Delinquency and Overdue Check (Risk Gate)
+* **Action:** The engine executes a query on `advance_installments` to count any outstanding entries linked to the `end_user_id` where the status is explicitly set to `'OVERDUE'`.
+* **Validation:** If the count is greater than zero (N > 0), the entire database process triggers an immediate `ROLLBACK` to isolate the platform from default risk.
+
+### 📊 Step 4: Monthly Cumulative Spending Audit
 * **Action:** The engine executes an aggregation query on `advance_requests` to summarize all funds already advanced to the specific user during the current month competence where the status is **NOT** `'REJECTED'`.
 * **Output:** Establishes the real dollar volume consumed by the user in the current billing cycle: `total_advanced_this_month_cents`.
 
-### 🛡️ Step 4: Individual Margin Validation & Row Locking
+### 🛡️ Step 5: Individual Margin Validation & Row Locking
 * **Action:** The engine issues an isolated write lock on the user's record inside `end_users` utilizing the `FOR UPDATE` statement.
-* **Math Execution:** The maximum allowable credit capacity is calculated using 64-bit integer values (`BIGINT`) to prevent IEEE 754 float precision issues:
+* **Math Execution:** The maximum allowable credit capacity is calculated using 64-bit integer values (`BIGINT`) to prevent float precision issues:
 
 ```text
 Max Allowable Capacity = monthly_contract_value_cents * (max_advance_percentage / 100)
@@ -47,23 +51,22 @@ Real Available Margin  = Max Allowable Capacity - total_advanced_this_month_cent
 > [!CAUTION]
 > If the requested amount exceeds either the Real Available Margin or the user static available margin, the entire transaction triggers an immediate database ROLLBACK.
 
-### 🌐 Step 5: Tenant B2B Global Limit Verification
+### 🌐 Step 6: Tenant B2B Global Limit Verification
 * **Action:** The engine computes the total volume of all active, outstanding loans managed under the client company's umbrella.
 * **Validation:** If the new transaction causes the total corporate pool to breach the registered `global_credit_limit_cents` inside the `tenants` table, the execution is safely terminated to protect SevenPay's capital reserves.
 
-### 🧮 Step 6: Immutable Fee and Payout Calculations
+### 🧮 Step 7: Immutable Fee and Payout Calculations
 * **Action:** The financial engine runs deterministic calculations over the inputs:
 ```text
 fee_amount_cents = Math.round(requested_amount_cents * (fee_percentage / 100))
 net_payout_cents = requested_amount_cents - fee_amount_cents
 ```
 
-<h3> 🔑 Step 7: Pix Dispatch Routing Optimization</h3>
-
+### 🔑 Step 8: Pix Dispatch Routing Optimization
 * **Action:** The core fetches the user's registered keys from `pix_accounts` sorted by `priority ASC`.
 * **Logic:** The engine routes the payout command using the root key registered at priority level `0`. If the settlement layer returns a transport error, the system safely falls back to subsequent priority records (`1`, `2`, etc.).
 
-### 💾 Step 8: Ledger Persistence & Asynchronous Execution
+### 💾 Step 9: Ledger Persistence & Asynchronous Execution
 If every validation rule evaluates to true, the batch operation commits the state changes:
 1. **Deducts the margin** by updating the user's `margin_available_cents` column.
 2. **Logs the header** in `advance_requests` setting the status to `'PENDING'`.
@@ -78,13 +81,14 @@ If every validation rule evaluates to true, the batch operation commits the stat
 
 To guarantee clean, standardized API parsing across SevenPay's **3 distinct User Interfaces** (Admin, Tenant, and Mobile Client Application), all endpoints must uniformly reply with a top-level root variable called `result`.
 
-### 🟢 HTTP 200/201 Success Response Envelope
+### 🟢 HTTP 201 Success Response Envelope
 ```json
 {
   "result": "success",
   "data": {
     "requestId": "e43b171c-4b53-4877-bbdf-a226bc2ef1e0",
-    "netPayoutCents": 144750
+    "netPayoutCents": "144750",
+    "dispatchedToPixKey": "12345678900"
   }
 }
 ```
@@ -93,7 +97,7 @@ To guarantee clean, standardized API parsing across SevenPay's **3 distinct User
 ```json
 {
   "result": "error",
-  "reason": "The cumulative requested volume breaches the real monthly allowable margin for this installment tier."
+  "reason": "Access denied. This user account has outstanding overdue installments pending settlement."
 }
 ```
 
