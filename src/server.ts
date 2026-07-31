@@ -7,6 +7,29 @@ import * as path from 'path';
 import { errorHandler } from './middlewares/responseHandler';
 
 const app = express();
+
+if(process.env.ALLOW_CORS == "true") {
+  // Strict Global CORS and Preflight Interceptor
+  app.use((req, res, next) => {
+  	// Allow origin from your local server or wildcard for local test drive environments
+  	res.header('Access-Control-Allow-Origin', '*');
+  	
+  	// Supported methods within the SevenPay operational architecture
+  	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  	
+  	// Explicitly expose standard authorization headers needed for our JWT Guards
+  	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  	// Handle browser preflight checks immediately before routing pipeline evaluates it
+  	if (req.method === 'OPTIONS') {
+  		res.sendStatus(200);
+  		return;
+  	}
+  	
+  	return next();
+  });
+}
+
 app.use(express.json());
 
 // --- SWAGGER CONFIGURATION ---
