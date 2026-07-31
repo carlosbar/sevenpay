@@ -1,180 +1,181 @@
+// vim: set nowrap ts=4:
 import { Request, Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
 
 class AdvanceController {
-  
-  /**
-   * @openapi
-   * /api/v1/advances/request:
-   *   post:
-   *     summary: Request a new credit advance payout
-   *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking, and cumulative monthly balance limits using 64-bit integer cents.
-   *     tags:
-   *       - Advances
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required:
-   *               - endUserId
-   *               - requestedAmountCents
-   *               - installmentsTotal
-   *             properties:
-   *               endUserId:
-   *                 type: string
-   *                 format: uuid
-   *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
-   *               requestedAmountCents:
-   *                 type: integer
-   *                 format: int64
-   *                 example: 50000
-   *               installmentsTotal:
-   *                 type: integer
-   *                 example: 1
-   *     responses:
-   *       201:
-   *         description: Advance approved and registered successfully
-   *       403:
-   *         description: Access denied due to overdue/delinquent accounts
-   *       422:
-   *         description: Business rule or risk constraint violation
-   */
-  public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { requestedAmountCents, installmentsTotal } = req.body;
 
-    // Instead of getting endUserId blindly from body: const { endUserId } = req.body;
-    // Get it directly from the secure, authenticated token context:
-    const endUserId = req.userContext?.endUserId;
-    
-    if (!endUserId) {
-      throw { statusCode: 403, message: 'Context violation. This account operator is not bound to a credit consumer profile.' };
-    }
+	/**
+	 * @openapi
+	 * /api/v1/advances/request:
+	 *   post:
+	 *     summary: Request a new credit advance payout
+	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking, and cumulative monthly balance limits using 64-bit integer cents.
+	 *     tags:
+	 *       - Advances
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             required:
+	 *               - endUserId
+	 *               - requestedAmountCents
+	 *               - installmentsTotal
+	 *             properties:
+	 *               endUserId:
+	 *                 type: string
+	 *                 format: uuid
+	 *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
+	 *               requestedAmountCents:
+	 *                 type: integer
+	 *                 format: int64
+	 *                 example: 50000
+	 *               installmentsTotal:
+	 *                 type: integer
+	 *                 example: 1
+	 *     responses:
+	 *       201:
+	 *         description: Advance approved and registered successfully
+	 *       403:
+	 *         description: Access denied due to overdue/delinquent accounts
+	 *       422:
+	 *         description: Business rule or risk constraint violation
+	 */
+	public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
+		const { requestedAmountCents, installmentsTotal } = req.body;
 
-    const client: PoolClient = await db.getClient();
+		// Instead of getting endUserId blindly from body: const { endUserId } = req.body;
+		// Get it directly from the secure, authenticated token context:
+		const endUserId = req.userContext?.endUserId;
 
-    try {
-      await client.query('BEGIN');
+		if (!endUserId) {
+			throw { statusCode: 403, message: 'Context violation. This account operator is not bound to a credit consumer profile.' };
+		}
 
-      // STEP 2 & 5: Fetch Risk Matrix, Base Contract and apply row-level write lock (FOR UPDATE)
-      const userQuery = `
-        SELECT u.id, u.tenant_id, u.monthly_contract_value_cents, u.margin_available_cents,
-               m.fee_percentage, m.max_advance_percentage
-        FROM end_users u
-        JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = $2
-        WHERE u.id = $1 AND u.status = 'ACTIVE'
-        FOR UPDATE;
-      `;
-      const userRes = await client.query(userQuery, [endUserId, installmentsTotal]);
+		const client: PoolClient = await db.getClient();
 
-      if (userRes.rowCount === 0) {
-        throw { statusCode: 404, message: 'Active consumer contract record not found for this installment tier.' };
-      }
+		try {
+			await client.query('BEGIN');
 
-      const user = userRes.rows[0];
+			// STEP 2 & 5: Fetch Risk Matrix, Base Contract and apply row-level write lock (FOR UPDATE)
+			const userQuery = `
+			SELECT u.id, u.tenant_id, u.monthly_contract_value_cents, u.margin_available_cents,
+			m.fee_percentage, m.max_advance_percentage
+			FROM end_users u
+			JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = $2
+			WHERE u.id = $1 AND u.status = 'ACTIVE'
+			FOR UPDATE;
+			`;
+			const userRes = await client.query(userQuery, [endUserId, installmentsTotal]);
 
-      // STEP 3: Delinquency and Overdue Check (Risk Gate)
-      const overdueQuery = `
-        SELECT COUNT(*) as overdue_count 
-        FROM advance_installments 
-        WHERE end_user_id = $1 AND status = 'OVERDUE';
-      `;
-      const overdueRes = await client.query(overdueQuery, [endUserId]);
-      if (parseInt(overdueRes.rows[0].overdue_count, 10) > 0) {
-        throw { statusCode: 403, message: 'Access denied. This user account has outstanding overdue installments pending settlement.' };
-      }
+			if (userRes.rowCount === 0) {
+				throw { statusCode: 404, message: 'Active consumer contract record not found for this installment tier.' };
+			}
 
-      // STEP 4: Monthly Cumulative Spending Audit
-      const cumulativeQuery = `
-        SELECT COALESCE(SUM(requested_amount_cents), 0) as total_advanced
-        FROM advance_requests
-        WHERE end_user_id = $1 
-          AND status != 'REJECTED'
-          AND created_at >= date_trunc('month', current_timestamp);
-      `;
-      const cumulativeRes = await client.query(cumulativeQuery, [endUserId]);
-      const totalAdvancedThisMonth = BigInt(cumulativeRes.rows[0].total_advanced);
+			const user = userRes.rows[0];
 
-      // STEP 5: Math Calculations in 64-bit BigInt Cents
-      const monthlyContractValue = BigInt(user.monthly_contract_value_cents);
-      const maxAdvancePercentage = Number(user.max_advance_percentage);
-      const requestedAmount = BigInt(requestedAmountCents);
+			// STEP 3: Delinquency and Overdue Check (Risk Gate)
+			const overdueQuery = `
+			SELECT COUNT(*) as overdue_count 
+			FROM advance_installments 
+			WHERE end_user_id = $1 AND status = 'OVERDUE';
+			`;
+			const overdueRes = await client.query(overdueQuery, [endUserId]);
+			if (parseInt(overdueRes.rows[0].overdue_count, 10) > 0) {
+				throw { statusCode: 403, message: 'Access denied. This user account has outstanding overdue installments pending settlement.' };
+			}
 
-      const maxAllowableCapacity = (monthlyContractValue * BigInt(Math.round(maxAdvancePercentage * 100))) / BigInt(10000);
-      const realAvailableMargin = maxAllowableCapacity - totalAdvancedThisMonth;
+			// STEP 4: Monthly Cumulative Spending Audit
+			const cumulativeQuery = `
+			SELECT COALESCE(SUM(requested_amount_cents), 0) as total_advanced
+			FROM advance_requests
+			WHERE end_user_id = $1 
+			AND status != 'REJECTED'
+			AND created_at >= date_trunc('month', current_timestamp);
+			`;
+			const cumulativeRes = await client.query(cumulativeQuery, [endUserId]);
+			const totalAdvancedThisMonth = BigInt(cumulativeRes.rows[0].total_advanced);
 
-      if (requestedAmount > realAvailableMargin || requestedAmount > BigInt(user.margin_available_cents)) {
-        throw { statusCode: 422, message: 'The cumulative requested volume breaches the real monthly allowable margin for this installment tier.' };
-      }
+			// STEP 5: Math Calculations in 64-bit BigInt Cents
+			const monthlyContractValue = BigInt(user.monthly_contract_value_cents);
+			const maxAdvancePercentage = Number(user.max_advance_percentage);
+			const requestedAmount = BigInt(requestedAmountCents);
 
-      // STEP 6: Tenant B2B Global Limit Verification
-      const globalLimitQuery = `
-        SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
-        FROM tenants t
-        LEFT JOIN end_users u ON u.tenant_id = t.id
-        LEFT JOIN advance_requests r ON r.end_user_id = u.id AND r.status != 'REJECTED'
-        WHERE t.id = $1
-        GROUP BY t.global_credit_limit_cents;
-      `;
-      const globalLimitRes = await client.query(globalLimitQuery, [user.tenant_id]);
-      const tenantLimit = BigInt(globalLimitRes.rows[0].global_credit_limit_cents);
-      const tenantSpent = BigInt(globalLimitRes.rows[0].total_tenant_spent);
+			const maxAllowableCapacity = (monthlyContractValue * BigInt(Math.round(maxAdvancePercentage * 100))) / BigInt(10000);
+			const realAvailableMargin = maxAllowableCapacity - totalAdvancedThisMonth;
 
-      if (tenantSpent + requestedAmount > tenantLimit) {
-        throw { statusCode: 422, message: 'B2B Tenant credit portfolio limit exceeded for the active commercial agreement.' };
-      }
+			if (requestedAmount > realAvailableMargin || requestedAmount > BigInt(user.margin_available_cents)) {
+				throw { statusCode: 422, message: 'The cumulative requested volume breaches the real monthly allowable margin for this installment tier.' };
+			}
 
-      // STEP 7: Fee & Payout Calculations
-      const feePercentage = Number(user.fee_percentage);
-      const feeAmountCents = (requestedAmount * BigInt(Math.round(feePercentage * 100))) / BigInt(10000);
-      const netPayoutCents = requestedAmount - feeAmountCents;
+			// STEP 6: Tenant B2B Global Limit Verification
+			const globalLimitQuery = `
+			SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
+			FROM tenants t
+			LEFT JOIN end_users u ON u.tenant_id = t.id
+			LEFT JOIN advance_requests r ON r.end_user_id = u.id AND r.status != 'REJECTED'
+			WHERE t.id = $1
+			GROUP BY t.global_credit_limit_cents;
+			`;
+			const globalLimitRes = await client.query(globalLimitQuery, [user.tenant_id]);
+			const tenantLimit = BigInt(globalLimitRes.rows[0].global_credit_limit_cents);
+			const tenantSpent = BigInt(globalLimitRes.rows[0].total_tenant_spent);
 
-      // STEP 8: Pix Dispatch Routing Optimization (Priority 0)
-      const pixQuery = `
-        SELECT key_value FROM pix_accounts 
-        WHERE end_user_id = $1 
-        ORDER BY priority ASC LIMIT 1;
-      `;
-      const pixRes = await client.query(pixQuery, [endUserId]);
+			if (tenantSpent + requestedAmount > tenantLimit) {
+				throw { statusCode: 422, message: 'B2B Tenant credit portfolio limit exceeded for the active commercial agreement.' };
+			}
 
-      if (pixRes.rowCount === 0) {
-        throw { statusCode: 422, message: 'No valid active Pix account destination route registered for this end user.' };
-      }
+			// STEP 7: Fee & Payout Calculations
+			const feePercentage = Number(user.fee_percentage);
+			const feeAmountCents = (requestedAmount * BigInt(Math.round(feePercentage * 100))) / BigInt(10000);
+			const netPayoutCents = requestedAmount - feeAmountCents;
 
-      const activePixKey = pixRes.rows[0].key_value;
+			// STEP 8: Pix Dispatch Routing Optimization (Priority 0)
+			const pixQuery = `
+			SELECT key_value FROM pix_accounts 
+			WHERE end_user_id = $1 
+			ORDER BY priority ASC LIMIT 1;
+			`;
+			const pixRes = await client.query(pixQuery, [endUserId]);
 
-      // STEP 9: Batch Ledger Persistence
-      await client.query(`UPDATE end_users SET margin_available_cents = margin_available_cents - $1 WHERE id = $2`, [requestedAmount.toString(), endUserId]);
-      
-      const insertRequest = `
-        INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
-        VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
-      `;
-      const requestRes = await client.query(insertRequest, [endUserId, requestedAmount.toString(), installmentsTotal, feePercentage, feeAmountCents.toString(), netPayoutCents.toString()]);
-      const requestId = requestRes.rows[0].id;
+			if (pixRes.rowCount === 0) {
+				throw { statusCode: 422, message: 'No valid active Pix account destination route registered for this end user.' };
+			}
 
-      await client.query(`INSERT INTO financial_transactions (advance_request_id, end_user_id, type, amount_cents) VALUES ($1, $2, 'DEBIT', $3)`, [requestId, endUserId, 'DEBIT', requestedAmount.toString()]);
+			const activePixKey = pixRes.rows[0].key_value;
 
-      await client.query('COMMIT');
+			// STEP 9: Batch Ledger Persistence
+			await client.query(`UPDATE end_users SET margin_available_cents = margin_available_cents - $1 WHERE id = $2`, [requestedAmount.toString(), endUserId]);
 
-      res.status(201).json({
-        result: 'success',
-        data: {
-          requestId,
-          netPayoutCents: netPayoutCents.toString(),
-          dispatchedToPixKey: activePixKey
-        }
-      });
+			const insertRequest = `
+			INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
+			VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
+			`;
+			const requestRes = await client.query(insertRequest, [endUserId, requestedAmount.toString(), installmentsTotal, feePercentage, feeAmountCents.toString(), netPayoutCents.toString()]);
+			const requestId = requestRes.rows[0].id;
 
-    } catch (error) {
-      await client.query('ROLLBACK');
-      next(error);
-    } finally {
-      client.release();
-    }
-  }
+			await client.query(`INSERT INTO financial_transactions (advance_request_id, end_user_id, type, amount_cents) VALUES ($1, $2, 'DEBIT', $3)`, [requestId, endUserId, 'DEBIT', requestedAmount.toString()]);
+
+			await client.query('COMMIT');
+
+			res.status(201).json({
+				result: 'success',
+				data: {
+					requestId,
+					netPayoutCents: netPayoutCents.toString(),
+					dispatchedToPixKey: activePixKey
+				}
+			});
+
+		} catch (error) {
+			await client.query('ROLLBACK');
+			next(error);
+		} finally {
+			client.release();
+		}
+	}
 }
 
 import { authorize } from '../middlewares/authMiddleware';
@@ -182,11 +183,11 @@ import { authorize } from '../middlewares/authMiddleware';
 const advanceController = new AdvanceController();
 
 export const routeConfig = {
-  method: 'post',
-  path: '/api/v1/advances/request',
-  // Chain execution: execute authorize check, then execute requestAdvance controller
-  handler: [
-    authorize('create'), 
-    (req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
-  ]
+	method: 'post',
+	path: '/api/v1/advances/request',
+	// Chain execution: execute authorize check, then execute requestAdvance controller
+	handler: [
+		authorize('create'), 
+		(req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
+	]
 };
