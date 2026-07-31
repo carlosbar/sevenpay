@@ -39,15 +39,17 @@ When an authorized user requests a credit advance, the engine processes the requ
 * **Action:** The engine executes an aggregation query on `advance_requests` to summarize all funds already advanced to the specific user during the current month competence where the status is **NOT** `'REJECTED'`.
 * **Output:** Establishes the real dollar volume consumed by the user in the current billing cycle:
 
+$$\mathit{total\_advanced\_this\_month\_cents}$$
+
 $$\text{total\_advanced\_this\_month\_cents}$$
 
 ### 🛡️ Step 5: Individual Margin Validation & Row Locking
 * **Action:** The engine issues an isolated write lock on the user's record inside `end_users` utilizing the `FOR UPDATE` statement.
 * **Math Execution:** The maximum allowable credit capacity is calculated dynamically using 64-bit integer values (`BIGINT`) to prevent float precision issues. The equations are computed in real-time as follows:
 
-$$\text{Max Allowable Capacity} = \text{monthly\_contract\_value\_cents} \times \left( \frac{\text{max\_advance\_percentage}}{100} \right)$$
+$$\mathit{Max\ Allowable\ Capacity} = \mathit{monthly\_contract\_value\_cents} \times \left( \frac{\mathit{max\_advance\_percentage}}{100} \right)$$
 
-$$\text{Real Available Margin} = \text{Max Allowable Capacity} - \text{total\_advanced\_this\_month\_cents}$$
+$$\mathit{Real\ Available\ Margin} = \mathit{Max\ Allowable\ Capacity} - \mathit{total\_advanced\_this\_month\_cents}$$
 
 > [!CAUTION]
 > If the requested amount exceeds the dynamic Real Available Margin calculated from the live ledger history, the entire transaction triggers an immediate database ROLLBACK.
@@ -59,9 +61,9 @@ $$\text{Real Available Margin} = \text{Max Allowable Capacity} - \text{total\_ad
 ### 🧮 Step 7: Immutable Fee and Payout Calculations
 * **Action:** The financial engine runs deterministic calculations over the inputs, mapping strict mathematical rounding to ensure ledger integrity:
 
-$$\text{fee\_amount\_cents} = \left\lfloor \text{requested\_amount\_cents} \times \left( \frac{\text{fee\_percentage}}{100} \right) \right\rceil$$
+$$\mathit{fee\_amount\_cents} = \left\lfloor \mathit{requested\_amount\_cents} \times \left( \frac{\mathit{fee\_percentage}}{100} \right) \right\rceil$$
 
-$$\text{net\_payout\_cents} = \text{requested\_amount\_cents} - \text{fee\_amount\_cents}$$
+$$\mathit{net\_payout\_cents} = \mathit{requested\_amount\_cents} - \mathit{fee\_amount\_cents}$$
 
 ### 🔑 Step 8: Pix Dispatch Routing Optimization
 * **Action:** The core fetches the user's registered keys from `pix_accounts` sorted by `priority ASC`.
