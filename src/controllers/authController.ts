@@ -4,7 +4,7 @@ import { db } from '../config/db';
 import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-export class AuthController {
+class AuthController {
 
   /**
    * @openapi
@@ -136,3 +136,11 @@ export class AuthController {
     }
   }
 }
+
+const authController = new AuthController();
+
+export const routeConfig = {
+  method: 'post',
+  path: '/api/v1/auth/login',
+  handler: (req: any, res: any, next: any) => authController.login(req, res, next)
+};
