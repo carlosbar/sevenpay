@@ -169,6 +169,39 @@ if (process.env.CORS_ALLOWED === 'true') {
 	});
 }
 ```
+---
+
+## 🕹️ 5. Test Drive Cockpit & MiniUI Execution
+
+The platform includes a lightweight, 100% native frontend suite designed to test the entire transactional pipeline of the SevenPay engine end-to-end without external internet or CDN dependencies.
+
+### Running the MiniUI Local Web Server
+To execute the interactive cockpit interface on your Ubuntu Desktop setup, use the pre-configured Node.js runtime utility:
+```bash
+# 1. Navigate to the folder containing the index.html file
+cd /home/cbarcellos/workspace/sevenpay/
+
+# 2. Fire up a micro-server bypassing browser Preflight blocks
+npx http-server --cors -p 8080
+```
+Open your browser and navigate to: `http://localhost:8080`
+
+### 👥 6. Seed Test Credentials Matrix
+
+The engine comes pre-populated with three multi-tenant authority layers inside `seed_data.sql`. Use the password **`123456`** across all operator screens to generate authentic JWT tokens.
+
+| Authority Scope | Email Address | Recommended Test Drive Target Tab |
+| :--- | :--- | :--- |
+| **SYSADMIN** | `admin@sevenpay.com.br` | **🔐 1. Auth Gate** & **👑 2. UI Admin** (To provision corporate landscapes and audit metrics) |
+| **TENANT_ADMIN** | `gestor@alfaimoveis.com.br` | **🏢 3. UI Tenant** (To onboard final consumers and check active portfolio limits) |
+| **END_USER** | `joao.silva@clientapp.com` | **📱 4. UI Client** (To request cash advances and track dynamic 360 ledger logs) |
+
+### 🧭 Strict E2E Verification Workflow
+To validate the real-time core architecture engine via the Cockpit panel, execute the steps sequentially:
+1. **Authenticate:** Go to tab **1. Auth Gate**, insert the `SYSADMIN` credentials, and hit *Generate Security Token*.
+2. **Sync Corporate Entity:** Go to tab **2. UI Admin**, fill in the CNPJ matrix, and click *Execute Tenant Upsert*.
+3. **Onboard Consumer Profile:** Go to tab **3. UI Tenant**, synchronize a consumer mapping context using the generated Tenant UUID token.
+4. **Process Risk Pipeline:** Go to tab **4. UI Client**, request a dynamic cash advance fractioning split months, and audit the **Consumer 360 Audit Ledger Monitor** to trace real-time balance calculations.
 
 ---
 
