@@ -87,5 +87,51 @@ Run the following command to create mokup data:
 psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
 ```
 
+## 🗄️ 5. PostgreSQL 18 Infrastructure Setup (Ubuntu Desktop)
+
+By default, PostgreSQL on Ubuntu blocks TCP/IP connections and restricts authentication to local UNIX sockets. To allow the Node.js backend pool connection to communicate via `localhost`, follow these strict environmental configuration steps.
+
+### 1. Enable TCP/IP Networking (`postgresql.conf`)
+Open the main server configuration file in your Ubuntu terminal:
+```bash
+sudo nano /etc/postgresql/18/main/postgresql.conf
+```
+Locate the network addressing block and uncomment the `listen_addresses` directive by removing the `#` symbol. Ensure it matches the syntax below:
+```text
+listen_addresses = 'localhost'
+```
+*Save and close (`Ctrl + O`, `Enter`, `Ctrl + X`).*
+
+### 2. Configure Authentication Matrix Policies (`pg_hba.conf`)
+Open the host-based authentication security policy file:
+```bash
+sudo nano /etc/postgresql/18/main/pg_hba.conf
+```
+Scroll to the very bottom of the file where IPv4 and IPv6 rules are declared. Change the authentication method from `peer` or `scram-sha-256` to **`md5`** to ensure universal cryptographic alignment with the `pg` native Node.js driver architecture:
+
+```text
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+```
+*Save and close (`Ctrl + O`, `Enter`, `Ctrl + X`).*
+
+### 3. Apply Infrastructure Changes
+Restart the PostgreSQL system service on your Linux subsystem to bind the new TCP/IP loops and flush connection cache:
+```bash
+sudo systemctl restart postgresql
+```
+
+### 4. Verify Local Loopback Connectivity
+Test the network pipe channel by forcing a remote connection vector to populate our testing massa data layer:
+```bash
+psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
+```
+*When prompted for credentials, authenticate using your operational password.*
+
 > [!NOTE]
 > *The system terminal will prompt for the password you assigned to `sevenpay_user` in the provisioning phase before executing the batch migration.*
