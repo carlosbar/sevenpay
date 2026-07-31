@@ -78,7 +78,6 @@ CREATE TABLE end_users (
 	external_id VARCHAR(50) NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	monthly_contract_value_cents BIGINT NOT NULL,
-	margin_available_cents BIGINT NOT NULL,
 	status global_status NOT NULL DEFAULT 'ACTIVE',
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
