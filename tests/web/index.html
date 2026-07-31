@@ -4,11 +4,74 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>SevenPay - Interactive Core Test Drive UI</title>
-	<!-- Official Tailwind CSS Play Engine for reliable local/web rendering -->
-	<script src="https://tailwindcss.com"></script>
 	<style>
+		/* Native Tailwind Core Emulation for Offline Environments */
+		body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; min-height: 100vh; }
 		.tab-content { display: none; }
 		.tab-content.active { display: block; }
+		.max-w-7xl { max-w: 80rem; margin-left: auto; margin-right: auto; }
+		.max-w-md { max-w: 28rem; margin-left: auto; margin-right: auto; }
+		.bg-slate-950 { background-color: #020617; }
+		.bg-slate-900 { background-color: #0f172a; }
+		.bg-slate-900\/50 { background-color: rgba(15, 23, 42, 0.5); }
+		.border-slate-800 { border-color: #1e293b; }
+		.border-b { border-bottom-width: 1px; border-style: solid; }
+		.border { border-width: 1px; border-style: solid; }
+		.rounded-2xl { border-radius: 1rem; }
+		.rounded-lg { border-radius: 0.5rem; }
+		.rounded-xl { border-radius: 0.75rem; }
+		.p-4 { padding: 1rem; }
+		.p-6 { padding: 1.5rem; }
+		.p-3 { padding: 0.75rem; }
+		.p-2.5 { padding: 0.625rem; }
+		.p-2 { padding: 0.5rem; }
+		.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+		.pb-3 { padding-bottom: 0.75rem; }
+		.mb-4 { margin-bottom: 1rem; }
+		.mb-6 { margin-bottom: 1.5rem; }
+		.mb-2 { margin-bottom: 0.5rem; }
+		.mt-8 { margin-top: 2rem; }
+		.gap-4 { gap: 1rem; }
+		.gap-6 { gap: 1.5rem; }
+		.grid { display: grid; }
+		.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+		@media (min-width: 1024px) {
+			.lg:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+			.lg:col-span-2 { grid-column: span 2 / span 2; }
+		}
+		@media (min-width: 640px) {
+			.sm:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+		}
+		.flex { display: flex; }
+		.flex-wrap { flex-wrap: wrap; }
+		.justify-between { justify-content: space-between; }
+		.items-center { align-items: center; }
+		.font-black { font-weight: 900; }
+		.font-bold { font-weight: 700; }
+		.text-2xl { font-size: 1.5rem; }
+		.text-xl { font-size: 1.25rem; }
+		.text-lg { font-size: 1.125rem; }
+		.text-sm { font-size: 0.875rem; }
+		.text-xs { font-size: 0.75rem; }
+		.text-[11px] { font-size: 11px; }
+		.text-[10px] { font-size: 10px; }
+		.text-emerald-400 { color: #34d399; }
+		.text-slate-400 { color: #94a3b8; }
+		.text-slate-300 { color: #cbd5e1; }
+		.text-slate-500 { color: #64748b; }
+		.text-red-400 { color: #f87171; }
+		.text-amber-500 { color: #f59e0b; }
+		.w-full { width: 100%; }
+		.w-64 { width: 16rem; }
+		.bg-emerald-500 { background-color: #10b981; color: #020617; }
+		.bg-slate-800 { background-color: #1e293b; color: #94a3b8; }
+		.tab-btn, .btn-trigger { cursor: pointer; border: none; font-family: inherit; transition: background-color 0.2s; }
+		input, select { background-color: #0f172a; border: 1px solid #1e293b; color: #f8fafc; width: 100%; box-sizing: border-box; }
+		input:focus, select:focus { border-color: #10b981; outline: none; }
+		.overflow-x-auto { overflow-x: auto; }
+		table { width: 100%; border-collapse: collapse; text-align: left; }
+		th { font-weight: 700; text-transform: uppercase; color: #64748b; }
+		pre { background-color: #0f172a; padding: 0.75rem; border-radius: 0.75rem; overflow-x: auto; font-family: monospace; color: #34d399; margin: 0; }
 	</style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
