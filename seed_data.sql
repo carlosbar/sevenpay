@@ -1,5 +1,3 @@
--- to run: psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
-
 -- ============================================================================
 -- 1. DATABASE CLEANUP (TOTAL PURGE BEFORE SEEDING)
 -- ============================================================================
@@ -10,9 +8,9 @@ TRUNCATE TABLE financial_transactions, advance_installments, advance_requests,
 -- ============================================================================
 -- 2. B2B TENANTS PROVISIONING (CLIENT COMPANIES)
 -- ============================================================================
--- Tenant 1: Real Estate Agency (Imobiliaria Alfa LTDA)
+-- Tenant 1: Real Estate Agency (Imobiliaria Alpha LTDA)
 INSERT INTO tenants (id, cnpj, name, business_type, global_credit_limit_cents)
-VALUES ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', '12345678000199', 'Imobiliaria Alfa LTDA', 'REAL_ESTATE', 50000000); -- R$ 500.000,00 limit
+VALUES ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', '12345678000199', 'Imobiliaria Alpha LTDA', 'REAL_ESTATE', 50000000); -- R$ 500.000,00 limit
 
 -- Tenant 2: Corporate HR (TechSource Solutions)
 INSERT INTO tenants (id, cnpj, name, business_type, global_credit_limit_cents)
@@ -21,7 +19,7 @@ VALUES ('b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', '98765432000188', 'TechSource So
 -- ============================================================================
 -- 3. PRICING FEE MATRICES CONFIGURATION (DYNAMIC RATES & LIMITS)
 -- ============================================================================
--- Rules for Tenant 1 (Imobiliaria Alfa)
+-- Rules for Tenant 1 (Imobiliaria Alpha)
 INSERT INTO tenant_fee_matrices (tenant_id, installments_count, fee_percentage, max_advance_percentage)
 VALUES ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 1, 3.50, 30.00); -- 1x: 3.5% fee, 30% max margin
 
@@ -38,7 +36,7 @@ VALUES ('b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 3, 5.50, 40.00); -- 3x: 5.5% fee
 -- ============================================================================
 -- 4. END USERS PROVISIONING (CREDIT CONSUMERS)
 -- ============================================================================
--- End User 1: Joao Silva (Renter under Imobiliaria Alfa - Rent: R$ 2.500,00)
+-- End User 1: Joao Silva (Renter under Imobiliaria Alpha - Rent: R$ 2.500,00)
 INSERT INTO end_users (id, tenant_id, external_id, name, monthly_contract_value_cents, margin_available_cents, status)
 VALUES ('f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'INQ-9981', 'Joao Silva', 250000, 250000, 'ACTIVE');
 
@@ -54,7 +52,7 @@ INSERT INTO pix_accounts (end_user_id, key_type, key_value, priority)
 VALUES ('f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c', 'CPF', '12345678900', 0); -- Root Priority
 
 INSERT INTO pix_accounts (end_user_id, key_type, key_value, priority)
-VALUES ('f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c', 'EMAIL', 'joao.silva@email.com', 1; -- Secondary Backup
+VALUES ('f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c', 'EMAIL', 'joao.silva@email.com', 1); -- FIXED: Properly closed closing parenthesis
 
 -- Maria Oliveira's keys
 INSERT INTO pix_accounts (end_user_id, key_type, key_value, priority)
@@ -87,7 +85,6 @@ VALUES (
 
 -- Account 3: Mobile Client Application Account (END_USER for Joao Silva)
 INSERT INTO system_operators (id, email, password_hash, password_salt, role_name, status)
---> For security, mobile logins map directly to an authentication record
 VALUES (
     'e3c4d5e6-f6a7-8b9c-0d1e-2f3a4b5c6d7e',
     'joao.silva@clientapp.com',
@@ -118,4 +115,3 @@ VALUES (
     NULL,
     'f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c'  -- end_user_id (Joao Silva)
 );
-
