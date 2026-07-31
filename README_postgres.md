@@ -13,7 +13,7 @@ Open your terminal (`Ctrl+Alt+T`) and execute the following batch commands:
 ```bash
 # 1. Add the official PostgreSQL signing key
 sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://postgresql.org | sudo gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg
 
 # 2. Add the repository to your system sources list
 echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://postgresql.org \$(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
