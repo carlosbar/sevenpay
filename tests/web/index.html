@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>SevenPay - Interactive Core Test Drive UI</title>
-	<!-- Tailwind CSS CDN for high-fidelity fintech styling -->
-	<script src="https://jsdelivr.net"></script>
+	<!-- Official Tailwind CSS Play Engine for reliable local/web rendering -->
+	<script src="https://tailwindcss.com"></script>
 	<style>
 		.tab-content { display: none; }
 		.tab-content.active { display: block; }
@@ -62,7 +62,7 @@
 					</div>
 					<div>
 						<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Secret Password</label>
-						<input id="authPassword" type="password" required value="YourPasswordHere"
+						<input id="authPassword" type="password" required value="123456"
 							class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm focus:border-emerald-500 focus:outline-none transition">
 					</div>
 					<button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-3 text-sm uppercase tracking-widest rounded-lg cursor-pointer transition shadow-lg shadow-emerald-500/10">
@@ -71,7 +71,6 @@
 				</form>
 			</div>
 		</div>
-
 		<!-- TAB 2: UI ADMIN (THE FINTECH CONTROL TOWER) -->
 		<div id="ui-admin" class="tab-content">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -85,7 +84,7 @@
 						</div>
 						<div>
 							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Company Name</label>
-							<input id="admTenantName" type="text" required placeholder="Imobiliaria Alfa LTDA"
+							<input id="admTenantName" type="text" required placeholder="Imobiliaria Alpha LTDA"
 								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
 						</div>
 						<div>
@@ -201,7 +200,6 @@
 				</div>
 			</div>
 		</div>
-
 		<!-- TAB 4: UI CLIENT (MOBILE CONSUMER ENGINE) -->
 		<div id="ui-client" class="tab-content">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -283,8 +281,10 @@
 			});
 			document.getElementById(tabId).style.display = 'block';
 			const activeBtn = document.getElementById(`btn-${tabId}`);
-			activeBtn.classList.add('bg-emerald-500', 'text-slate-950', 'shadow-md');
-			activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+			if (activeBtn) {
+				activeBtn.classList.add('bg-emerald-500', 'text-slate-950', 'shadow-md');
+				activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+			}
 		}
 
 		function printLogStream(jsonPayload) {
