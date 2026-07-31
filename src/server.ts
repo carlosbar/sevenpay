@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/responseHandler';
 
 const app = express();
 
+// CRITICAL - this env var (ALLOW_CORS) should not be used in production, only for debug mode
 if(process.env.ALLOW_CORS == "true") {
   // Strict Global CORS and Preflight Interceptor
   app.use((req, res, next) => {
