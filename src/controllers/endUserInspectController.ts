@@ -10,7 +10,7 @@ class EndUserInspectController {
 	 * /api/v1/admin/end-users/inspect:
 	 *   get:
 	 *     summary: Deep 360 inspect of a specific credit consumer profile (End User)
-	 *     description: Compiles complete individual financial registry telemetry. Fetches active contract limits, priority-sorted Pix keys, historical advance request blocks, and outstanding amortization installment schedules.
+	 *     description: Compiles complete individual financial registry telemetry. Fetches active contract limits, priority-sorted Pix keys, historical advance request blocks, and outstanding amortization installment schedules using real-time dynamic margin logic.
 	 *     tags:
 	 *       - Administration Lookup
 	 *     security:
@@ -41,12 +41,29 @@ class EndUserInspectController {
 				throw { statusCode: 422, message: 'Processing failed. Query parameters must provide a target endUserId identifier.' };
 			}
 
-			// 1. Fetch core consumer profile ensuring write locked isolation checks
+			// 1. Fetch core consumer profile calculating margin balance in real-time from active ledger requests
 			const userQuery = `
-				SELECT id, tenant_id AS "tenantId", external_id AS "externalId", name, 
-				       monthly_contract_value_cents::text AS "monthlyContractValueCents", 
-				       margin_available_cents::text AS "marginAvailableCents", status, created_at AS "createdAt"
-				FROM end_users WHERE id = $1;
+				SELECT 
+					u.id, 
+					u.tenant_id AS "tenantId", 
+					u.external_id AS "externalId", 
+					u.name, 
+					u.monthly_contract_value_cents::text AS "monthlyContractValueCents", 
+					(
+						COALESCE((u.monthly_contract_value_cents * m.max_advance_percentage / 100), 0) - 
+						COALESCE((
+							SELECT SUM(r.requested_amount_cents) 
+							FROM advance_requests r 
+							WHERE r.end_user_id = u.id 
+							  AND r.status != 'REJECTED' 
+							  AND r.created_at >= date_trunc('month', current_timestamp)
+						), 0)
+					)::text AS "marginAvailableCents", 
+					u.status, 
+					u.created_at AS "createdAt"
+				FROM end_users u
+				LEFT JOIN tenant_fee_matrices m ON m.tenant_id = u.tenant_id AND m.installments_count = 1
+				WHERE u.id = $1;
 			`;
 			const userRes = await db.query(userQuery, [endUserId]);
 
