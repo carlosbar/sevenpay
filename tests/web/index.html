@@ -333,6 +333,7 @@
 			<pre id="liveTerminalJson" class="text-xs font-mono text-emerald-400 p-3 bg-slate-900 rounded-xl overflow-x-auto border border-slate-850 h-48">{\n\t// Ready to stream...\n}</pre>
 		</footer>
 	</main>
+
 	<script>
 		const BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -363,6 +364,21 @@
 			return (parseFloat(centsString) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 		}
 
+		// Helper to handle responses and extract original backend errors
+		async function handleResponse(response) {
+			const contentType = response.headers.get("content-type");
+			if (contentType && contentType.includes("application/json")) {
+				const payload = await response.json();
+				printLogStream(payload);
+				return payload;
+			}
+			// Fallback for non-JSON unexpected edge cases
+			const textError = await response.text();
+			const errorPayload = { result: "error", reason: textError || `HTTP Error ${response.status}` };
+			printLogStream(errorPayload);
+			return errorPayload;
+		}
+
 		async function executeLogin(event) {
 			event.preventDefault();
 			const email = document.getElementById('authEmail').value;
@@ -373,10 +389,11 @@
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ email, password })
 				});
-				const payload = await response.json();
-				printLogStream(payload);
-				if (payload.result === 'success') document.getElementById('globalTokenStorage').value = payload.data.token;
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+				const payload = await handleResponse(response);
+				if (payload.result === 'success' && payload.data?.token) {
+					document.getElementById('globalTokenStorage').value = payload.data.token;
+				}
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function executeTenantUpsert(event) {
@@ -391,33 +408,34 @@
 					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
 					body: JSON.stringify({ cnpj, name, businessType, globalCreditLimitCents: Math.round(limitBrl * 100) })
 				});
-				const payload = await response.json();
-				printLogStream(payload);
+				const payload = await handleResponse(response);
 				if (payload.result === 'success') fetchAdminMetrics();
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function fetchAdminMetrics() {
 			try {
 				const response = await fetch(`${BASE_URL}/admin/dashboard/metrics`, { method: 'get', headers: getAuthHeader() });
-				const payload = await response.json();
-				printLogStream(payload);
-				if (payload.result === 'success') {
+				const payload = await handleResponse(response);
+				if (payload.result === 'success' && payload.data?.summary) {
 					const s = payload.data.summary;
 					document.getElementById('m-advanced').innerText = formatBrl(s.totalVolumeAdvancedCents);
 					document.getElementById('m-revenue').innerText = formatBrl(s.totalFeesCollectedCents);
 					document.getElementById('m-overdue').innerText = formatBrl(s.totalOverdueCents);
 					document.getElementById('m-rate').innerText = `${s.activeDefaultRatePercentage}%`;
-					document.getElementById('adminTenantTableBody').innerHTML = payload.data.tenantPortfolios.map(p => `
-						<tr class="border-b border-slate-900 hover:bg-slate-900/60 transition text-[11px]">
-							<td class="py-2 font-bold text-slate-200">${p.tenantName}</td>
-							<td class="py-2 text-right">${formatBrl(p.globalLimitCents)}</td>
-							<td class="py-2 text-right text-emerald-400">${formatBrl(p.totalUtilizedCents)}</td>
-							<td class="py-2 text-right font-bold text-amber-500">${p.utilizationPercentage}%</td>
-						</tr>
-					`).join('');
+					
+					if (payload.data.tenantPortfolios) {
+						document.getElementById('adminTenantTableBody').innerHTML = payload.data.tenantPortfolios.map(p => `
+							<tr class="border-b border-slate-900 hover:bg-slate-900/60 transition text-[11px]">
+								<td class="py-2 font-bold text-slate-200">${p.tenantName}</td>
+								<td class="py-2 text-right">${formatBrl(p.globalLimitCents)}</td>
+								<td class="py-2 text-right text-emerald-400">${formatBrl(p.totalUtilizedCents)}</td>
+								<td class="py-2 text-right font-bold text-amber-500">${p.utilizationPercentage}%</td>
+							</tr>
+						`).join('');
+					}
 				}
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function executeUserUpsert(event) {
@@ -431,18 +449,16 @@
 					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
 					body: JSON.stringify({ users: [{ externalId, name, monthlyContractValueCents: Math.round(contractBrl * 100) }] })
 				});
-				const payload = await response.json();
-				printLogStream(payload);
+				const payload = await handleResponse(response);
 				if (payload.result === 'success') fetchTenantUsers();
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function fetchTenantUsers() {
 			try {
 				const response = await fetch(`${BASE_URL}/end-users?limit=50`, { method: 'get', headers: getAuthHeader() });
-				const payload = await response.json();
-				printLogStream(payload);
-				if (payload.result === 'success') {
+				const payload = await handleResponse(response);
+				if (payload.result === 'success' && payload.data?.endUsers) {
 					document.getElementById('tenantUsersTableBody').innerHTML = payload.data.endUsers.map(u => `
 						<tr class="border-b border-slate-900 hover:bg-slate-900/60 transition text-[11px]">
 							<td class="py-2 text-slate-500 font-mono text-[10px] select-all cursor-pointer font-bold">${u.id}</td>
@@ -453,7 +469,7 @@
 						</tr>
 					`).join('');
 				}
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function executeCreditAdvance(event) {
@@ -467,10 +483,9 @@
 					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
 					body: JSON.stringify({ endUserId, requestedAmountCents: Math.round(amountBrl * 100), installmentsTotal })
 				});
-				const payload = await response.json();
-				printLogStream(payload);
+				const payload = await handleResponse(response);
 				if (payload.result === 'success') inspectActiveUser();
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 
 		async function inspectActiveUser() {
@@ -478,15 +493,15 @@
 			if (!endUserId) { alert('Please paste a valid consumer UUID token identifier.'); return; }
 			try {
 				const response = await fetch(`${BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}`, { method: 'get', headers: getAuthHeader() });
-				const payload = await response.json();
-				printLogStream(payload);
-				if (payload.result === 'success') {
+				const payload = await handleResponse(response);
+				if (payload.result === 'success' && payload.data?.profile) {
 					const p = payload.data.profile;
 					document.getElementById('prof-name').innerText = p.name;
 					document.getElementById('prof-contract').innerText = formatBrl(p.monthlyContractValueCents);
 					document.getElementById('prof-margin').innerText = formatBrl(p.marginAvailableCents);
 					const tbody = document.getElementById('cliInstallmentsTableBody');
-					if (payload.data.amortizationInstallments.length === 0) {
+					
+					if (!payload.data.amortizationInstallments || payload.data.amortizationInstallments.length === 0) {
 						tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-600">No active amortization items linked. Apply saques.</td></tr>`;
 						return;
 					}
@@ -499,9 +514,10 @@
 						</tr>
 					`).join('');
 				}
-			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+			} catch (err) { printLogStream({ result: 'error', reason: `Network connection failed: ${err.message}` }); }
 		}
 		switchTab('ui-auth');
 	</script>
 </body>
 </html>
+
