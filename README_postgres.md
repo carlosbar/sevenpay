@@ -69,5 +69,17 @@ Run the following command to drop pre-existing configurations and cleanly constr
 psql -h localhost -U sevenpay_user -d sevenpay_db -f init_db.sql
 ```
 
+---
+
+## 🚀 4. Feed initial data
+
+Once your database is initialized, you can insert some test data on tables.
+
+Run the following command to create mokup data:
+
+```bash
+psql -h localhost -U sevenpay_user -d sevenpay_db -f seed_data.sql
+```
+
 > [!NOTE]
 > *The system terminal will prompt for the password you assigned to `sevenpay_user` in the provisioning phase before executing the batch migration.*
