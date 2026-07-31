@@ -18,9 +18,58 @@ class AdvanceController {
 	 * /api/v1/advances/request:
 	 *   post:
 	 *     summary: Request a new credit advance payout
-	 *     description: Processes a credit advance request using strictly real-time dynamic margin calculations, verifying monthly spending velocity without relying on static balance columns.
+	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking (FOR UPDATE), cumulative monthly limits, and automatically provisions future amortization installments using 64-bit integer cents. Computes user margins dynamically in real-time.
 	 *     tags:
 	 *       - Advances
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             required:
+	 *               - endUserId
+	 *               - requestedAmountCents
+	 *               - installmentsTotal
+	 *             properties:
+	 *               endUserId:
+	 *                 type: string
+	 *                 format: uuid
+	 *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
+	 *               requestedAmountCents:
+	 *                 type: integer
+	 *                 format: int64
+	 *                 example: 50000
+	 *               installmentsTotal:
+	 *                 type: integer
+	 *                 example: 1
+	 *     responses:
+	 *       201:
+	 *         description: Advance approved and registered successfully
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 result:
+	 *                   type: string
+	 *                   example: "success"
+	 *                 data:
+	 *                   type: object
+	 *                   properties:
+	 *                     requestId:
+	 *                       type: string
+	 *                       format: uuid
+	 *                     netPayoutCents:
+	 *                       type: string
+	 *                       example: "48250"
+	 *                     dispatchedToPixKey:
+	 *                       type: string
+	 *                       example: "12345678900"
+	 *       403:
+	 *         description: Access denied due to overdue/delinquent accounts
+	 *       422:
+	 *         description: Business rule, risk constraint, or B2B portfolio limit violation
 	 */
 	public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
 		const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
@@ -73,11 +122,9 @@ class AdvanceController {
 			const maxAdvancePercentage = Number(user.max_advance_percentage);
 			const requestedAmount = BigInt(requestedAmountCents);
 
-			// Dynamic calculations instead of static available column reads
 			const maxAllowableCapacity = (monthlyContractValue * BigInt(Math.round(maxAdvancePercentage * 100))) / BigInt(10000);
 			const realAvailableMargin = maxAllowableCapacity - totalAdvancedThisMonth;
 
-			// Boundary Check against real-time ledger metrics
 			if (requestedAmount > realAvailableMargin) {
 				throw { statusCode: 422, message: 'The requested volume breaches the dynamic real-time monthly allowable margin for this user.' };
 			}
