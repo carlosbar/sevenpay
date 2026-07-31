@@ -30,7 +30,7 @@ class AuthController {
    *                 example: "admin@sevenpay.com.br"
    *               password:
    *                 type: string
-   *                 example: "SuaSenhaAqui"
+   *                 example: "YourPasswordHere"
    *     responses:
    *       200:
    *         description: Authentication successful
@@ -69,7 +69,7 @@ class AuthController {
     const { email, password } = req.body;
 
     try {
-      // 1. Busca o operador, suas permissões da role e os dados do seu perfil bridge
+      // 1. Fetches the operator account, RBAC matrix permissions, and the multi-tenant profile bridge data
       const loginQuery = `
         SELECT o.id, o.password_hash, o.password_salt, o.role_name, o.status,
                r.scope, r.can_read, r.can_create, r.can_update, r.can_delete,
@@ -87,11 +87,11 @@ class AuthController {
 
       const operator = operatorRes.rows[0];
 
-      // 2. Reconstroi o hash seguindo rigorosamente a regra: <password>:salt
+      // 2. Reconstructs the cryptographic hash following the strict rule: <password>:salt
       const inputToHash = `${password}:${operator.password_salt}`;
       const generatedHash = crypto.createHash('sha256').update(inputToHash).digest('hex');
 
-      // 3. Compara de forma segura contra timing attacks
+      // 3. Securely compares hashes to mitigate timing side-channel attacks
       const isPasswordValid = crypto.timingSafeEqual(
         Buffer.from(generatedHash, 'utf-8'),
         Buffer.from(operator.password_hash, 'utf-8')
@@ -101,7 +101,7 @@ class AuthController {
         throw { statusCode: 401, message: 'Invalid email or password credentials provided.' };
       }
 
-      // 4. Monta o Payload do JWT com as permissões da matriz e chaves de contexto
+      // 4. Builds the JWT Payload embedding permissions matrix and multi-tenant isolation contexts
       const jwtPayload = {
         operatorId: operator.id,
         email: email,
@@ -113,16 +113,16 @@ class AuthController {
           update: operator.can_update,
           delete: operator.can_delete
         },
-        // Injeta os IDs de isolamento multitenant no Token
+        // Injects tenant and user boundaries for multi-tenant middleware filtering
         tenantId: operator.tenant_id,
         endUserId: operator.end_user_id
       };
 
-      // 5. Assina o Token (Defina a chave secreta no seu arquivo .env)
+      // 5. Signs the cryptographically protected token with expiration window
       const secretKey = process.env.JWT_SECRET || 'sevenpay_fallback_secret_key_2026';
       const token = jwt.sign(jwtPayload, secretKey, { expiresIn: '8h' });
 
-      // 6. Resposta padronizada em caso de Sucesso
+      // 6. Dispatches standard success response envelope
       res.status(200).json({
         result: 'success',
         data: {
@@ -132,15 +132,17 @@ class AuthController {
       });
 
     } catch (error) {
-      next(error); // Encaminha o erro para o Middleware global envelopar em JSON
+      next(error); // Routes the runtime exception to the Global Error Handler
     }
   }
 }
 
+// Instantiate the private controller context
 const authController = new AuthController();
 
+// Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
   method: 'post',
   path: '/api/v1/auth/login',
-  handler: (req: any, res: any, next: any) => authController.login(req, res, next)
+  handler: (req: Request, res: Response, next: NextFunction) => authController.login(req, res, next)
 };
