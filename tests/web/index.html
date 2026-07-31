@@ -7,9 +7,8 @@
 	<!-- Tailwind CSS CDN for high-fidelity fintech styling -->
 	<script src="https://jsdelivr.net"></script>
 	<style>
-		/* Custom style to enforce default system tab behavior if needed */
-		tab-content { display: none; }
-		tab-content.active { display: block; }
+		.tab-content { display: none; }
+		.tab-content.active { display: block; }
 	</style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
@@ -48,9 +47,7 @@
 			</button>
 		</div>
 
-		<!-- ============================================================================ -->
 		<!-- TAB 1: AUTHENTICATION GATEWAY -->
-		<!-- ============================================================================ -->
 		<div id="ui-auth" class="tab-content active">
 			<div class="max-w-md mx-auto bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
 				<h2 class="text-xl font-black border-b border-slate-800 pb-3 mb-4">Operator Authentication</h2>
@@ -75,21 +72,14 @@
 			</div>
 		</div>
 
-		<!-- ============================================================================ -->
 		<!-- TAB 2: UI ADMIN (THE FINTECH CONTROL TOWER) -->
-		<!-- ============================================================================ -->
-		<div id="ui-admin" class="tab-content hidden">
+		<div id="ui-admin" class="tab-content">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				
-				<!-- Left Panel: Manual Onboard Form (Upsert Framework) -->
 				<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
 					<h2 class="text-lg font-black border-b border-slate-800 pb-3 mb-4 text-emerald-400">Provision B2B Tenant</h2>
-					<p class="text-slate-400 text-xs mb-4 leading-relaxed">
-						Registers a corporate client manually. Under the hood, this triggers the atomic <code class="text-emerald-400 font-mono">ON CONFLICT (cnpj) DO UPDATE</code> upsert script matrix.
-					</p>
 					<form id="tenantUpsertForm" onsubmit="executeTenantUpsert(event)" class="space-y-4">
 						<div>
-							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">CNPJ (14 Numeric Digits)</label>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">CNPJ (14 Digits)</label>
 							<input id="admTenantCnpj" type="text" required placeholder="12345678000199" max_length="14"
 								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
 						</div>
@@ -99,14 +89,14 @@
 								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
 						</div>
 						<div>
-							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Business Vertical Type</label>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Business Type</label>
 							<select id="admTenantType" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
 								<option value="REAL_ESTATE">REAL_ESTATE (Rent Advance)</option>
 								<option value="HR">HR (Salary on Demand)</option>
 							</select>
 						</div>
 						<div>
-							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Global Funding Credit Limit (BRL)</label>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Global Limit (BRL)</label>
 							<input id="admTenantLimit" type="number" required placeholder="50000.00" step="0.01"
 								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
 						</div>
@@ -115,17 +105,12 @@
 						</button>
 					</form>
 				</div>
-
-				<!-- Right Panel: Analytics Telemetry Monitor -->
 				<div class="lg:col-span-2 space-y-6">
 					<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
 						<div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
 							<h2 class="text-lg font-black text-slate-200">Global Financial Metrics Log</h2>
-							<button onclick="fetchAdminMetrics()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1 text-xs font-bold rounded-lg cursor-pointer transition">
-								🔄 Refresh Analytics
-							</button>
+							<button onclick="fetchAdminMetrics()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1 text-xs font-bold rounded-lg cursor-pointer transition">🔄 Refresh Analytics</button>
 						</div>
-						<!-- Aggregated Grid Data Cards -->
 						<div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="metricsSummaryGrid">
 							<div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
 								<span class="block text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Total Advanced</span>
@@ -145,8 +130,6 @@
 							</div>
 						</div>
 					</div>
-
-					<!-- Real-Time Tenant Portfolios Monitoring Grid -->
 					<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
 						<h2 class="text-base font-black text-slate-200 border-b border-slate-800 pb-3 mb-4">Active B2B Landscapes</h2>
 						<div class="overflow-x-auto">
@@ -154,3 +137,308 @@
 								<thead>
 									<tr class="border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
 										<th class="pb-2">Company Name</th>
+										<th class="pb-2 text-right">Credit Limit</th>
+										<th class="pb-2 text-right">Utilized</th>
+										<th class="pb-2 text-right">Ratio</th>
+									</tr>
+								</thead>
+								<tbody id="adminTenantTableBody" class="divide-y divide-slate-900 text-slate-300 font-mono">
+									<tr><td colspan="4" class="py-4 text-center text-slate-600">No active portfolios queried. Click refresh.</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- TAB 3: UI TENANT (COMPANY WORKSPACE) -->
+		<div id="ui-tenant" class="tab-content">
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
+					<h2 class="text-lg font-black border-b border-slate-800 pb-3 mb-4 text-emerald-400">Onboard Consumer Profile</h2>
+					<form id="userUpsertForm" onsubmit="executeUserUpsert(event)" class="space-y-4">
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">External ID</label>
+							<input id="tntUserExtId" type="text" required placeholder="EMP-4412"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
+							<input id="tntUserName" type="text" required placeholder="Maria Oliveira"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Contract Monthly Value (BRL)</label>
+							<input id="tntUserContract" type="number" required placeholder="3500.00" step="0.01"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-2.5 text-xs uppercase tracking-widest rounded-lg cursor-pointer transition">
+							Execute Consumer Sync Upsert
+						</button>
+					</form>
+				</div>
+				<div class="lg:col-span-2 bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+					<div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+						<h2 class="text-base font-black text-slate-200">Active Portfolio Corporate Beneficiaries</h2>
+						<button onclick="fetchTenantUsers()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1 text-xs font-bold rounded-lg cursor-pointer transition">🔄 Reload Consumers</button>
+					</div>
+					<div class="overflow-x-auto">
+						<table class="w-full text-left text-xs border-collapse">
+							<thead>
+								<tr class="border-b border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+									<th class="pb-2">UUID Token Identifier (Select & Copy)</th>
+									<th class="pb-2">External ID</th>
+									<th class="pb-2">Full Name</th>
+									<th class="pb-2 text-right">Contract</th>
+									<th class="pb-2 text-right">Real Margin</th>
+								</tr>
+							</thead>
+							<tbody id="tenantUsersTableBody" class="divide-y divide-slate-900 text-slate-300 font-mono">
+								<tr><td colspan="5" class="py-4 text-center text-slate-600">No rows synchronized. Click reload.</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- TAB 4: UI CLIENT (MOBILE CONSUMER ENGINE) -->
+		<div id="ui-client" class="tab-content">
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
+					<h2 class="text-lg font-black border-b border-slate-800 pb-3 mb-4 text-emerald-400">Request Cash Advance</h2>
+					<form id="advanceRequestForm" onsubmit="executeCreditAdvance(event)" class="space-y-4">
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Consumer Contract UUID Token</label>
+							<input id="cliUserUuid" type="text" required placeholder="Paste UUID from tenant table row"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition font-mono text-emerald-400">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Requested Amount (BRL)</label>
+							<input id="cliGrossAmount" type="number" required placeholder="350.00" step="0.01"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<div>
+							<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Split Installments Months</label>
+							<input id="cliInstallments" type="number" required value="1" min="1"
+								class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-sm focus:border-emerald-500 focus:outline-none transition">
+						</div>
+						<button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black p-3 text-xs uppercase tracking-widest rounded-lg cursor-pointer transition">
+							Confirm Dispatch Saque
+						</button>
+					</form>
+				</div>
+				<div class="lg:col-span-2 space-y-6">
+					<div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl">
+						<div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+							<h2 class="text-base font-black text-slate-200">Consumer 360 Audit Ledger Monitor</h2>
+							<button onclick="inspectActiveUser()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1 text-xs font-bold rounded-lg cursor-pointer transition">🔍 Deep Inspect Profile</button>
+						</div>
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-slate-300 mb-6">
+							<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl"><span class="text-slate-500 block uppercase font-bold text-[10px]">Holder:</span><span id="prof-name">---</span></div>
+							<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl"><span class="text-slate-500 block uppercase font-bold text-[10px]">Base Contract:</span><span id="prof-contract">R$ 0,00</span></div>
+							<div class="bg-slate-900 border border-slate-800 p-3 rounded-xl"><span class="text-slate-500 block uppercase font-bold text-[10px]">Real Margin:</span><span id="prof-margin" class="text-emerald-400 font-bold">R$ 0,00</span></div>
+						</div>
+						<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Amortization Calendar Installments</h3>
+						<div class="overflow-x-auto border border-slate-900 rounded-xl">
+							<table class="w-full text-left text-[11px] border-collapse bg-slate-900/50">
+								<thead>
+									<tr class="bg-slate-900 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-800">
+										<th class="p-2">Installment Index</th>
+										<th class="p-2">Target Month</th>
+										<th class="p-2 text-right">Gross Balance</th>
+										<th class="p-2 text-center">Status Matrix</th>
+									</tr>
+								</thead>
+								<tbody id="cliInstallmentsTableBody" class="divide-y divide-slate-900 text-slate-300 font-mono">
+									<tr><td colspan="4" class="p-3 text-center text-slate-600">Profile ledger empty. Execute inspection layer.</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Unified JSON Response Stream Real-Time Logging Monitor -->
+		<footer class="mt-8 bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-2xl">
+			<div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
+				<div class="flex items-center gap-2">
+					<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+					<span class="text-xs font-bold uppercase tracking-widest text-slate-400">SevenPay Live Core Ledger Feedback Monitor</span>
+				</div>
+				<button onclick="document.getElementById('liveTerminalJson').innerText = '{\n\t// Ready to stream...\n}'" class="text-[10px] text-slate-500 hover:text-slate-300 uppercase font-mono font-bold">Clear Terminal</button>
+			</div>
+			<pre id="liveTerminalJson" class="text-xs font-mono text-emerald-400 p-3 bg-slate-900 rounded-xl overflow-x-auto border border-slate-850 h-48">{\n\t// Ready to stream...\n}</pre>
+		</footer>
+	</main>
+	<script>
+		const BASE_URL = 'http://localhost:3000/api/v1';
+
+		function switchTab(tabId) {
+			document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+			document.querySelectorAll('.tab-btn').forEach(btn => {
+				btn.classList.remove('bg-emerald-500', 'text-slate-950', 'shadow-md');
+				btn.classList.add('bg-slate-800', 'text-slate-400');
+			});
+			document.getElementById(tabId).style.display = 'block';
+			const activeBtn = document.getElementById(`btn-${tabId}`);
+			activeBtn.classList.add('bg-emerald-500', 'text-slate-950', 'shadow-md');
+			activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+		}
+
+		function printLogStream(jsonPayload) {
+			document.getElementById('liveTerminalJson').innerText = JSON.stringify(jsonPayload, null, '\t');
+		}
+
+		function getAuthHeader() {
+			const token = document.getElementById('globalTokenStorage').value;
+			return token ? { 'Authorization': `Bearer ${token}` } : {};
+		}
+
+		function formatBrl(centsString) {
+			return (parseFloat(centsString) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+		}
+
+		async function executeLogin(event) {
+			event.preventDefault();
+			const email = document.getElementById('authEmail').value;
+			const password = document.getElementById('authPassword').value;
+			try {
+				const response = await fetch(`${BASE_URL}/auth/login`, {
+					method: 'post',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email, password })
+				});
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') document.getElementById('globalTokenStorage').value = payload.data.token;
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function executeTenantUpsert(event) {
+			event.preventDefault();
+			const cnpj = document.getElementById('admTenantCnpj').value;
+			const name = document.getElementById('admTenantName').value;
+			const businessType = document.getElementById('admTenantType').value;
+			const limitBrl = parseFloat(document.getElementById('admTenantLimit').value);
+			try {
+				const response = await fetch(`${BASE_URL}/admin/tenants`, {
+					method: 'post',
+					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+					body: JSON.stringify({ cnpj, name, businessType, globalCreditLimitCents: Math.round(limitBrl * 100) })
+				});
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') fetchAdminMetrics();
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function fetchAdminMetrics() {
+			try {
+				const response = await fetch(`${BASE_URL}/admin/dashboard/metrics`, { method: 'get', headers: getAuthHeader() });
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') {
+					const s = payload.data.summary;
+					document.getElementById('m-advanced').innerText = formatBrl(s.totalVolumeAdvancedCents);
+					document.getElementById('m-revenue').innerText = formatBrl(s.totalFeesCollectedCents);
+					document.getElementById('m-overdue').innerText = formatBrl(s.totalOverdueCents);
+					document.getElementById('m-rate').innerText = `${s.activeDefaultRatePercentage}%`;
+					document.getElementById('adminTenantTableBody').innerHTML = payload.data.tenantPortfolios.map(p => `
+						<tr class="border-b border-slate-900 hover:bg-slate-900/60 transition text-[11px]">
+							<td class="py-2 font-bold text-slate-200">${p.tenantName}</td>
+							<td class="py-2 text-right">${formatBrl(p.globalLimitCents)}</td>
+							<td class="py-2 text-right text-emerald-400">${formatBrl(p.totalUtilizedCents)}</td>
+							<td class="py-2 text-right font-bold text-amber-500">${p.utilizationPercentage}%</td>
+						</tr>
+					`).join('');
+				}
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function executeUserUpsert(event) {
+			event.preventDefault();
+			const externalId = document.getElementById('tntUserExtId').value;
+			const name = document.getElementById('tntUserName').value;
+			const contractBrl = parseFloat(document.getElementById('tntUserContract').value);
+			try {
+				const response = await fetch(`${BASE_URL}/tenants/sync-users`, {
+					method: 'post',
+					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+					body: JSON.stringify({ users: [{ externalId, name, monthlyContractValueCents: Math.round(contractBrl * 100) }] })
+				});
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') fetchTenantUsers();
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function fetchTenantUsers() {
+			try {
+				const response = await fetch(`${BASE_URL}/end-users?limit=50`, { method: 'get', headers: getAuthHeader() });
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') {
+					document.getElementById('tenantUsersTableBody').innerHTML = payload.data.endUsers.map(u => `
+						<tr class="border-b border-slate-900 hover:bg-slate-900/60 transition text-[11px]">
+							<td class="py-2 text-slate-500 font-mono text-[10px] select-all cursor-pointer font-bold">${u.id}</td>
+							<td class="py-2 text-slate-400">${u.externalId}</td>
+							<td class="py-2 font-bold text-slate-200">${u.name}</td>
+							<td class="py-2 text-right font-mono">${formatBrl(u.monthlyContractValueCents)}</td>
+							<td class="py-2 text-right font-mono text-emerald-400">${formatBrl(u.marginAvailableCents)}</td>
+						</tr>
+					`).join('');
+				}
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function executeCreditAdvance(event) {
+			event.preventDefault();
+			const endUserId = document.getElementById('cliUserUuid').value;
+			const amountBrl = parseFloat(document.getElementById('cliGrossAmount').value);
+			const installmentsTotal = parseInt(document.getElementById('cliInstallments').value, 10);
+			try {
+				const response = await fetch(`${BASE_URL}/advances/request`, {
+					method: 'post',
+					headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+					body: JSON.stringify({ endUserId, requestedAmountCents: Math.round(amountBrl * 100), installmentsTotal })
+				});
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') inspectActiveUser();
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+
+		async function inspectActiveUser() {
+			const endUserId = document.getElementById('cliUserUuid').value;
+			if (!endUserId) { alert('Please paste a valid consumer UUID token identifier.'); return; }
+			try {
+				const response = await fetch(`${BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}`, { method: 'get', headers: getAuthHeader() });
+				const payload = await response.json();
+				printLogStream(payload);
+				if (payload.result === 'success') {
+					const p = payload.data.profile;
+					document.getElementById('prof-name').innerText = p.name;
+					document.getElementById('prof-contract').innerText = formatBrl(p.monthlyContractValueCents);
+					document.getElementById('prof-margin').innerText = formatBrl(p.marginAvailableCents);
+					const tbody = document.getElementById('cliInstallmentsTableBody');
+					if (payload.data.amortizationInstallments.length === 0) {
+						tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-600">No active amortization items linked. Apply saques.</td></tr>`;
+						return;
+					}
+					tbody.innerHTML = payload.data.amortizationInstallments.map(i => `
+						<tr class="hover:bg-slate-900 transition text-[11px]">
+							<td class="p-2 font-bold text-slate-400">Parcela #${i.installmentNumber}</td>
+							<td class="p-2 font-bold">${i.billingCompetence}</td>
+							<td class="p-2 text-right text-red-400 font-bold">${formatBrl(i.grossAmountCents)}</td>
+							<td class="p-2 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : i.status === 'OVERDUE' ? 'bg-red-950 text-red-400' : 'bg-slate-800 text-slate-400'}">${i.status}</span></td>
+						</tr>
+					`).join('');
+				}
+			} catch (err) { printLogStream({ result: 'error', reason: err.message }); }
+		}
+		switchTab('ui-auth');
+	</script>
+</body>
+</html>
