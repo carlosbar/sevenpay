@@ -43,7 +43,16 @@ class AdvanceController {
    *         description: Business rule or risk constraint violation
    */
   public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
+    const { requestedAmountCents, installmentsTotal } = req.body;
+
+    // Instead of getting endUserId blindly from body: const { endUserId } = req.body;
+    // Get it directly from the secure, authenticated token context:
+    const endUserId = req.userContext?.endUserId;
+    
+    if (!endUserId) {
+      throw { statusCode: 403, message: 'Context violation. This account operator is not bound to a credit consumer profile.' };
+    }
+
     const client: PoolClient = await db.getClient();
 
     try {
@@ -168,10 +177,16 @@ class AdvanceController {
   }
 }
 
+import { authorize } from '../middlewares/authMiddleware';
+
 const advanceController = new AdvanceController();
 
 export const routeConfig = {
   method: 'post',
   path: '/api/v1/advances/request',
-  handler: (req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
+  // Chain execution: execute authorize check, then execute requestAdvance controller
+  handler: [
+    authorize('create'), 
+    (req: any, res: any, next: any) => advanceController.requestAdvance(req, res, next)
+  ]
 };
