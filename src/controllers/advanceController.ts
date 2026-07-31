@@ -18,7 +18,7 @@ class AdvanceController {
 	 * /api/v1/advances/request:
 	 *   post:
 	 *     summary: Request a new credit advance payout
-	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking, and cumulative monthly balance limits using 64-bit integer cents.
+	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking, cumulative monthly limits, and automatically provisions future amortization installments using 64-bit integer cents.
 	 *     tags:
 	 *       - Advances
 	 *     requestBody:
@@ -146,8 +146,10 @@ class AdvanceController {
 			const activePixKey = pixRes.rows[0].key_value;
 
 			// STEP 9: Batch Ledger Persistence
+			// 1. Deduct static available margin
 			await client.query(`UPDATE end_users SET margin_available_cents = margin_available_cents - $1 WHERE id = $2`, [requestedAmount.toString(), endUserId]);
 			
+			// 2. Insert Advance Request Header
 			const insertRequest = `
 				INSERT INTO advance_requests (end_user_id, requested_amount_cents, installments_total, fee_percentage, fee_amount_cents, net_payout_cents, status)
 				VALUES ($1, $2, $3, $4, $5, $6, 'APPROVED') RETURNING id;
@@ -155,7 +157,37 @@ class AdvanceController {
 			const requestRes = await client.query(insertRequest, [endUserId, requestedAmount.toString(), installmentsTotal, feePercentage, feeAmountCents.toString(), netPayoutCents.toString()]);
 			const requestId = requestRes.rows[0].id;
 
-			await client.query(`INSERT INTO financial_transactions (advance_request_id, end_user_id, type, amount_cents) VALUES ($1, $2, 'DEBIT', $3)`, [requestId, endUserId, 'DEBIT', requestedAmount.toString()]);
+			// 3. Dynamic Plurimensal Installment Schedule Loop Provisioning
+			const baseInstallmentAmount = requestedAmount / BigInt(installmentsTotal);
+			const remainderCents = requestedAmount % BigInt(installmentsTotal);
+
+			const currentDate = new Date();
+
+			for (let i = 1; i <= installmentsTotal; i++) {
+				// Distribute math remainder cents directly into the first installment layer
+				const installmentGross = (i === 1) ? (baseInstallmentAmount + remainderCents) : baseInstallmentAmount;
+
+				// Calculate future monthly billing targets sequentially (YYYY-MM)
+				const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+				const targetYear = targetDate.getFullYear();
+				const targetMonth = String(targetDate.getMonth() + 1).padStart(2, '0');
+				const billingCompetence = `${targetYear}-${targetMonth}`;
+
+				const insertInstallmentQuery = `
+					INSERT INTO advance_installments (advance_request_id, end_user_id, installment_number, gross_amount_cents, billing_competence, status)
+					VALUES ($1, $2, $3, $4, $5, 'PENDING');
+				`;
+				await client.query(insertInstallmentQuery, [
+					requestId,
+					endUserId,
+					i,
+					installmentGross.toString(),
+					billingCompetence
+				]);
+			}
+
+			// 4. Append Immutable Audit Ledger Log (DEBIT)
+			await client.query(`INSERT INTO financial_transactions (advance_request_id, end_user_id, type, amount_cents) VALUES ($1, $2, 'DEBIT', $3)`, [requestId, endUserId, requestedAmount.toString()]);
 
 			await client.query('COMMIT');
 
@@ -171,7 +203,7 @@ class AdvanceController {
 		} catch (error) {
 			await client.query('ROLLBACK');
 			next(error);
-		} catch (error) {
+		} finally {
 			client.release();
 		}
 	}
