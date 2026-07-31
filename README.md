@@ -37,7 +37,9 @@ When an authorized user requests a credit advance, the engine processes the requ
 
 ### 📊 Step 4: Monthly Cumulative Spending Audit
 * **Action:** The engine executes an aggregation query on `advance_requests` to summarize all funds already advanced to the specific user during the current month competence where the status is **NOT** `'REJECTED'`.
-* **Output:** Establishes the real dollar volume consumed by the user in the current billing cycle: $\text{total\_advanced\_this\_month\_cents}$.
+* **Output:** Establishes the real dollar volume consumed by the user in the current billing cycle:
+
+$$\text{total\_advanced\_this\_month\_cents}$$
 
 ### 🛡️ Step 5: Individual Margin Validation & Row Locking
 * **Action:** The engine issues an isolated write lock on the user's record inside `end_users` utilizing the `FOR UPDATE` statement.
