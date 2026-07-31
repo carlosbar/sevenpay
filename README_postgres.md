@@ -44,16 +44,22 @@ sudo -i -u postgres psql
 Copy and paste the following queries into the active `psql` console (**Remember to change `'YourSecurePasswordHere'` to your local development password**):
 
 ```sql
--- 1. Create a dedicated database operator with database creation privileges
+-- 1. Set how postgres save the passwords
+SET password_encryption = 'scram-sha-256';
+
+-- 2. Create a dedicated database operator with database creation privileges
 CREATE USER sevenpay_user WITH PASSWORD 'YourSecurePasswordHere' CREATEDB;
 
--- 2. Provision the official isolated system database assigning ownership
+-- 3. Set user as superuser
+ALTER USER sevenpay_user SUPERUSER;
+
+-- 4. Provision the official isolated system database assigning ownership
 CREATE DATABASE sevenpay_db OWNER sevenpay_user;
 
--- 3. Grant full schema manipulation privileges to the operator
+-- 5. Grant full schema manipulation privileges to the operator
 GRANT ALL PRIVILEGES ON DATABASE sevenpay_db TO sevenpay_user;
 
--- 4. Terminate the active console session
+-- 6. Terminate the active console session
 \q
 ```
 
