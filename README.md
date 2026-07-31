@@ -179,7 +179,7 @@ The platform includes a lightweight, 100% native frontend suite designed to test
 To execute the interactive cockpit interface on your Ubuntu Desktop setup, use the pre-configured Node.js runtime utility:
 ```bash
 # 1. Navigate to the folder containing the index.html file
-cd /home/cbarcellos/workspace/sevenpay/
+cd sevenpay/tests/web
 
 # 2. Fire up a micro-server bypassing browser Preflight blocks
 npx http-server --cors -p 8080
