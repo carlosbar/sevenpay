@@ -64,17 +64,17 @@ class FeeMatrixController {
 			const isNegativeMonths = Math.sign(installmentsCount) === -1;
 			const isZeroMonths = installmentsCount === 0;
 			if (isNegativeMonths || isZeroMonths || !Number.isInteger(installmentsCount)) {
-				throw { statusCode: 422, message: 'Validation failed. The installmentsCount parameter must be a positive integer value.' };
+				throw { statusCode: 422, errorToken: 'MATRIX_INSTALLMENTS_INVALID' };
 			}
 
 			const isNegativeFee = Math.sign(feePercentage) === -1;
 			if (isNegativeFee || feePercentage > 100) {
-				throw { statusCode: 422, message: 'Validation failed. The feePercentage parameter must be a floating numeric factor between 0.00 and 100.00.' };
+				throw { statusCode: 422, errorToken: 'MATRIX_FEE_PERCENTAGE_OUT_OF_BOUNDS' };
 			}
 
 			const isNegativeMargin = Math.sign(maxAdvancePercentage) === -1;
 			if (isNegativeMargin || maxAdvancePercentage > 100) {
-				throw { statusCode: 422, message: 'Validation failed. The maxAdvancePercentage parameter must be a floating numeric factor between 0.00 and 100.00.' };
+				throw { statusCode: 422, errorToken: 'MATRIX_FEE_PERCENTAGE_OUT_OF_BOUNDS' };
 			}
 
 			const isPutRequest = req.method === 'PUT';
