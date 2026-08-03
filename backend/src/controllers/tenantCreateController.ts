@@ -4,6 +4,7 @@ import { db } from '../config/db';
 import { PoolClient } from 'pg';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 // Schema validation mapping to enforce input integrity before database write
 const tenantCreateSchema: ValidationSchema = {
@@ -101,17 +102,18 @@ class TenantCreateController {
 			await client.query('BEGIN');
 
 			const isPutRequest = req.method === 'PUT';
+			let newTenant: { id: string };
 
 			if (isPutRequest) {
 				// 1A. Execution pipeline for PUT (UPDATE) operations
 				// Updates basic corporate metadata and drops old fee rows to maintain 3FN consistency
 				const updateTenantQuery = `
-				UPDATE tenants 
-				SET name = $1, business_type = $2, global_credit_limit_cents = $3, updated_at = NOW()
-				WHERE cnpj = $4
-				RETURNING id;
+					UPDATE tenants 
+					SET name = $1, business_type = $2, global_credit_limit_cents = $3, updated_at = NOW()
+					WHERE cnpj = $4
+					RETURNING id;
 				`;
-				const updateRes = await client.query(updateTenantQuery, [name, businessType, globalCreditLimitCents, cleanCnpj]);
+				const updateRes = await client.query(updateTenantQuery, [name, businessType, globalLimit.toString(), cleanCnpj]);
 
 				if (updateRes.rows.length === 0) {
 					throw { statusCode: 444, message: 'Update failed. No partner company found with the provided CNPJ identifier.' };
@@ -130,17 +132,19 @@ class TenantCreateController {
 				}
 
 				const insertTenantQuery = `
-				INSERT INTO tenants (cnpj, name, business_type, global_credit_limit_cents)
-				VALUES ($1, $2, $3, $4)
-				RETURNING id;`;
-				const insertRes = await client.query(insertTenantQuery, [cleanCnpj, name, businessType, globalCreditLimitCents]);
+					INSERT INTO tenants (cnpj, name, business_type, global_credit_limit_cents)
+					VALUES ($1, $2, $3, $4)
+					RETURNING id;
+				`;
+				const insertRes = await client.query(insertTenantQuery, [cleanCnpj, name, businessType, globalLimit.toString()]);
 				newTenant = insertRes.rows[0];
 			}
 
 			// 2. Map and loop over the pricingMatrix array to populate configuration tiers dynamically
 			const insertMatrixQuery = `
-			INSERT INTO tenant_fee_matrices (tenant_id, installments_count, fee_percentage, max_advance_percentage)
-			VALUES ($1, $2, $3, $4);`;
+				INSERT INTO tenant_fee_matrices (tenant_id, installments_count, fee_percentage, max_advance_percentage)
+				VALUES ($1, $2, $3, $4);
+			`;
 
 			for (const tier of pricingMatrix) {
 				const { installmentsCount, feePercentage, maxAdvancePercentage } = tier;
@@ -184,7 +188,7 @@ export const routeConfig = {
 			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.CREATE },
 			{ method: 'PUT',  scope: ScopeTarget.MASTER, action: ActionTarget.UPDATE }
 		]), 
-		validateBody(createTenantSchema),
+		validateBody(tenantCreateSchema),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantCreateController.createTenant(req, res, next)
 	]
 };
