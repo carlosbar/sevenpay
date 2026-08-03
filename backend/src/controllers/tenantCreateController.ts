@@ -85,18 +85,13 @@ class TenantCreateController {
                                 throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
                         }
 
-                        // 1. Enforce strict platform scope isolation barrier (Only global MASTER operations allowed)
-                        if (context.scope !== 'MASTER') {
-                                throw { statusCode: 403, message: 'Access denied. Corporate onboarding is restricted to core fintech administrators.' };
-                        }
-
-                        // 2. Validate clean formatting parameters for the CNPJ identifier string
+                        // 1. Validate clean formatting parameters for the CNPJ identifier string
                         const cleanCnpj = cnpj.replace(/\D/g, '');
                         if (cleanCnpj.length !== 14) {
                                 throw { statusCode: 422, message: 'Validation failed. The CNPJ parameter must contain exactly 14 numeric digits.' };
                         }
 
-                        // 3. Assert input strings match the strict PostgreSQL native ENUM constraints
+                        // 2. Assert input strings match the strict PostgreSQL native ENUM constraints
                         if (businessType !== 'HR' && businessType !== 'REAL_ESTATE') {
                                 throw { statusCode: 422, message: 'Validation failed. The businessType parameter must be explicitly set to either "HR" or "REAL_ESTATE".' };
                         }
@@ -104,7 +99,7 @@ class TenantCreateController {
                         const globalLimit = BigInt(globalCreditLimitCents);
 
                         await client.query('BEGIN');
-                        // 4. High-Performance PostgreSQL Upsert Query (Idempotent 3FN compliant pattern)
+                        // 3. High-Performance PostgreSQL Upsert Query (Idempotent 3FN compliant pattern)
                         // Utilizes the unique constraint over the clean cnpj column to catch conflicts and trigger data rewrite
                         const upsertQuery = `
                                 INSERT INTO tenants (cnpj, name, business_type, global_credit_limit_cents)
@@ -127,11 +122,11 @@ class TenantCreateController {
 
                         const tenantRow = queryResult.rows[0];
 
-                        // 5. Clear old matrix rules if it's an update operation to maintain 3FN consistency
+                        // 4. Clear old matrix rules if it's an update operation to maintain 3FN consistency
                         const deleteMatrixQuery = `DELETE FROM tenant_fee_matrices WHERE tenant_id = $1;`;
                         await client.query(deleteMatrixQuery, [tenantRow.id]);
 
-                        // 6. Map and loop over the pricingMatrix array to populate configuration tiers dynamically
+                        // 5. Map and loop over the pricingMatrix array to populate configuration tiers dynamically
                         const insertMatrixQuery = `
                                 INSERT INTO tenant_fee_matrices (tenant_id, installments_count, fee_percentage, max_advance_percentage)
                                 VALUES ($1, $2, $3, $4);
@@ -159,7 +154,7 @@ class TenantCreateController {
 
                         await client.query('COMMIT');
 
-                        // 7. Dispatch standard unified success payload back to the admin control grid
+                        // 6. Dispatch standard unified success payload back to the admin control grid
                         res.status(200).json({
                                 result: 'success',
                                 data: {
@@ -189,7 +184,11 @@ export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/admin/tenants',
 	handler: [
-		authorize('TENANT', 'CREATE'),
+		// 🛡️ Multi-rule policy configuration matrix driven exclusively by strict RESTful intent
+		authorize([
+			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.CREATE },
+			{ method: 'PUT',  scope: ScopeTarget.MASTER, action: ActionTarget.UPDATE }
+		]), 
 		validateBody(createTenantSchema),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantCreateController.createTenant(req, res, next)
 	]
