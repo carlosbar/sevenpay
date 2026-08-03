@@ -58,10 +58,7 @@ class AdminDashboardController {
 				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
 			}
 
-			if (context.scope !== 'MASTER') {
-				throw { statusCode: 403, message: 'Access denied. Dashboard global analytics are strictly restricted to management teams.' };
-			}
-			// 2. Run real-time aggregate queries over the immutable ledger logs and amortization calendar
+			// 1. Run real-time aggregate queries over the immutable ledger logs and amortization calendar
 			const metricsQuery = `
 				SELECT
 					(
@@ -89,7 +86,7 @@ class AdminDashboardController {
 			const metricsRes = await db.query(metricsQuery);
 			const rowData = metricsRes.rows[0];
 
-			// 3. Dispatch standard unified success envelope matching the frontend Angular interface expectations
+			// 2. Dispatch standard unified success envelope matching the frontend Angular interface expectations
 			res.status(200).json({
 				result: 'success',
 				data: {
@@ -110,12 +107,16 @@ class AdminDashboardController {
 
 const adminDashboardController = new AdminDashboardController();
 
-// Map route configuration structure for automated injection framework
+// Map route setup contract structure for automated node server routing framework
 export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/dashboard/metrics',
 	handler: [
-		authorize('LEDGER_METRICS', 'READ'),
+		// 🛡️ Evaluates pure RESTful intent matrix checking GET, MASTER and READ
+		authorize([
+			{ method: 'GET', scope: ScopeTarget.MASTER, action: ActionTarget.READ }
+		]),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => adminDashboardController.getMetrics(req, res, next)
 	]
 };
+
