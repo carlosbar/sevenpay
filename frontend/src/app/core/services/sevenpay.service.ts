@@ -119,4 +119,9 @@ export class SevenPayService {
 	public getHistory(tenantId: string, endUserId: string): Observable<any> {
 		return this.http.get<any>(`${this.BASE_URL}/statements/history?tenantId=${tenantId}&endUserId=${endUserId}`, { headers: this.getHeaders() });
 	}
+
+	// FIXED: Standardized name mapping to guarantee perfect alignment with UI components
+	public tenantSyncUsers(tenantId: string, payload: any): Observable<any> {
+		return this.http.post<any>(`${this.BASE_URL}/tenants/sync-users?tenantId=${tenantId}`, payload, { headers: this.getHeaders() });
+	}  
 }
