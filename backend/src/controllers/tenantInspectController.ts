@@ -2,6 +2,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class TenantInspectController {
 
@@ -10,7 +11,7 @@ class TenantInspectController {
 	 * /api/v1/admin/tenants/inspect:
 	 *   get:
 	 *     summary: Deep 360 inspect of a specific B2B tenant corporate workspace
-	 *     description: Compiles complete tenant profile telemetry, including its full pricing fee matrix tier configuration, allocated credit ceilings, and linked end-user registries. Enforces strict horizontal multitenant encryption boundaries.
+	 *     description: Compiles complete tenant profile telemetry, including its full pricing fee matrix tier configuration, allocated credit ceilings, and linked end-user registries. Enforces strict horizontal multitenant encryption boundaries. Perimeter defense handles fraud detection automatically.
 	 *     tags:
 	 *       - Administration Lookup
 	 *     security:
@@ -18,39 +19,31 @@ class TenantInspectController {
 	 *     parameters:
 	 *       - in: query
 	 *         name: tenantId
+	 *         required: true
 	 *         schema:
 	 *           type: string
 	 *           format: uuid
-	 *         description: The company UUID (Optional for TENANT scope, strictly required for MASTER auditing operations)
+	 *         description: The company UUID parameter utilized by the dynamic matrix route guard layer to isolate data visibility.
 	 *     responses:
 	 *       200:
 	 *         description: Tenant corporate metrics ledger block extracted successfully
 	 *       403:
 	 *         description: Access denied due to multitenant context tampering attempts
+	 *       422:
+	 *         description: Processing failed due to missing required filtration query vectors
 	 */
 	public async inspectTenant(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const context = req.userContext;
+			const targetTenantId = req.query.tenantId as string || null;
 
 			if (!context) {
 				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
 			}
 
-			let targetTenantId: string | null = null;
-
-			// 1. Enforce strict cryptographic validation over multi-tenant boundary lines
-			if (context.scope === 'TENANT') {
-				if (!context.tenantId) {
-					throw { statusCode: 403, message: 'Context violation. Operator account is not bound to a corporate tenant.' };
-				}
-				targetTenantId = context.tenantId; // Corporate operators are physically locked inside their domain
-			} else if (context.scope === 'MASTER') {
-				targetTenantId = (req.query.tenantId as string) || null;
-				if (!targetTenantId) {
-					throw { statusCode: 422, message: 'Processing failed. Master auditing scope queries must supply a target tenantId parameter.' };
-				}
-			} else {
-				throw { statusCode: 403, message: 'Access denied. End users are forbidden from pulling corporate metadata.' };
+			// 1. Enforce strict parameter presence barrier to isolate ledger lookups before database scan
+			if (!targetTenantId) {
+				throw { statusCode: 422, message: 'Processing failed. Query parameters must supply a target tenantId parameter to isolate the relational scope.' };
 			}
 
 			// 2. Fetch Core Tenant Registration Data
@@ -96,11 +89,16 @@ class TenantInspectController {
 
 const tenantInspectController = new TenantInspectController();
 
+// Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/tenants/inspect',
 	handler: [
-		authorize('read'),
+		// 🛡️ Advanced Security Matrix protecting parameters via automated validation cross-checks
+		authorize([
+			{ method: 'GET', scope: ScopeTarget.MASTER, action: ActionTarget.READ },
+			{ method: 'GET', scope: ScopeTarget.TENANT, action: ActionTarget.READ, validateTenantIdFrom: 'query' }
+		]),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantInspectController.inspectTenant(req, res, next)
 	]
 };
