@@ -81,9 +81,12 @@ export class SevenPayService {
 		return this.http.post<any>(`${this.BASE_URL}/auth/login`, credentials).pipe(
 			tap(res => {
 				if (res.result === 'success' && res.data?.token) {
+					// 🔄 FIXED: Secure persistent infrastructure write operations first
 					localStorage.setItem('sp_token', res.data.token);
-					this.decodeAndSetContext(res.data.token);
 					this.token.set(res.data.token);
+					
+					// Reconstruct context variables directly from the newly secured active key
+					this.decodeAndSetContext(res.data.token);
 				}
 			})
 		);
