@@ -1,0 +1,41 @@
+<div class="mt-4 border-t border-slate-800/80 pt-4">
+	<div class="flex items-center justify-between mb-3">
+		<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Installment Fee Matrix Configuration</h3>
+		<button (click)="addRow($event)" class="rounded bg-emerald-500/10 px-2 py-1 text-[11px] font-black uppercase text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition cursor-pointer">
+			+ Add Row
+		</button>
+	</div>
+
+	<div class="space-y-3">
+		@for (row of pricingRows(); track $index) {
+			<div class="grid grid-cols-12 gap-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-850 items-end">
+				
+				<!-- Installments Count Field -->
+				<div class="col-span-3 flex flex-col gap-0.5">
+					<label class="text-[9px] font-bold text-slate-500 uppercase">Months</label>
+					<input type="number" [(ngModel)]="row.installmentsCount" (ngModelChange)="emitMatrixState()" min="1" required class="rounded border border-slate-800 bg-slate-950 p-1.5 text-xs text-slate-200 text-center outline-none focus:border-emerald-500">
+				</div>
+
+				<!-- Fee Percentage Field -->
+				<div class="col-span-4 flex flex-col gap-0.5">
+					<label class="text-[9px] font-bold text-slate-500 uppercase">Fee (%)</label>
+					<input type="number" [(ngModel)]="row.feePercentage" (ngModelChange)="emitMatrixState()" min="0" step="0.1" required class="rounded border border-slate-800 bg-slate-950 p-1.5 text-xs text-slate-200 text-center outline-none focus:border-emerald-500">
+				</div>
+
+				<!-- Max Advance Capacity Percentage Field -->
+				<div class="col-span-4 flex flex-col gap-0.5">
+					<label class="text-[9px] font-bold text-slate-500 uppercase">Margin (%)</label>
+					<input type="number" [(ngModel)]="row.maxAdvancePercentage" (ngModelChange)="emitMatrixState()" min="0" step="1" required class="rounded border border-slate-800 bg-slate-950 p-1.5 text-xs text-slate-200 text-center outline-none focus:border-emerald-500">
+				</div>
+
+				<!-- Row Removal Trigger -->
+				<div class="col-span-1 flex justify-center pb-1">
+					<button (click)="removeRow($index, $event)" [disabled]="pricingRows().length <= 1" class="text-xs font-bold text-slate-500 hover:text-red-400 disabled:opacity-30 disabled:hover:text-slate-500 transition cursor-pointer border-none bg-transparent">
+						✕
+					</button>
+				</div>
+
+			</div>
+		}
+	</div>
+</div>
