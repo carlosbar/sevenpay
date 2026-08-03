@@ -2,6 +2,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class AdminDashboardController {
 
@@ -119,4 +120,3 @@ export const routeConfig = {
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => adminDashboardController.getMetrics(req, res, next)
 	]
 };
-
