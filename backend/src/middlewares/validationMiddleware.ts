@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 export interface SchemaField {
-	type: 'string' | 'number' | 'boolean';
+	type: 'string' | 'number' | 'boolean' | 'array'; // INJECTED: Supports bulk operational matrix validations
 	required: boolean;
 	format?: 'email' | 'uuid' | 'cents';
 }
@@ -36,8 +36,15 @@ export function validateBody(schema: ValidationSchema) {
 				}
 
 				// 2. Structural data type validation check
-				if (typeof value !== field.type) {
-					throw { statusCode: 422, message: `Validation failed. The field '${key}' expects a type of '${field.type}'.` };
+				// Enforces specialized routing rule evaluation for JavaScript arrays
+				if (field.type === 'array') {
+					if (!Array.isArray(value)) {
+						throw { statusCode: 422, message: `Validation failed. The field '${key}' expects a structural payload array block.` };
+					}
+				} else {
+					if (typeof value !== field.type) {
+						throw { statusCode: 422, message: `Validation failed. The field '${key}' expects a type of '${field.type}'.` };
+					}
 				}
 
 				// 3. Granular input format rules validation mapping
@@ -57,8 +64,9 @@ export function validateBody(schema: ValidationSchema) {
 					}
 
 					if (field.format === 'cents') {
-						// Ensures monetary value is an integer and non-negative
-						if (!Number.isInteger(value) || value < 0) {
+						// Ensures monetary value is an integer and non-negative driven by sign checking to prevent code clipping
+						const isNegativeCents = Math.sign(value) === -1;
+						if (!Number.isInteger(value) || isNegativeCents) {
 							throw { statusCode: 422, message: `Validation failed. The field '${key}' must be a valid non-negative integer represented in cents.` };
 						}
 					}
