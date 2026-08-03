@@ -47,9 +47,12 @@ export class AppComponent implements OnInit {
 
 	constructor(public svc: SevenPayService) {}
 
-	public ngOnInit(): void {
-		if (this.svc.isAuthenticated()) {
+  public ngOnInit(): void {
+		// 🔄 FIXED: Only pull server data if the authentication token context is fully synchronized and valid
+		if (this.svc.isAuthenticated() && this.svc.userContext()) {
 			this.evaluateWorkspaceQueryRouting();
+		} else {
+			this.svc.logout(); // Clear any corrupted or expired local storage token leaks
 		}
 	}
 
@@ -163,8 +166,15 @@ export class AppComponent implements OnInit {
 		event.preventDefault();
 		this.svc.login(this.credentials).subscribe({
 			next: () => {
-				this.evaluateWorkspaceQueryRouting();
-				this.credentials = { email: '', password: '' };
+				// 🔄 FIXED: Delay network aggregation queries until the async state signals are flushed and active
+				setTimeout(() => {
+					this.evaluateWorkspaceQueryRouting();
+					this.credentials = { email: '', password: '' };
+				}, 50);
+			},
+			error: (err: any) => {
+				const token = err.error?.errorToken || 'AUTH_CREDENTIALS_INVALID';
+				alert(this.svc.t()[token]);
 			}
 		});
 	}
