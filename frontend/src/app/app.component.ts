@@ -7,11 +7,12 @@ import {
 	Tenant,
 	AmortizationInstallment 
 } from './core/services/sevenpay.service';
+import { PricingManagerComponent, PricingTierInput } from './components/pricing-manager/pricing-manager.component';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, PricingManagerComponent],
 	templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
@@ -21,7 +22,8 @@ export class AppComponent implements OnInit {
 	public activeProfile = signal<any | null>(null);
 	public installments = signal<AmortizationInstallment[]>([]);
 	public globalMetrics = signal<any>({});
-	
+	public activePricingMatrix = signal<PricingTierInput[]>([{ installmentsCount: 1, feePercentage: 8.00, maxAdvancePercentage: 30.00 }]);
+  
 	// Dynamic filtering anchors for granular multi-tenant visualization
 	public selectedTenantId = signal<string | null>(null);
 	public filteredEndUsers = computed(() => {
@@ -141,10 +143,11 @@ export class AppComponent implements OnInit {
 			cnpj: this.tenantForm.cnpj,
 			name: this.tenantForm.name,
 			businessType: this.tenantForm.businessType,
-			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimitCents * 100)
+			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimitCents * 100),
+			pricingMatrix: this.activePricingMatrix()
 		};
 
-		this.svc.provisionTenant(payload).subscribe({
+    this.svc.provisionTenant(payload).subscribe({
 			next: (res) => {
 				if (res.result === 'success') {
 					alert('B2B Tenant deployed and provisioned successfully.');
