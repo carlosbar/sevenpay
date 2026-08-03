@@ -66,7 +66,7 @@ class AdvanceController {
 			const userRes = await client.query(userQuery, [endUserId, installmentsTotal]);
 
 			if (userRes.rowCount === 0) {
-				throw { statusCode: 404, message: 'Active consumer contract record not found for this installment tier.' };
+				throw { statusCode: 404, errorToken: 'CONSUMER_CONTRACT_NOT_FOUND' };
 			}
 
 			const user = userRes.rows[0];
@@ -79,7 +79,7 @@ class AdvanceController {
 			`;
 			const overdueRes = await client.query(overdueQuery, [endUserId]);
 			if (parseInt(overdueRes.rows[0].overdue_count, 10) > 0) {
-				throw { statusCode: 403, message: 'Access denied. This user account has outstanding overdue installments pending settlement.' };
+				throw { statusCode: 403, errorToken: 'CONSUMER_ACCOUNT_DELINQUENT' };
 			}
 
 			// STEP 4: Monthly Cumulative Spending Audit (The Truth Layer)
@@ -102,7 +102,7 @@ class AdvanceController {
 
 			const isAmountBreaching = requestedAmount > realAvailableMargin;
 			if (isAmountBreaching) {
-				throw { statusCode: 422, message: 'The requested volume breaches the dynamic real-time monthly allowable margin for this user.' };
+				throw { statusCode: 422, errorToken: 'CONSUMER_ALLOWABLE_MARGIN_BREACHED' };
 			}
 
 			// STEP 6: Tenant B2B Global Limit Verification (Real-Time Aggregate)
@@ -120,7 +120,7 @@ class AdvanceController {
 
 			const isLimitExceeded = tenantSpent + requestedAmount > tenantLimit;
 			if (isLimitExceeded) {
-				throw { statusCode: 422, message: 'B2B Tenant credit portfolio limit exceeded for the active commercial agreement.' };
+				throw { statusCode: 422, errorToken: 'TENANT_CREDIT_PORTFOLIO_EXCEEDED' };
 			}
 
 			// STEP 7: Fee & Payout Calculations
@@ -137,7 +137,7 @@ class AdvanceController {
 			const pixRes = await client.query(pixQuery, [endUserId]);
 
 			if (pixRes.rowCount === 0) {
-				throw { statusCode: 422, message: 'No valid active Pix account destination route registered for this end user.' };
+				throw { statusCode: 422, errorToken: 'CONSUMER_PIX_ROUTE_MISSING' };
 			}
 
 			const activePixKey = pixRes.rows[0].key_value;
