@@ -4,6 +4,7 @@ import { db } from '../config/db';
 import { PoolClient } from 'pg';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+import { ResourceTarget, ScopeTarget, ActionTarget } from '../config/security.enums';
 
 const settlementSchema: ValidationSchema = {
 	tenantId: { type: 'string', required: true, format: 'uuid' },
@@ -17,7 +18,7 @@ class SettlementController {
 	 * /api/v1/settlements/clear-competence:
 	 *   post:
 	 *     summary: Settle all outstanding installments for a specific tenant competence
-	 *     description: Processes bulk payment clearance for a specific month. Updates amortization logs, restores end-user credit margins, and appends CREDIT vectors into the immutable ledger.
+	 *     description: Processes bulk payment clearance for a specific month. Updates amortization logs, restores end-user credit margins, and appends CREDIT vectors into the immutable ledger. Restricted to master operations.
 	 *     tags:
 	 *       - Financial Settlement
 	 *     security:
@@ -137,7 +138,10 @@ export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/settlements/clear-competence',
 	handler: [
-		authorize('delete'), // Restricting bulk balance liquidations exclusively to root administrative roles (SYSADMIN)
+		// 🛡️ Multi-rule matrix enforcing POST operation, MASTER scope, and DISBURSE actions for bulk liquidation
+		authorize([
+			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.DISBURSE }
+		]),
 		validateBody(settlementSchema),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => settlementController.settleCompetence(req, res, next)
 	]
