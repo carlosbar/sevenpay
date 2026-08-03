@@ -32,7 +32,11 @@ export class SevenPayService {
 	public currentScope = computed(() => this.userContext()?.scope || null);
 
 	constructor(private http: HttpClient) {
-		if (this.token()) this.decodeAndSetContext(this.token()!);
+		const savedToken = localStorage.getItem('sp_token');
+		if (savedToken) {
+			this.token.set(savedToken);
+			this.decodeAndSetContext(savedToken);
+		}
 	}
 
 	// Native method helper to write persistent cookies (Max-Age: 1 Year)
