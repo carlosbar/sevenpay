@@ -1,13 +1,14 @@
 // src/controllers/advanceController.ts
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
-import { authorize } from '../middlewares/authMiddleware';
+import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 const advanceSchema: ValidationSchema = {
 	endUserId: { type: 'string', required: true, format: 'uuid' },
-	requestedAmountCents: { type: 'number', required: true, format: 'cents' },
+	requestedAmountCents: { type: 'number', required: true },
 	installmentsTotal: { type: 'number', required: true }
 };
 
@@ -18,7 +19,7 @@ class AdvanceController {
 	 * /api/v1/advances/request:
 	 *   post:
 	 *     summary: Request a new credit advance payout
-	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking (FOR UPDATE), cumulative monthly limits, and automatically provisions future amortization installments using 64-bit integer cents. Computes user margins dynamically in real-time.
+	 *     description: Processes a credit advance request, executing strict multi-tenant validations, delinquency gates, row locking (FOR UPDATE), cumulative monthly limits, and automatically provisions future amortization installments using 64-bit integer cents. Computes user margins dynamically in real-time. Perimeter validation handles horizontal privilege bounds automatically.
 	 *     tags:
 	 *       - Advances
 	 *     requestBody:
@@ -38,7 +39,6 @@ class AdvanceController {
 	 *                 example: "f1e2d3c4-b5a6-7f8e-9d0c-1b2a3f4e5d6c"
 	 *               requestedAmountCents:
 	 *                 type: integer
-	 *                 format: int64
 	 *                 example: 50000
 	 *               installmentsTotal:
 	 *                 type: integer
@@ -46,32 +46,8 @@ class AdvanceController {
 	 *     responses:
 	 *       201:
 	 *         description: Advance approved and registered successfully
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 result:
-	 *                   type: string
-	 *                   example: "success"
-	 *                 data:
-	 *                   type: object
-	 *                   properties:
-	 *                     requestId:
-	 *                       type: string
-	 *                       format: uuid
-	 *                     netPayoutCents:
-	 *                       type: string
-	 *                       example: "48250"
-	 *                     dispatchedToPixKey:
-	 *                       type: string
-	 *                       example: "12345678900"
-	 *       403:
-	 *         description: Access denied due to overdue/delinquent accounts
-	 *       422:
-	 *         description: Business rule, risk constraint, or B2B portfolio limit violation
 	 */
-	public async requestAdvance(req: Request, res: Response, next: NextFunction): Promise<void> {
+	public async requestAdvance(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
 		const { endUserId, requestedAmountCents, installmentsTotal } = req.body;
 		const client: PoolClient = await db.getClient();
 
@@ -116,7 +92,6 @@ class AdvanceController {
 			`;
 			const cumulativeRes = await client.query(cumulativeQuery, [endUserId]);
 			const totalAdvancedThisMonth = BigInt(cumulativeRes.rows[0].total_advanced);
-
 			// STEP 5: Real-Time Dynamic Math Calculations in 64-bit BigInt Cents
 			const monthlyContractValue = BigInt(user.monthly_contract_value_cents);
 			const maxAdvancePercentage = Number(user.max_advance_percentage);
@@ -125,9 +100,11 @@ class AdvanceController {
 			const maxAllowableCapacity = (monthlyContractValue * BigInt(Math.round(maxAdvancePercentage * 100))) / BigInt(10000);
 			const realAvailableMargin = maxAllowableCapacity - totalAdvancedThisMonth;
 
-			if (requestedAmount > realAvailableMargin) {
+			const isAmountBreaching = requestedAmount > realAvailableMargin;
+			if (isAmountBreaching) {
 				throw { statusCode: 422, message: 'The requested volume breaches the dynamic real-time monthly allowable margin for this user.' };
 			}
+
 			// STEP 6: Tenant B2B Global Limit Verification (Real-Time Aggregate)
 			const globalLimitQuery = `
 				SELECT t.global_credit_limit_cents, COALESCE(SUM(r.requested_amount_cents), 0) as total_tenant_spent
@@ -141,7 +118,8 @@ class AdvanceController {
 			const tenantLimit = BigInt(globalLimitRes.rows[0].global_credit_limit_cents);
 			const tenantSpent = BigInt(globalLimitRes.rows[0].total_tenant_spent);
 
-			if (tenantSpent + requestedAmount > tenantLimit) {
+			const isLimitExceeded = tenantSpent + requestedAmount > tenantLimit;
+			if (isLimitExceeded) {
 				throw { statusCode: 422, message: 'B2B Tenant credit portfolio limit exceeded for the active commercial agreement.' };
 			}
 
@@ -227,12 +205,16 @@ class AdvanceController {
 
 const advanceController = new AdvanceController();
 
+// Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/advances/request',
 	handler: [
-		authorize([{ method: 'POST', scope: ScopeTarget.END_USER, action: ActionTarget.CREATE }]), 
-		validateBody(advanceRequestSchema),
-		(req: AuthenticatedRequest, res: Response, next: NextFunction) => advanceRequestController.execute(req, res, next)
+		// 🛡️ Advanced Security Matrix protecting properties via automated validation cross-checks
+		authorize([
+			{ method: 'POST', scope: ScopeTarget.END_USER, action: ActionTarget.CREATE, validateEndUserIdFrom: 'body' }
+		]),
+		validateBody(advanceSchema),
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => advanceController.requestAdvance(req, res, next)
 	]
 };
