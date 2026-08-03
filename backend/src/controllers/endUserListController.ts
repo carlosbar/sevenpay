@@ -53,7 +53,7 @@ class EndUserListController {
 
 			// 1. Enforce strict parameter presence barrier to isolate workspace lookups
 			if (!targetTenantId) {
-				throw { statusCode: 422, message: 'Validation failed. The tenantId query parameter is strictly required for this ledger transaction.' };
+				throw { statusCode: 422, errorToken: 'QUERY_TENANT_ID_REQUIRED' };
 			}
 
 			const queryParams: any[] = [limit, offset, targetTenantId];
