@@ -79,3 +79,11 @@ body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, sy
 input, select { background-color: #0f172a; border: 1px solid #1e293b; color: #f8fafc; width: 100%; box-sizing: border-box; }
 input:focus, select:focus { border-color: #10b981; outline: none; }
 button { font-family: inherit; border: none; }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.col-span-3 { grid-column: span 3 / span 3; }
+.col-span-4 { grid-column: span 4 / span 4; }
+.col-span-1 { grid-column: span 1 / span 1; }
+.items-end { align-items: flex-end; }
+.pb-1 { padding-bottom: 0.25rem; }
+.pt-4 { padding-top: 1rem; }
+.border-t { border-top-width: 1px; border-style: solid; }
