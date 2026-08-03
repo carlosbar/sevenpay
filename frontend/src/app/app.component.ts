@@ -1,13 +1,9 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-	SevenPayService, 
-	EndUser, 
-	Tenant,
-	AmortizationInstallment 
-} from './core/services/sevenpay.service';
+import { SevenPayService, UserContext } from './core/services/sevenpay.service';
 import { PricingManagerComponent, PricingTierInput } from './components/pricing-manager/pricing-manager.component';
+import { TRANSLATIONS } from './core/constants/i18n';
 
 @Component({
 	selector: 'app-root',
@@ -16,15 +12,12 @@ import { PricingManagerComponent, PricingTierInput } from './components/pricing-
 	templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-	// Global reative matrices driven by state signals
-	public tenants = signal<Tenant[]>([]);
-	public endUsers = signal<EndUser[]>([]);
+	public tenants = signal<any[]>([]);
+	public endUsers = signal<any[]>([]);
 	public activeProfile = signal<any | null>(null);
-	public installments = signal<AmortizationInstallment[]>([]);
+	public installments = signal<any[]>([]);
 	public globalMetrics = signal<any>({});
-	public activePricingMatrix = signal<PricingTierInput[]>([{ installmentsCount: 1, feePercentage: 8.00, maxAdvancePercentage: 30.00 }]);
-  
-	// Dynamic filtering anchors for granular multi-tenant visualization
+	
 	public selectedTenantId = signal<string | null>(null);
 	public filteredEndUsers = computed(() => {
 		const tenantId = this.selectedTenantId();
@@ -32,26 +25,24 @@ export class AppComponent implements OnInit {
 		return this.endUsers().filter(user => user.tenantId === tenantId);
 	});
 
-	public credentials = { email: '', password: '' };
-	
-	public tenantForm = {
-		cnpj: '',
-		name: '',
-		businessType: 'HR',
-		globalCreditLimitCents: 0
-	};
+	public activePricingMatrix = signal<PricingTierInput[]>([
+		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
+	]);
 
-	public advanceForm = {
-		requestedAmount: null as number | null,
-		installmentsTotal: 1
-	};
+	public credentials = { email: '', password: '' };
+	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
+	public advanceForm = { requestedAmount: null as number | null, installmentsTotal: 1 };
 
 	constructor(public svc: SevenPayService) {}
 
 	public ngOnInit(): void {
 		if (this.svc.isAuthenticated()) {
-			this.evaluateWorkspaceQueryRouting();
+			this.evaluateWorkspaceWorkspaceQueryRouting();
 		}
+	}
+
+	public getAvailableLanguages(): ('en' | 'pt-br')[] {
+		return Object.keys(TRANSLATIONS) as ('en' | 'pt-br')[];
 	}
 
 	public formatCents(centsValue: string | number): string {
@@ -59,9 +50,8 @@ export class AppComponent implements OnInit {
 		return (parsed / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 	}
 
-	public evaluateWorkspaceQueryRouting(): void {
+	public evaluateWorkspaceWorkspaceQueryRouting(): void {
 		const scope = this.svc.currentScope();
-		
 		if (scope === 'MASTER') {
 			this.loadFintechControlTowerData();
 		} else if (scope === 'TENANT') {
@@ -73,44 +63,35 @@ export class AppComponent implements OnInit {
 	}
 
 	public loadFintechControlTowerData(): void {
-		// Concurrent stream loading all layout layers
 		this.svc.getTenants().subscribe({
-			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
-			error: (err) => console.error('Failed to stream tenants rows:', err)
+			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); }
 		});
-
 		this.svc.getEndUsers(100, 0).subscribe({
-			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
-			error: (err) => console.error('Failed to stream global consumers:', err)
+			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
 		});
-
 		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
-			error: (err) => console.error('Failed to parse dynamic ledger metrics:', err)
+			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); }
 		});
 	}
 
 	public selectTenant(tenantId: string): void {
-		// Toggle select filter vector instantly
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
 	}
 
 	public loadActiveWorkspaceUsers(): void {
 		this.svc.getEndUsers(50, 0).subscribe({
-			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
-			error: (err) => console.error('Failed to stream workspace rows:', err)
+			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
 		});
 	}
 
 	public loadConsumerSelfProfile(consumerId: string): void {
 		this.svc.inspectEndUser(consumerId).subscribe({
 			next: (res) => {
-				if (res.result === 'success' && res.data?.profile) {
+				if (res.result === 'success') {
 					this.activeProfile.set(res.data.profile);
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
-			},
-			error: (err) => console.error('Profile sync inspection failure:', err)
+			}
 		});
 	}
 
@@ -121,8 +102,7 @@ export class AppComponent implements OnInit {
 					this.activeProfile.set(res.data.profile);
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
-			},
-			error: (err) => alert(err.error?.reason || 'Deep inspection operational failure.')
+			}
 		});
 	}
 
@@ -130,10 +110,9 @@ export class AppComponent implements OnInit {
 		event.preventDefault();
 		this.svc.login(this.credentials).subscribe({
 			next: () => {
-				this.evaluateWorkspaceQueryRouting();
+				this.evaluateWorkspaceWorkspaceQueryRouting();
 				this.credentials = { email: '', password: '' };
-			},
-			error: (err) => alert(err.error?.reason || 'Authentication matrix checkpoint rejection.')
+			}
 		});
 	}
 
@@ -146,16 +125,14 @@ export class AppComponent implements OnInit {
 			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimitCents * 100),
 			pricingMatrix: this.activePricingMatrix()
 		};
-
-    this.svc.provisionTenant(payload).subscribe({
+		this.svc.provisionTenant(payload).subscribe({
 			next: (res) => {
 				if (res.result === 'success') {
 					alert('B2B Tenant deployed and provisioned successfully.');
 					this.loadFintechControlTowerData();
 					this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
 				}
-			},
-			error: (err) => alert(err.error?.reason || 'B2B Provisioning policy rejection.')
+			}
 		});
 	}
 
@@ -169,16 +146,14 @@ export class AppComponent implements OnInit {
 			requestedAmountCents: Math.round(this.advanceForm.requestedAmount * 100),
 			installmentsTotal: this.advanceForm.installmentsTotal
 		};
-
 		this.svc.createAdvanceRequest(payload).subscribe({
 			next: (res) => {
 				if (res.result === 'success') {
-					alert(`Pix withdrawal approved! Net payout of ${this.formatCents(res.data.netPayoutCents)} routed.`);
+					alert(`Pix Approved!`);
 					this.loadConsumerSelfProfile(consumerId);
 					this.advanceForm = { requestedAmount: null, installmentsTotal: 1 };
 				}
-			},
-			error: (err) => alert(err.error?.reason || 'Credit engine validation checkpoint rejection.')
+			}
 		});
 	}
 }
