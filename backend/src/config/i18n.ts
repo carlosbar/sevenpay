@@ -2,6 +2,8 @@
 
 export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 	en: {
+		AUTH_TOKEN_MISSING: 'Security gateway violation. Authorization Bearer token header is missing or malformed.',
+		AUTH_TOKEN_INVALID: 'Security signature mismatch. The provided token is either expired or cryptographically corrupt.',
 		AUTH_CREDENTIALS_INVALID: 'Invalid e-mail or password credentials provided.',
 		CORE_PROTECTION_CONFIG_MISSING: 'Cryptographic subsystem unavailable. Key setup missing.',
 		TENANT_CNPJ_INVALID_FORMAT: 'Validation failed. CNPJ parameter must contain exactly 14 digits.',
@@ -25,12 +27,15 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_USER_ATTRIBUTES_CORRUPTED: 'Processing aborted. Corrupted matrix attributes found inside the users payload block.',
 		SYNC_CONTRACT_VALUE_INVALID: 'Processing aborted. Contract numerical entries must be valid non-negative integer cents.',
 		TENANT_RECORD_NOT_FOUND: 'Target company tenant workspace record not found in the infrastructure database.',
-		QUERY_FILTRATION_VECTORS_REQUIRED: 'Validation failed. Both tenantId and endUserId query parameters are strictly required.'
+		QUERY_FILTRATION_VECTORS_REQUIRED: 'Validation failed. Both tenantId and endUserId query parameters are strictly required.',
+		RBAC_FORBIDDEN_MATRIX: 'Access denied. Insufficient administrative privileges to perform this operation over the targeted domain.'
 	},
 	'pt-br': {
+		AUTH_TOKEN_MISSING: 'Violação de segurança. O cabeçalho Token Bearer de autorização está ausente ou mal-formatado.',
+		AUTH_TOKEN_INVALID: 'Incompatibilidade de assinatura. O token fornecido está expirado ou criptograficamente corrompido.',
 		AUTH_CREDENTIALS_INVALID: 'Endereço de e-mail ou senha de segurança inválidos.',
 		CORE_PROTECTION_CONFIG_MISSING: 'Subsistema de proteção criptográfica indisponível. Configuração de chaves ausente.',
-		TENANT_CNPJ_INVALID_FORMAT: 'Falha de validação. O parâMENTRO CNPJ fornecido deve conter exatamente 14 dígitos numéricos.',
+		TENANT_CNPJ_INVALID_FORMAT: 'Falha de validação. O parâmetro CNPJ fornecido deve conter exatamente 14 dígitos numéricos.',
 		TENANT_BUSINESS_TYPE_UNSUPPORTED: 'Modelo de negócio corporativo B2B não suportado pela infraestrutura da plataforma.',
 		TENANT_CNPJ_ALREADY_EXISTS: 'Conflito de dados de livro razão. Já existe um parceiro registrado com este CNPJ.',
 		TENANT_NOT_FOUND_FOR_UPDATE: 'Falha na atualização. O parceiro corporativo alvo não foi localizado para sobrescrita.',
@@ -51,6 +56,7 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_USER_ATTRIBUTES_CORRUPTED: 'Atributos estruturais obrigatórios ausentes ou corrompidos no lote de funcionários enviado.',
 		SYNC_CONTRACT_VALUE_INVALID: 'O valor de salário ou contrato base em centavos deve ser um número inteiro positivo.',
 		TENANT_RECORD_NOT_FOUND: 'Os metadados da empresa parceira alvo não foram localizados no banco de dados da infraestrutura.',
-		QUERY_FILTRATION_VECTORS_REQUIRED: 'Os parâmetros tenantId e endUserId são obrigatórios para isolar a busca do extrato.'
+		QUERY_FILTRATION_VECTORS_REQUIRED: 'Os parâmetros tenantId and endUserId são obrigatórios para isolar a busca do extrato.',
+		RBAC_FORBIDDEN_MATRIX: 'Acesso negado. Privilégios administrativos insuficientes para realizar esta operação no domínio alvo.'
 	}
 };
