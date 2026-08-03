@@ -89,12 +89,12 @@ class TenantCreateController {
 			// 1. Validate clean formatting parameters for the CNPJ identifier string
 			const cleanCnpj = cnpj.replace(/\D/g, '');
 			if (cleanCnpj.length !== 14) {
-				throw { statusCode: 422, message: 'Validation failed. The CNPJ parameter must contain exactly 14 numeric digits.' };
+				throw { statusCode: 422, errorToken: 'TENANT_CNPJ_INVALID_FORMAT' };
 			}
 
 			// 2. Assert input strings match the strict PostgreSQL native ENUM constraints
 			if (businessType !== 'HR' && businessType !== 'REAL_ESTATE') {
-				throw { statusCode: 422, message: 'Validation failed. The businessType parameter must be explicitly set to either "HR" or "REAL_ESTATE".' };
+				throw { statusCode: 422, errorToken: 'TENANT_BUSINESS_TYPE_UNSUPPORTED' };
 			}
 
 			const globalLimit = BigInt(globalCreditLimitCents);
@@ -116,7 +116,7 @@ class TenantCreateController {
 				const updateRes = await client.query(updateTenantQuery, [name, businessType, globalLimit.toString(), cleanCnpj]);
 
 				if (updateRes.rows.length === 0) {
-					throw { statusCode: 444, message: 'Update failed. No partner company found with the provided CNPJ identifier.' };
+					throw { statusCode: 444, errorToken: 'TENANT_NOT_FOUND_FOR_UPDATE' };
 				}
 
 				const targetId = updateRes.rows[0].id;
@@ -128,7 +128,7 @@ class TenantCreateController {
 				// Enforces strict collision boundaries to block silent data overwrites
 				const checkRes = await client.query(`SELECT id FROM tenants WHERE cnpj = $1;`, [cleanCnpj]);
 				if (checkRes.rows.length > 0) {
-					throw { statusCode: 409, message: 'Conflict detected. A corporate partner with this CNPJ registry already exists.' };
+					throw { statusCode: 409, errorToken: 'TENANT_CNPJ_ALREADY_EXISTS' };
 				}
 
 				const insertTenantQuery = `
@@ -154,7 +154,7 @@ class TenantCreateController {
 				const isNegativeMargin = Math.sign(maxAdvancePercentage) === -1;
 
 				if (isZeroOrNegativeMonths || isNegativeFee || isNegativeMargin) {
-					throw { statusCode: 422, message: 'Unprocessable structural entries inside the pricing matrix bundle.' };
+					throw { statusCode: 422, errorToken: 'TENANT_MATRIX_VALUES_INVALID' };
 				}
 
 				await client.query(insertMatrixQuery, [newTenant.id, installmentsCount, feePercentage, maxAdvancePercentage]);
