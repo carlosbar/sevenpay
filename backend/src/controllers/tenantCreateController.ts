@@ -186,11 +186,11 @@ const tenantCreateController = new TenantCreateController();
 
 // Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
-        method: 'post',
-        path: '/api/v1/admin/tenants',
-        handler: [
-                authorize('delete'), // Restricting infrastructure corporate changes exclusively to root sysadmins
-                validateBody(tenantCreateSchema),
-                (req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantCreateController.createTenant(req, res, next)
-        ]
+	method: 'post',
+	path: '/api/v1/admin/tenants',
+	handler: [
+		authorize('TENANT', 'CREATE'),
+		validateBody(createTenantSchema),
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantCreateController.createTenant(req, res, next)
+	]
 };
