@@ -131,7 +131,8 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/end-users/inspect',
 	handler: [
-		authorize('read'),
-		(req: AuthenticatedRequest, res: Response, next: NextFunction) => endUserInspectController.inspectEndUser(req, res, next)
+		authorize('END_USER', 'READ'),
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => endUserInspectController.inspect(req, res, next)
 	]
 };
+
