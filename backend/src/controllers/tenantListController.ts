@@ -80,7 +80,8 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/tenants',
 	handler: [
-		authorize('read'),
-		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantListController.listTenants(req, res, next)
+		authorize('TENANT', 'READ'), // Limits general enterprise auditing to authorized scopes
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantListController.list(req, res, next)
 	]
 };
+
