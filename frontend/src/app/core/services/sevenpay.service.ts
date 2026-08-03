@@ -22,9 +22,8 @@ export class SevenPayService {
 	public token = signal<string | null>(localStorage.getItem('sp_token'));
 	public userContext = signal<UserContext | null>(null);
 	public language = signal<'en' | 'pt-br'>((document.cookie.match(new RegExp('(?:^|; )sp_lang=([^;]*)'))?.[1] as 'en' | 'pt-br') || 'pt-br');
-	
 	public t = computed(() => TRANSLATIONS[this.language()]);
-	public isAuthenticated = computed(() => !!this.token() && !!this.userContext());
+	public isAuthenticated = computed(() => this.token() !== null && this.userContext() !== null);
 	public currentScope = computed(() => this.userContext()?.scope || null);
 
 	constructor(private http: HttpClient) {
