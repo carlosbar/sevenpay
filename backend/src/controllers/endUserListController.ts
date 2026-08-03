@@ -130,7 +130,8 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/end-users',
 	handler: [
-		authorize('read'),
-		(req: AuthenticatedRequest, res: Response, next: NextFunction) => endUserListController.listEndUsers(req, res, next)
+		authorize('END_USER', 'READ'), // Grants secure listing over multi-tenant barriers
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => endUserListController.list(req, res, next)
 	]
 };
+
