@@ -1,9 +1,10 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
 	SevenPayService, 
 	EndUser, 
+	Tenant,
 	AmortizationInstallment 
 } from './core/services/sevenpay.service';
 
@@ -14,12 +15,21 @@ import {
 	templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-	// Reactive Signals matrix managing the frontend view state
+	// Global reative matrices driven by state signals
+	public tenants = signal<Tenant[]>([]);
 	public endUsers = signal<EndUser[]>([]);
 	public activeProfile = signal<any | null>(null);
 	public installments = signal<AmortizationInstallment[]>([]);
+	public globalMetrics = signal<any>({});
+	
+	// Dynamic filtering anchors for granular multi-tenant visualization
+	public selectedTenantId = signal<string | null>(null);
+	public filteredEndUsers = computed(() => {
+		const tenantId = this.selectedTenantId();
+		if (!tenantId) return [];
+		return this.endUsers().filter(user => user.tenantId === tenantId);
+	});
 
-	// Form mappings matching user input targets
 	public credentials = { email: '', password: '' };
 	
 	public tenantForm = {
@@ -37,7 +47,6 @@ export class AppComponent implements OnInit {
 	constructor(public svc: SevenPayService) {}
 
 	public ngOnInit(): void {
-		// Auto-fetch dashboard portfolio metadata if a token already exists on browser reload
 		if (this.svc.isAuthenticated()) {
 			this.evaluateWorkspaceQueryRouting();
 		}
@@ -51,8 +60,9 @@ export class AppComponent implements OnInit {
 	public evaluateWorkspaceQueryRouting(): void {
 		const scope = this.svc.currentScope();
 		
-		// Direct pipeline routing based on active authority contexts
-		if (scope === 'MASTER' || scope === 'TENANT') {
+		if (scope === 'MASTER') {
+			this.loadFintechControlTowerData();
+		} else if (scope === 'TENANT') {
 			this.loadActiveWorkspaceUsers();
 		} else if (scope === 'END_USER') {
 			const consumerId = this.svc.userContext()?.endUserId;
@@ -60,24 +70,32 @@ export class AppComponent implements OnInit {
 		}
 	}
 
-	public handleLogin(event: Event): void {
-		event.preventDefault();
-		this.svc.login(this.credentials).subscribe({
-			next: () => {
-				this.evaluateWorkspaceQueryRouting();
-				// Flush security fields upon operational confirmation
-				this.credentials = { email: '', password: '' };
-			},
-			error: (err) => alert(err.error?.reason || 'Authentication matrix checkpoint rejection.')
+	public loadFintechControlTowerData(): void {
+		// Concurrent stream loading all layout layers
+		this.svc.getTenants().subscribe({
+			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
+			error: (err) => console.error('Failed to stream tenants rows:', err)
+		});
+
+		this.svc.getEndUsers(100, 0).subscribe({
+			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
+			error: (err) => console.error('Failed to stream global consumers:', err)
+		});
+
+		this.svc.getGlobalMetrics().subscribe({
+			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
+			error: (err) => console.error('Failed to parse dynamic ledger metrics:', err)
 		});
 	}
+
+	public selectTenant(tenantId: string): void {
+		// Toggle select filter vector instantly
+		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
+	}
+
 	public loadActiveWorkspaceUsers(): void {
 		this.svc.getEndUsers(50, 0).subscribe({
-			next: (res) => {
-				if (res.result === 'success' && res.data?.endUsers) {
-					this.endUsers.set(res.data.endUsers);
-				}
-			},
+			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
 			error: (err) => console.error('Failed to stream workspace rows:', err)
 		});
 	}
@@ -87,9 +105,7 @@ export class AppComponent implements OnInit {
 			next: (res) => {
 				if (res.result === 'success' && res.data?.profile) {
 					this.activeProfile.set(res.data.profile);
-					if (res.data.amortizationInstallments) {
-						this.installments.set(res.data.amortizationInstallments);
-					}
+					this.installments.set(res.data.amortizationInstallments || []);
 				}
 			},
 			error: (err) => console.error('Profile sync inspection failure:', err)
@@ -108,6 +124,17 @@ export class AppComponent implements OnInit {
 		});
 	}
 
+	public handleLogin(event: Event): void {
+		event.preventDefault();
+		this.svc.login(this.credentials).subscribe({
+			next: () => {
+				this.evaluateWorkspaceQueryRouting();
+				this.credentials = { email: '', password: '' };
+			},
+			error: (err) => alert(err.error?.reason || 'Authentication matrix checkpoint rejection.')
+		});
+	}
+
 	public handleCreateTenant(event: Event): void {
 		event.preventDefault();
 		const payload = {
@@ -120,8 +147,8 @@ export class AppComponent implements OnInit {
 		this.svc.provisionTenant(payload).subscribe({
 			next: (res) => {
 				if (res.result === 'success') {
-					alert('B2B Tenant deployed and provisioned successfully into core matrices.');
-					this.loadActiveWorkspaceUsers();
+					alert('B2B Tenant deployed and provisioned successfully.');
+					this.loadFintechControlTowerData();
 					this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
 				}
 			},
