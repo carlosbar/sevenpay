@@ -196,8 +196,9 @@ export class AppComponent implements OnInit {
 
 		try {
 			const parsedUsers = JSON.parse(this.syncRawText());
-			this.svc.syncUsers(tenantId, { users: parsedUsers }).subscribe({
-				next: (res) => {
+			// 🔄 ALIGNED: Calling the corrected service signature with explicitly typed response parameter
+			this.svc.tenantSyncUsers(tenantId, { users: parsedUsers }).subscribe({
+				next: (res: any) => {
 					if (res.result === 'success') {
 						alert(`${res.data.synchronizedRecordsCount} consumer records synchronized.`);
 						this.syncRawText.set('');
