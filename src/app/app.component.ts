@@ -71,3 +71,84 @@ export class AppComponent implements OnInit {
 			error: (err) => alert(err.error?.reason || 'Authentication matrix checkpoint rejection.')
 		});
 	}
+	public loadActiveWorkspaceUsers(): void {
+		this.svc.getEndUsers(50, 0).subscribe({
+			next: (res) => {
+				if (res.result === 'success' && res.data?.endUsers) {
+					this.endUsers.set(res.data.endUsers);
+				}
+			},
+			error: (err) => console.error('Failed to stream workspace rows:', err)
+		});
+	}
+
+	public loadConsumerSelfProfile(consumerId: string): void {
+		this.svc.inspectEndUser(consumerId).subscribe({
+			next: (res) => {
+				if (res.result === 'success' && res.data?.profile) {
+					this.activeProfile.set(res.data.profile);
+					if (res.data.amortizationInstallments) {
+						this.installments.set(res.data.amortizationInstallments);
+					}
+				}
+			},
+			error: (err) => console.error('Profile sync inspection failure:', err)
+		});
+	}
+
+	public loadInspectionLayer(endUserId: string): void {
+		this.svc.inspectEndUser(endUserId).subscribe({
+			next: (res) => {
+				if (res.result === 'success') {
+					this.activeProfile.set(res.data.profile);
+					this.installments.set(res.data.amortizationInstallments || []);
+				}
+			},
+			error: (err) => alert(err.error?.reason || 'Deep inspection operational failure.')
+		});
+	}
+
+	public handleCreateTenant(event: Event): void {
+		event.preventDefault();
+		const payload = {
+			cnpj: this.tenantForm.cnpj,
+			name: this.tenantForm.name,
+			businessType: this.tenantForm.businessType,
+			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimitCents * 100)
+		};
+
+		this.svc.provisionTenant(payload).subscribe({
+			next: (res) => {
+				if (res.result === 'success') {
+					alert('B2B Tenant deployed and provisioned successfully into core matrices.');
+					this.loadActiveWorkspaceUsers();
+					this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
+				}
+			},
+			error: (err) => alert(err.error?.reason || 'B2B Provisioning policy rejection.')
+		});
+	}
+
+	public handleRequestAdvance(event: Event): void {
+		event.preventDefault();
+		const consumerId = this.svc.userContext()?.endUserId;
+		if (!consumerId || !this.advanceForm.requestedAmount) return;
+
+		const payload = {
+			endUserId: consumerId,
+			requestedAmountCents: Math.round(this.advanceForm.requestedAmount * 100),
+			installmentsTotal: this.advanceForm.installmentsTotal
+		};
+
+		this.svc.createAdvanceRequest(payload).subscribe({
+			next: (res) => {
+				if (res.result === 'success') {
+					alert(`Pix withdrawal approved! Net payout of ${this.formatCents(res.data.netPayoutCents)} routed.`);
+					this.loadConsumerSelfProfile(consumerId);
+					this.advanceForm = { requestedAmount: null, installmentsTotal: 1 };
+				}
+			},
+			error: (err) => alert(err.error?.reason || 'Credit engine validation checkpoint rejection.')
+		});
+	}
+}
