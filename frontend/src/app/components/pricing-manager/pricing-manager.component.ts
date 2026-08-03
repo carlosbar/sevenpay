@@ -17,7 +17,7 @@ export interface PricingTierInput {
 export class PricingManagerComponent {
 	// Signal holding the dynamic installments and fees rows matrix
 	public pricingRows = signal<PricingTierInput[]>([
-		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
+		{ installmentsCount: 1, feePercentage: 8.00, maxAdvancePercentage: 30.00 }
 	]);
 
 	@Output() onMatrixChanged = new EventEmitter<PricingTierInput[]>();
