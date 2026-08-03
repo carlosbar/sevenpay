@@ -1,10 +1,9 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { TRANSLATIONS } from '../constants/i18n'; // Enforces clean separate dictionary import
+import { TRANSLATIONS } from '../constants/i18n';
 
 export type RoleScope = 'MASTER' | 'TENANT' | 'END_USER';
-export type RequestStatus = 'PENDING' | 'APPROVED' | 'PAID' | 'REJECTED' | 'OVERDUE';
 
 export interface UserContext {
 	operatorId: string;
@@ -22,10 +21,10 @@ export class SevenPayService {
 	public token = signal<string | null>(localStorage.getItem('sp_token'));
 	public userContext = signal<UserContext | null>(null);
 	
-	// Active Language State Anchor (Defaults to Portuguese 'pt')
-	public language = signal<'en' | 'pt'>('pt');
+	// Enforces language retrieval directly from browser cookie vectors upon boot (Defaulting to 'pt-br')
+	public language = signal<'en' | 'pt-br'>(this.getCookie('sp_lang') as 'en' | 'pt-br' || 'pt-br');
 	
-	// Computed dictionary streaming translation tokens reactively to components
+	// Stream localization tokens seamlessly across components
 	public t = computed(() => TRANSLATIONS[this.language()]);
 
 	public isAuthenticated = computed(() => !!this.token());
@@ -33,6 +32,18 @@ export class SevenPayService {
 
 	constructor(private http: HttpClient) {
 		if (this.token()) this.decodeAndSetContext(this.token()!);
+	}
+
+	// Native method helper to write persistent cookies (Max-Age: 1 Year)
+	public setLanguageCookie(lang: 'en' | 'pt-br'): void {
+		this.language.set(lang);
+		document.cookie = `sp_lang=${lang}; path=/; max-age=31536000; SameSite=Strict; Secure`;
+	}
+
+	// Native method helper to read secure storage cookies safely
+	private getCookie(name: string): string | null {
+		const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+		return match ? match[2] as 'en' | 'pt-br' : null;
 	}
 
 	private getHeaders(): HttpHeaders {
