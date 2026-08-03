@@ -83,7 +83,7 @@ class TenantCreateController {
 
 		try {
 			if (!context) {
-				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			// 1. Validate clean formatting parameters for the CNPJ identifier string
