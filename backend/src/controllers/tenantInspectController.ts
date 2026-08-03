@@ -38,12 +38,12 @@ class TenantInspectController {
 			const targetTenantId = req.query.tenantId as string || null;
 
 			if (!context) {
-				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			// 1. Enforce strict parameter presence barrier to isolate ledger lookups before database scan
 			if (!targetTenantId) {
-				throw { statusCode: 422, message: 'Processing failed. Query parameters must supply a target tenantId parameter to isolate the relational scope.' };
+				throw { statusCode: 422, errorToken: 'QUERY_TENANT_ID_REQUIRED' };
 			}
 
 			// 2. Fetch Core Tenant Registration Data
@@ -54,7 +54,7 @@ class TenantInspectController {
 			const tenantRes = await db.query(tenantQuery, [targetTenantId]);
 
 			if (tenantRes.rowCount === 0) {
-				throw { statusCode: 404, message: 'Target company tenant workspace record not found in the infrastructure database.' };
+				throw { statusCode: 404, errorToken: 'TENANT_RECORD_NOT_FOUND' };
 			}
 
 			// 3. Fetch its entire active Pricing Fee Matrix rules grid layout
