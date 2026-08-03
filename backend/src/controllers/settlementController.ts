@@ -68,7 +68,7 @@ class SettlementController {
 			const installmentsRes = await client.query(fetchInstallmentsQuery, [tenantId, billingCompetence]);
 
 			if (installmentsRes.rowCount === 0) {
-				throw { statusCode: 422, message: 'Reconciliation aborted. No pending or overdue installments found for this target competence.' };
+				throw { statusCode: 422, errorToken: 'RECONCILIATION_OUTSTANDING_BALANCES_EMPTY' };
 			}
 
 			let totalBatchSettledCents = BigInt(0);
