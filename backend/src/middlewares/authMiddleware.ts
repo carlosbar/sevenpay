@@ -1,19 +1,14 @@
-// src/middlewares/authMiddleware.ts
+// backend/src/middlewares/authMiddleware.ts
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './types';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
-// Strategy locations telling the guard where to capture the requested resource IDs
-export type IdSourceLocation = 'query' | 'body' | 'params';
-
 export interface PolicyGuardRule {
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-	scope: ScopeTarget;
-	action: ActionTarget;
-	/** Dynamically validates if the extracted Tenant UUID belongs to the token holder context */
-	validateTenantIdFrom?: IdSourceLocation;
-	/** Dynamically validates if the extracted EndUser UUID belongs to the token holder context */
-	validateEndUserIdFrom?: IdSourceLocation;
+	scope: ScopeTarget | string; // 🔄 FIXED: Accept both Enum and raw string descriptors from DB
+	action: ActionTarget | string;
+	validateTenantIdFrom?: 'query' | 'body' | 'params';
+	validateEndUserIdFrom?: 'query' | 'body' | 'params';
 }
 
 /**
@@ -25,27 +20,30 @@ export const authorize = (rulesMatrix: PolicyGuardRule[]) => {
 		const context = req.userContext;
 
 		if (!context) {
-			res.status(401).json({ result: 'error', reason: 'Security framework violation. Identity token context missing.' });
+			res.status(401).json({ result: 'error', errorToken: 'AUTH_TOKEN_MISSING', reason: 'Identity token context missing.' });
 			return;
 		}
 
-		const currentMethod = req.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-		const currentScope = context.scope as ScopeTarget;
+		// 🔄 FIXED: Enforce absolute uppercase normalization across execution strings
+		const currentMethod = req.method.toUpperCase();
+		const currentScope = String(context.scope).toUpperCase();
 
-		// Helper method to dynamically fish target IDs from incoming request vectors safely
-		const extractId = (loc: IdSourceLocation | undefined, key: string): string | null => {
+		const extractId = (loc: 'query' | 'body' | 'params' | undefined, key: string): string | null => {
 			if (!loc) return null;
-			return (req[loc] && req[loc][key]) ? (req[loc][key] as string) : null;
+			return (req[loc] && req[loc][key]) ? String(req[loc][key]) : null;
 		};
 
 		// Evaluate matrix policies to find a valid rule matching the transaction signature
 		const hasValidCredentials = rulesMatrix.some(rule => {
-			// A. Match baseline signature
-			const matchSignature = rule.method === currentMethod && rule.scope === currentScope;
+			const ruleMethod = rule.method.toUpperCase();
+			const ruleScope = String(rule.scope).toUpperCase();
+
+			// A. Match baseline HTTP signature and Role Scope parameters
+			const matchSignature = ruleMethod === currentMethod && ruleScope === currentScope;
 			if (!matchSignature) return false;
 
 			// MASTER scope is omnipotent and bypasses cross-checks
-			if (currentScope === ScopeTarget.MASTER) return true;
+			if (currentScope === 'MASTER') return true;
 
 			// B. Enforce Horizontal Tenant Cross-Check Bounds via strict validation
 			if (rule.validateTenantIdFrom) {
@@ -67,9 +65,11 @@ export const authorize = (rulesMatrix: PolicyGuardRule[]) => {
 		});
 
 		if (!hasValidCredentials) {
+			// 🔄 DIAGNOSTIC EDGE: Returns 403 instead of blind 401 to clearly state signature mismatch vs missing token
 			res.status(403).json({ 
 				result: 'error', 
-				reason: `Access denied. Anti-fraud security violation triggered over the requested multi-tenant resource boundaries.` 
+				errorToken: 'RBAC_FORBIDDEN_MATRIX',
+				reason: `Access denied. Insufficient administrative privileges for scope ${currentScope} over method ${currentMethod}.` 
 			});
 			return;
 		}
