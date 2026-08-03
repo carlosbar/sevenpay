@@ -1,55 +1,45 @@
 // src/middlewares/authMiddleware.ts
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from './types'; // Assuming your custom types are mapped here
-
-export type ResourceTarget = 'TENANT' | 'END_USER' | 'ADVANCE_REQUEST' | 'LEDGER_METRICS';
-export type ActionTarget = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'DISBURSE';
+import { AuthenticatedRequest } from './types';
+import { ResourceTarget, ScopeTarget, ActionTarget, PermissionGuardTuple } from '../config/security.enums';
 
 /**
- * High-Performance Resource-Based Access Control (RBAC) Guard Middleware
- * Replaces confusing generic permission strings with strict business domain policies.
+ * Strict Enum-Based Access Control (RBAC) Gate Guard
+ * Evaluates fine-grained multi-tenant tuple structures injected directly by each controller.
  */
-export const authorize = (resource: ResourceTarget, action: ActionTarget) => {
+export const authorize = (resource: ResourceTarget, allowedPolicies: PermissionGuardTuple[]) => {
 	return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
 		const context = req.userContext;
 
-		// 1. Assert security context presence
+		// 1. Assert platform security context presence
 		if (!context) {
 			res.status(401).json({ result: 'error', reason: 'Security framework violation. Identity token context missing.' });
 			return;
 		}
 
-		// 2. Map and evaluate strict role scope access matrices
-		const isMaster = context.scope === 'MASTER';
-		const isTenantAdmin = context.scope === 'TENANT';
-		const isEndUser = context.scope === 'END_USER';
+		// 2. Extract current operator metadata from the decrypted JWT payload
+		const currentScope = context.scope as ScopeTarget;
+		
+		// Automatically determine the runtime execution action based on the RESTful HTTP Verb
+		let currentAction: ActionTarget = ActionTarget.READ;
+		if (req.method === 'POST') currentAction = ActionTarget.CREATE;
+		if (req.method === 'PUT') currentAction = ActionTarget.UPDATE;
+		if (req.method === 'DELETE') currentAction = ActionTarget.DELETE;
 
-		// Rule Check 1: Global Corporate Infrastructure Operations (Restricted to Root Master)
-		if (resource === 'TENANT' && (action === 'CREATE' || action === 'DELETE' || action === 'UPDATE')) {
-			if (!isMaster) {
-				res.status(403).json({ result: 'error', reason: 'Access denied. Corporate ecosystem modifications are restricted to fintech master accounts.' });
-				return;
-			}
+		// 3. Evaluate the security policy tuple array
+		const hasValidCredentials = allowedPolicies.some(([scope, action]) => {
+			return scope === currentScope && action === currentAction;
+		});
+
+		if (!hasValidCredentials) {
+			res.status(403).json({ 
+				result: 'error', 
+				reason: `Access denied. Insufficient role privileges to perform ${currentAction} operations over the ${resource} layer.` 
+			});
+			return;
 		}
 
-		// Rule Check 2: Aggregated Dashboard Metrics Telemetry Extraction
-		if (resource === 'LEDGER_METRICS' && action === 'READ') {
-			if (!isMaster) {
-				res.status(403).json({ result: 'error', reason: 'Access denied. Global liquidity dashboard views are restricted to master operators.' });
-				return;
-			}
-		}
-
-		// Rule Check 3: Horizontal Multi-Tenant Boundaries for Consumer Inspection
-		if (resource === 'END_USER' && action === 'READ') {
-			// Master can see everyone, Tenant Admin can see their workspace, End User can only see themselves
-			if (!isMaster && !isTenantAdmin && !isEndUser) {
-				res.status(403).json({ result: 'error', reason: 'Access denied. Insufficient role scope privileges to read consumer rows.' });
-				return;
-			}
-		}
-
-		// 3. Security matrix cleared successfully. Bubble up execution to the next controller layer.
+		// 4. Security clearance approved. Pass execution vector down to the operational controller pipeline.
 		next();
 	};
 };
