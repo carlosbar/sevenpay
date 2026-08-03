@@ -4,7 +4,7 @@ import { db } from '../config/db';
 import { PoolClient } from 'pg';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
-import { ResourceTarget, ScopeTarget, ActionTarget } from '../config/security.enums';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 const settlementSchema: ValidationSchema = {
 	tenantId: { type: 'string', required: true, format: 'uuid' },
@@ -138,9 +138,10 @@ export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/settlements/clear-competence',
 	handler: [
-		// 🛡️ Multi-rule matrix enforcing POST operation, MASTER scope, and DISBURSE actions for bulk liquidation
+		// 🛡️ Multi-rule matrix enforcing POST operation, MASTER scope, and CREATE actions for bulk liquidation with cross-check anchors
 		authorize([
-			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.DISBURSE }
+			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.CREATE },
+			{ method: 'POST', scope: ScopeTarget.TENANT, action: ActionTarget.CREATE, validateTenantIdFrom: 'body' }
 		]),
 		validateBody(settlementSchema),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => settlementController.settleCompetence(req, res, next)
