@@ -1,21 +1,6 @@
 // backend/src/config/security.enums.ts
 
 /**
- * Defines the application's secure operational resource domains.
- * Used by the RBAC middleware to target specific ledger and infrastructure sections.
- */
-export enum ResourceTarget {
-	/** Represents the B2B corporate partner account vector layer */
-	TENANT = 'TENANT',
-	/** Represents final consumer multi-tenant data rows and limit profiles */
-	END_USER = 'END_USER',
-	/** Represents cash advance requests, fees generation, and balance splits */
-	ADVANCE_REQUEST = 'ADVANCE_REQUEST',
-	/** Represents aggregated financial dashboard liquidity metrics and future receivables logs */
-	LEDGER_METRICS = 'LEDGER_METRICS'
-}
-
-/**
  * Defines strict account multi-tenant authority layers extracted from JWT payload contexts.
  * Maps horizontal boundaries to block unauthorized profile scope expansion.
  */
@@ -41,8 +26,6 @@ export enum ActionTarget {
 	UPDATE = 'UPDATE',
 	/** Bound to DELETE requests to perform infrastructure removals or drop temporary rows */
 	DELETE = 'DELETE',
-	/** Specific token operation to orchestrate instant B2B transactional cash out routings */
-	DISBURSE = 'DISBURSE'
 }
 
 /**
