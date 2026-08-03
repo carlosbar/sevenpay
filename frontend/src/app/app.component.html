@@ -92,6 +92,16 @@
 								<input type="number" name="limit" [(ngModel)]="tenantForm.globalCreditLimitCents" required class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
 							</div>
 						</div>
+						<!-- Grid do Modelo de Negócio e Limite Global (Mantenha as linhas originais) -->
+						<div class="grid grid-cols-2 gap-3">
+						  <!-- ... inputs originais de businessType e globalCreditLimitCents ... -->
+						</div>
+						<!-- ⚙️ INJEÇÃO DA TAG DINÂMICA DA MATRIZ DE TAXAS (ADICIONE ESTA LINHA) -->
+						<app-pricing-manager (onMatrixChanged)="activePricingMatrix.set($event)"></app-pricing-manager>
+						<!-- Botão de Envio Original (Mantenha igual) -->
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-2.5 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer mt-4">
+						  Deploy Tenant Vector
+						</button>
 						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-2.5 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer">
 							Deploy Tenant Vector
 						</button>
