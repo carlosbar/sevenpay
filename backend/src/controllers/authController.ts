@@ -62,7 +62,7 @@ class AuthController {
 			const operatorRes = await db.query(loginQuery, [email]);
 
 			if (operatorRes.rowCount === 0) {
-				throw { statusCode: 401, message: 'Invalid email or password credentials provided.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			const operator = operatorRes.rows[0];
@@ -78,7 +78,7 @@ class AuthController {
 			);
 
 			if (!isPasswordValid) {
-				throw { statusCode: 401, message: 'Invalid email or password credentials provided.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			// 4. Builds the JWT Payload embedding permissions matrix and multi-tenant isolation contexts
@@ -102,7 +102,7 @@ class AuthController {
 
 			if (!secretKey) {
 				console.error('[SECURITY COMPROMISED]: JWT_SECRET environment variable is missing on this node infrastructure.');
-				throw { statusCode: 500, message: 'Internal ledger protection configuration error. Cryptographic subsystem unavailable.' };
+				throw { statusCode: 500, errorToken: 'CORE_PROTECTION_CONFIG_MISSING' };
 			}
 
 			const token = jwt.sign(jwtPayload, secretKey, { expiresIn: '8h' });
