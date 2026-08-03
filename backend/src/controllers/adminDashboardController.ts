@@ -115,7 +115,7 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/dashboard/metrics',
 	handler: [
-		authorize('read'), // Asserts RBAC matrix permissions allow master view data extraction
+		authorize('LEDGER_METRICS', 'READ'),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => adminDashboardController.getMetrics(req, res, next)
 	]
 };
