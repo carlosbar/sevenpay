@@ -3,7 +3,7 @@ import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
-import { ResourceTarget, ScopeTarget, ActionTarget } from '../config/security.enums';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 // Schema validation matrix to shield the engine against corrupt pricing inputs
 const feeMatrixSchema: ValidationSchema = {
@@ -112,7 +112,7 @@ class FeeMatrixController {
 				throw { statusCode: 404, message: 'Transaction failed. Targeted pricing matrix record not found for configuration override.' };
 			}
 
-			const matrixRow = queryResult.rows[0];
+			const matrixRow = queryResult.rows;
 
 			// 3. Dispatch standardized success envelope back to the interface layer
 			res.status(isPutRequest ? 200 : 201).json({
