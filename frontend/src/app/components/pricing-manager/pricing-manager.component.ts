@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SevenPayService } from '../../core/services/sevenpay.service';
 
 export interface PricingTierInput {
 	installmentsCount: number;
@@ -15,18 +16,17 @@ export interface PricingTierInput {
 	templateUrl: './pricing-manager.component.html'
 })
 export class PricingManagerComponent {
-	// Signal holding the dynamic installments and fees rows matrix
 	public pricingRows = signal<PricingTierInput[]>([
-		{ installmentsCount: 1, feePercentage: 8.00, maxAdvancePercentage: 30.00 }
+		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
 	]);
 
 	@Output() onMatrixChanged = new EventEmitter<PricingTierInput[]>();
 
+	constructor(public svc: SevenPayService) {} // Injected to read computed dictionary tags
+
 	public addRow(event: Event): void {
 		event.preventDefault();
 		const currentRows = this.pricingRows();
-		
-		// Propose the next sequential installment sequence automatically
 		const nextInstallmentNumber = currentRows.length > 0 
 			? Math.max(...currentRows.map(r => r.installmentsCount)) + 1 
 			: 1;
@@ -41,7 +41,7 @@ export class PricingManagerComponent {
 	public removeRow(index: number, event: Event): void {
 		event.preventDefault();
 		const currentRows = this.pricingRows();
-		if (currentRows.length <= 1) return; // Enforce at least one baseline pricing row
+		if (currentRows.length <= 1) return;
 		
 		this.pricingRows.set(currentRows.filter((_, i) => i !== index));
 		this.emitMatrixState();
