@@ -1,3 +1,4 @@
+// src/app/core/services/sevenpay.service.ts
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -43,7 +44,7 @@ export class SevenPayService {
 	// Native method helper to read secure storage cookies safely
 	private getCookie(name: string): string | null {
 		const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-		return match ? match[2] as 'en' | 'pt-br' : null;
+		return match ? match[2] : null;
 	}
 
 	private getHeaders(): HttpHeaders {
@@ -78,16 +79,18 @@ export class SevenPayService {
 		this.userContext.set(null);
 	}
 
-	public getEndUsers(limit = 20, offset = 0): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/end-users?limit=${limit}&offset=${offset}`, { headers: this.getHeaders() });
+	// FIXED: Always enforces tenantId query parameter passing to fulfill the backend's strict single query pattern
+	public getEndUsers(limit = 20, offset = 0, tenantId: string): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/end-users?limit=${limit}&offset=${offset}&tenantId=${tenantId}`, { headers: this.getHeaders() });
 	}
 
 	public provisionTenant(tenantData: any): Observable<any> {
 		return this.http.post<any>(`${this.BASE_URL}/admin/tenants`, tenantData, { headers: this.getHeaders() });
 	}
 
-	public inspectEndUser(endUserId: string): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}`, { headers: this.getHeaders() });
+	// FIXED: Always passes tenantId into the query path to feed the validation cross-checks
+	public inspectEndUser(endUserId: string, tenantId: string): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}&tenantId=${tenantId}`, { headers: this.getHeaders() });
 	}
 
 	public createAdvanceRequest(payload: any): Observable<any> {
@@ -100,5 +103,20 @@ export class SevenPayService {
 
 	public getGlobalMetrics(): Observable<any> {
 		return this.http.get<any>(`${this.BASE_URL}/admin/dashboard/metrics`, { headers: this.getHeaders() });
+	}
+
+	// NEW: Fetches the history of payments and settlements for a specific company context
+	public getSettlementBatches(tenantId: string): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/tenants/settlements?tenantId=${tenantId}`, { headers: this.getHeaders() });
+	}
+
+	// NEW: Clear and reconcile multi-tenant plural installments competence layers
+	public clearCompetence(payload: any): Observable<any> {
+		return this.http.post<any>(`${this.BASE_URL}/settlements/clear-competence`, payload, { headers: this.getHeaders() });
+	}
+
+	// FIXED: Always enforces full query identity validation boundaries matching the new statement history rewrite
+	public getHistory(tenantId: string, endUserId: string): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/statements/history?tenantId=${tenantId}&endUserId=${endUserId}`, { headers: this.getHeaders() });
 	}
 }
