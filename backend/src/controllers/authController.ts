@@ -124,6 +124,7 @@ class AuthController {
 
 const authController = new AuthController();
 
+// Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/auth/login',
