@@ -1,4 +1,4 @@
-/* Native Core Emulation for Angular Offline Environments */
+/* Native Core Emulation for Angular Offline Environments - Escape Fixed */
 body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; min-height: 100vh; }
 .max-w-md { max-w: 28rem; margin-left: auto; margin-right: auto; }
 .bg-slate-950 { background-color: #020617; }
@@ -26,8 +26,8 @@ body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, sy
 .p-5 { padding: 1.25rem; }
 .p-6 { padding: 1.5rem; }
 .p-3 { padding: 0.75rem; }
-.p-3.5 { padding: 0.875rem; }
-.p-2.5 { padding: 0.625rem; }
+.p-3\.5 { padding: 0.875rem; }
+.p-2\.5 { padding: 0.625rem; }
 .p-2 { padding: 0.5rem; }
 .mb-1 { margin-bottom: 0.25rem; }
 .mb-2 { margin-bottom: 0.5rem; }
@@ -55,9 +55,9 @@ body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, sy
 .text-base { font-size: 1rem; }
 .text-sm { font-size: 0.875rem; }
 .text-xs { font-size: 0.75rem; }
-.text-[10px] { font-size: 10px; }
-.text-[11px] { font-size: 11px; }
-.text-[9px] { font-size: 9px; }
+.text-\[10px\] { font-size: 10px; }
+.text-\[11px\] { font-size: 11px; }
+.text-\[9px\] { font-size: 9px; }
 .text-emerald-400 { color: #34d399; }
 .text-slate-100 { color: #f8fafc; }
 .text-slate-200 { color: #e2e8f0; }
