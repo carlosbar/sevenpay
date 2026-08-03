@@ -2,6 +2,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class TenantListController {
 
@@ -10,7 +11,7 @@ class TenantListController {
 	 * /api/v1/admin/tenants:
 	 *   get:
 	 *     summary: List all corporate tenants
-	 *     description: Retrieves a paginated list of all B2B partner companies provisioned in the ecosystem. Restricted to master operations.
+	 *     description: Retrieves a paginated list of all B2B partner companies provisioned in the ecosystem. Restricted exclusively to master operations.
 	 *     tags:
 	 *       - Admin Dashboard
 	 *     security:
@@ -44,11 +45,6 @@ class TenantListController {
 				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
 			}
 
-			// Enforce master operational barrier
-			if (context.scope !== 'MASTER') {
-				throw { statusCode: 403, message: 'Access denied. Corporate listing is restricted to core fintech administrators.' };
-			}
-
 			const limit = parseInt(req.query.limit as string, 10) || 10;
 			const offset = parseInt(req.query.offset as string, 10) || 0;
 
@@ -76,12 +72,15 @@ class TenantListController {
 
 const tenantListController = new TenantListController();
 
+// Export the dynamic automated discovery route specification mapping contract
 export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/admin/tenants',
 	handler: [
-		authorize('TENANT', 'READ'), // Limits general enterprise auditing to authorized scopes
-		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantListController.list(req, res, next)
+		// 🛡️ Multi-rule matrix validation mapping exact RESTful operations and target credentials for master operators
+		authorize([
+			{ method: 'GET', scope: ScopeTarget.MASTER, action: ActionTarget.READ }
+		]),
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantListController.listTenants(req, res, next)
 	]
 };
-
