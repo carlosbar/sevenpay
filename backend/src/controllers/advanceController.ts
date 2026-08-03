@@ -231,8 +231,9 @@ export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/advances/request',
 	handler: [
-		authorize('create'),
-		validateBody(advanceSchema),
-		(req: Request, res: Response, next: NextFunction) => advanceController.requestAdvance(req, res, next)
+		authorize('ADVANCE_REQUEST', 'CREATE'), // Secures ledger row generation
+		validateBody(advanceRequestSchema),
+		(req: AuthenticatedRequest, res: Response, next: NextFunction) => advanceRequestController.execute(req, res, next)
 	]
 };
+
