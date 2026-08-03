@@ -3,51 +3,77 @@ import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './types';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
-// Explicit type checking structure representing a single cryptographic policy rule
+// Strategy locations telling the guard where to capture the requested resource IDs
+export type IdSourceLocation = 'query' | 'body' | 'params';
+
 export interface PolicyGuardRule {
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 	scope: ScopeTarget;
 	action: ActionTarget;
+	/** Dynamically validates if the extracted Tenant UUID belongs to the token holder context */
+	validateTenantIdFrom?: IdSourceLocation;
+	/** Dynamically validates if the extracted EndUser UUID belongs to the token holder context */
+	validateEndUserIdFrom?: IdSourceLocation;
 }
 
 /**
- * Universal Matrix-Based Access Control (MBAC) Guard Middleware
- * Dynamically cross-checks HTTP Operations, Scopes, and Required Actions via injected arrays.
+ * High-Performance Universal Matrix Guard Middleware
+ * Features automated anti-fraud horizontal cross-checking for multi-tenant data containment.
  */
 export const authorize = (rulesMatrix: PolicyGuardRule[]) => {
 	return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
 		const context = req.userContext;
 
-		// 1. Assert security context presence
 		if (!context) {
 			res.status(401).json({ result: 'error', reason: 'Security framework violation. Identity token context missing.' });
 			return;
 		}
 
-		// 2. Extract operational vectors from the active traffic request and token
 		const currentMethod = req.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 		const currentScope = context.scope as ScopeTarget;
 
-		// 3. Evaluate matrix policies to grant access execution clearance
-		// Iterates over the array checking if the tuple rules match the incoming transaction signature
+		// Helper method to dynamically fish target IDs from incoming request vectors safely
+		const extractId = (loc: IdSourceLocation | undefined, key: string): string | null => {
+			if (!loc) return null;
+			return (req[loc] && req[loc][key]) ? (req[loc][key] as string) : null;
+		};
+
+		// Evaluate matrix policies to find a valid rule matching the transaction signature
 		const hasValidCredentials = rulesMatrix.some(rule => {
-			return rule.method === currentMethod && 
-			       rule.scope === currentScope && 
-			       (rule.action === ActionTarget.CREATE || 
-			        rule.action === ActionTarget.UPDATE || 
-			        rule.action === ActionTarget.READ || 
-			        rule.action === ActionTarget.DELETE);
+			// A. Match baseline signature
+			const matchSignature = rule.method === currentMethod && rule.scope === currentScope;
+			if (!matchSignature) return false;
+
+			// MASTER scope is omnipotent and bypasses cross-checks
+			if (currentScope === ScopeTarget.MASTER) return true;
+
+			// B. Enforce Horizontal Tenant Cross-Check Bounds via strict validation
+			if (rule.validateTenantIdFrom) {
+				const requestedTenantId = extractId(rule.validateTenantIdFrom, 'tenantId');
+				if (!requestedTenantId || requestedTenantId !== context.tenantId) {
+					return false;
+				}
+			}
+
+			// C. Enforce Horizontal EndUser Cross-Check Bounds via strict validation
+			if (rule.validateEndUserIdFrom) {
+				const requestedEndUserId = extractId(rule.validateEndUserIdFrom, 'endUserId');
+				if (!requestedEndUserId || requestedEndUserId !== context.endUserId) {
+					return false;
+				}
+			}
+
+			return true;
 		});
 
 		if (!hasValidCredentials) {
 			res.status(403).json({ 
 				result: 'error', 
-				reason: `Access denied. Insufficient administrative policy permissions to perform ${currentMethod} operations.` 
+				reason: `Access denied. Anti-fraud security violation triggered over the requested multi-tenant resource boundaries.` 
 			});
 			return;
 		}
 
-		// 4. Security clearance verified successfully. Bubble up execution to the controller layer.
 		next();
 	};
 };
