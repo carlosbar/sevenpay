@@ -1,0 +1,187 @@
+<div class="min-h-screen bg-slate-900 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-slate-900">
+	<!-- 🌐 GLOBAL TOP HEADER BAR -->
+	<header class="sticky top-0 z-50 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 py-3 shadow-md backdrop-blur-md">
+		<div class="flex items-center gap-2">
+			<span class="text-xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+			@if (svc.isAuthenticated()) {
+				<span class="rounded bg-slate-800 px-2 py-0.5 font-mono text-[10px] font-bold text-slate-400 border border-slate-700">
+					{{ svc.currentScope() }}
+				</span>
+			}
+		</div>
+		
+		@if (svc.isAuthenticated()) {
+			<button (click)="svc.logout()" class="rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-400 transition hover:bg-slate-800 hover:text-red-400 cursor-pointer">
+				Logout 🚪
+			</button>
+		}
+	</header>
+
+	<main class="mx-auto max-w-md p-4 sm:p-6 pb-24">
+		<!-- 🔐 PHASE 1: OPERATOR GATEWAY (NOT AUTHENTICATED) -->
+		@if (!svc.isAuthenticated()) {
+			<div class="rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-xl">
+				<h1 class="text-xl font-black text-slate-100 mb-1">Operator Access</h1>
+				<p class="text-xs text-slate-400 mb-6">Cryptographic Ledger Gateway Core</p>
+				
+				<form (submit)="handleLogin($event)" class="space-y-4">
+					<div class="flex flex-col gap-1">
+						<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Email</label>
+						<input type="email" name="email" [(ngModel)]="credentials.email" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
+					</div>
+					<div class="flex flex-col gap-1">
+						<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+						<input type="password" name="password" [(ngModel)]="credentials.password" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
+					</div>
+					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase tracking-widest text-slate-950 shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-400 cursor-pointer">
+						Request Token
+					</button>
+				</form>
+			</div>
+		}
+		<!-- 👑 PHASE 2: MASTER SCOPE (FINTECH CONTROL TOWER) -->
+		@if (svc.isAuthenticated() && svc.currentScope() === 'MASTER') {
+			<div class="space-y-6">
+				<!-- B2B Provisioning Block -->
+				<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+					<h2 class="text-base font-black text-emerald-400 mb-4 uppercase tracking-wider">Provision B2B Corporate Tenant</h2>
+					<form (submit)="handleCreateTenant($event)" class="space-y-4">
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold text-slate-400">CNPJ (14 Digits)</label>
+							<input type="text" name="cnpj" [(ngModel)]="tenantForm.cnpj" required class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+						</div>
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold text-slate-400">Company Name</label>
+							<input type="text" name="name" [(ngModel)]="tenantForm.name" required class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+						</div>
+						<div class="grid grid-cols-2 gap-3">
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold text-slate-400">Business Model</label>
+								<select name="businessType" [(ngModel)]="tenantForm.businessType" class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+									<option value="REAL_ESTATE">REAL_ESTATE</option>
+									<option value="HR">HR</option>
+								</select>
+							</div>
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold text-slate-400">Global Limit (BRL)</label>
+								<input type="number" name="limit" [(ngModel)]="tenantForm.globalCreditLimitCents" required class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+							</div>
+						</div>
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-2.5 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer">
+							Deploy Tenant Vector
+						</button>
+					</form>
+				</div>
+
+				<!-- Global Landscape Viewer -->
+				<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+					<h2 class="text-base font-black text-slate-200 mb-3">Global Credit Beneficiaries</h2>
+					<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-850">
+						@for (user of endUsers(); track user.id) {
+							<div (click)="loadInspectionLayer(user.id)" class="bg-slate-900/40 p-3.5 transition hover:bg-slate-800/50 cursor-pointer flex flex-col gap-1">
+								<div class="flex justify-between items-center">
+									<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
+									<span class="font-mono text-xs font-black text-emerald-400">{{ formatCents(user.marginAvailableCents) }}</span>
+								</div>
+								<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+									<span>Ref: {{ user.externalId }}</span>
+									<span>Value: {{ formatCents(user.monthlyContractValueCents) }}</span>
+								</div>
+							</div>
+						} @empty {
+							<p class="text-xs text-slate-500 p-4 text-center">No portfolio rows returned.</p>
+						}
+					</div>
+				</div>
+			</div>
+		}
+		<!-- 🏢 PHASE 3: TENANT SCOPE (COMPANY ADMIN PORTAL) -->
+		@if (svc.isAuthenticated() && svc.currentScope() === 'TENANT') {
+			<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+				<h2 class="text-base font-black text-slate-200 mb-3">Active Workspace Beneficiaries</h2>
+				<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-850">
+					@for (user of endUsers(); track user.id) {
+						<div (click)="loadInspectionLayer(user.id)" class="bg-slate-900/40 p-3.5 transition hover:bg-slate-800/50 cursor-pointer flex flex-col gap-1">
+							<div class="flex justify-between items-center">
+								<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
+								<span class="font-mono text-xs font-black text-emerald-400">{{ formatCents(user.marginAvailableCents) }}</span>
+							</div>
+							<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+								<span>ID: {{ user.externalId }}</span>
+								<span>Salary/Rent Contract: {{ formatCents(user.monthlyContractValueCents) }}</span>
+							</div>
+						</div>
+					} @empty {
+						<p class="text-xs text-slate-500 p-4 text-center">No active workspace data discovered.</p>
+					}
+				</div>
+			</div>
+		}
+
+		<!-- 📱 PHASE 4: END_USER SCOPE (MOBILE CONSUMER DASHBOARD) -->
+		@if (svc.isAuthenticated() && svc.currentScope() === 'END_USER') {
+			<div class="space-y-6">
+				<!-- Consumer Dynamic Balance Matrix -->
+				<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl text-center relative overflow-hidden">
+					<div class="absolute -right-10 -top-10 w-24 h-24 rounded-full bg-emerald-500/5 blur-xl"></div>
+					<span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Real-Time Available Margin</span>
+					<h2 class="text-3xl font-black text-emerald-400 font-mono mt-1 mb-2">{{ formatCents(activeProfile()?.marginAvailableCents || '0') }}</h2>
+					<div class="inline-block rounded-full bg-slate-900 px-3 py-1 text-[11px] font-mono border border-slate-800 text-slate-400">
+						Base Contract: {{ formatCents(activeProfile()?.monthlyContractValueCents || '0') }}
+					</div>
+				</div>
+
+				<!-- Advance Cash Trigger Box -->
+				<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+					<h3 class="text-sm font-black text-slate-200 uppercase tracking-wider mb-3">Request New Cash Advance</h3>
+					<form (submit)="handleRequestAdvance($event)" class="space-y-4">
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold text-slate-400">Withdrawal Amount (BRL)</label>
+							<input type="number" name="amount" [(ngModel)]="advanceForm.requestedAmount" required placeholder="0.00" class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+						</div>
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold text-slate-400">Split Installments Count</label>
+							<input type="number" name="installments" [(ngModel)]="advanceForm.installmentsTotal" required min="1" max="12" class="rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+						</div>
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer">
+							Dispatch Instant Pix Saque
+						</button>
+					</form>
+				</div>
+			</div>
+		}
+		<!-- 🔍 REAL-TIME 360 AUDIT LEDGER DRAWER (POPULATED BY COMPONENT DATA INSPECTION) -->
+		@if (activeProfile() && svc.currentScope() !== 'END_USER') {
+			<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-950 p-5 shadow-2xl relative">
+				<button (click)="activeProfile.set(null)" class="absolute top-4 right-4 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer border-none bg-transparent">✕ Close</button>
+				<h3 class="text-sm font-black text-slate-100 mb-1">Consumer 360 telemetry Monitor</h3>
+				<p class="text-[11px] font-mono text-slate-400 mb-4 truncate">UUID: {{ activeProfile()?.id }}</p>
+				
+				<div class="grid grid-cols-2 gap-3 mb-4 text-xs font-mono">
+					<div class="bg-slate-900 p-2 rounded-lg border border-slate-850"><span class="block text-[10px] text-slate-500 font-bold">Holder:</span><span class="text-slate-200 font-bold">{{ activeProfile()?.name }}</span></div>
+					<div class="bg-slate-900 p-2 rounded-lg border border-slate-850"><span class="block text-[10px] text-slate-500 font-bold">Live Margin:</span><span class="text-emerald-400 font-bold">{{ formatCents(activeProfile()?.marginAvailableCents || '0') }}</span></div>
+				</div>
+
+				<h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Amortization Calendar</h4>
+				<div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+					@for (inst of installments(); track inst.id) {
+						<div class="flex items-center justify-between rounded-lg bg-slate-900/50 p-2.5 text-xs font-mono border border-slate-900">
+							<div class="flex flex-col">
+								<span class="text-slate-300 font-bold">Tier #{{ inst.installmentNumber }}</span>
+								<span class="text-[10px] text-slate-500">{{ inst.billingCompetence }}</span>
+							</div>
+							<div class="flex items-center gap-2">
+								<span class="text-red-400 font-black">{{ formatCents(inst.grossAmountCents) }}</span>
+								<span [class]="'rounded px-1.5 py-0.5 text-[9px] font-bold ' + (inst.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400')">
+									{{ inst.status }}
+								</span>
+							</div>
+						</div>
+					} @empty {
+						<p class="text-xs text-slate-600 text-center py-2">Profile amortization matrix empty.</p>
+					}
+				</div>
+			</div>
+		}
+	</main>
+</div>
