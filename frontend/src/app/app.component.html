@@ -1,32 +1,32 @@
-<div class="min-h-screen bg-slate-900 text-slate-100 font-sans antialiased flex selection:bg-emerald-500 selection:text-slate-900">
-	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX (ONLY WHEN AUTHENTICATED) -->
+<div class="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased flex selection:bg-emerald-500 selection:text-slate-900">
+	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX (CORRIGIDA COM ABAS ESCURAS) -->
 	@if (svc.isAuthenticated()) {
-		<aside [class.translate-x-0]="isSidebarOpen()" class="fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-800 bg-slate-950 p-4 transition-transform duration-300 lg:static lg:translate-x-0 shadow-xl flex flex-col justify-between">
+		<aside [class.translate-x-0]="isSidebarOpen()" class="fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-800 bg-slate-900 p-4 transition-transform duration-300 lg:static lg:translate-x-0 shadow-2xl flex flex-col justify-between">
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
 					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer">✕</button>
 				</div>
 
-				<nav class="space-y-1.5 font-mono text-xs font-bold uppercase tracking-wider">
+				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
 					@if (svc.currentScope() === 'MASTER') {
-						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-900]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">📊 DASHBOARD</button>
-						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-900]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">🏢 {{ svc.t()['activePortfolios'] }}</button>
-						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-900]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">🧾 {{ svc.t()['calendar'] }}</button>
+						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📊 {{ svc.t()['menuDashboard'] }}</button>
+						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🏢 {{ svc.t()['activePortfolios'] }}</button>
+						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🧾 {{ svc.t()['calendar'] }}</button>
 					}
 					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-900]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">👥 {{ svc.t()['linkedConsumers'] }}</button>
-						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-900]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">🔄 BATCH SYNC</button>
+						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">👥 {{ svc.t()['linkedConsumers'] }}</button>
+						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🔄 {{ svc.t()['menuBatchSync'] }}</button>
 					}
-					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-900]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition hover:bg-slate-900 cursor-pointer border-none text-slate-300">📜 STATEMENT</button>
+					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📜 {{ svc.t()['menuStatement'] }}</button>
 				</nav>
 			</div>
 
 			<div class="pt-4 border-t border-slate-800">
-				<div class="rounded bg-slate-900 px-2 py-1.5 font-mono text-[10px] text-center border border-slate-800 mb-3 text-slate-400 font-bold">
+				<div class="rounded-lg bg-slate-950 px-2 py-2 font-mono text-[10px] text-center border border-slate-800 mb-3 text-slate-400 font-bold uppercase tracking-wider">
 					SCOPE: {{ svc.currentScope() }}
 				</div>
-				<button (click)="svc.logout()" class="w-full rounded-lg bg-red-500/10 p-2.5 text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer uppercase font-mono">
+				<button (click)="svc.logout()" class="w-full rounded-lg bg-red-500/10 p-3 text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer uppercase font-mono tracking-widest">
 					{{ svc.t()['logout'] }}
 				</button>
 			</div>
@@ -36,16 +36,16 @@
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER -->
 	<div class="flex-1 flex flex-col min-w-0">
 		<!-- 🌐 GLOBAL TOP HEADER BAR -->
-		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 py-3 shadow-md backdrop-blur-md">
-			<div class="flex items-center gap-2">
+		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 shadow-xl">
+			<div class="flex items-center gap-3">
 				@if (svc.isAuthenticated()) {
 					<button (click)="isSidebarOpen.set(true)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer text-lg">☰</button>
 				}
 				<span class="text-xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
 			</div>
 			
-			<!-- 🌍 i18n COOKIE DIRECTED DYNAMIC SELECTOR -->
-			<div class="flex rounded-lg border border-slate-800 bg-slate-900 p-0.5 text-[10px] font-mono font-bold items-center gap-1 shadow-inner">
+			<!-- 🌍 i18n SELECTOR -->
+			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[10px] font-mono font-bold items-center gap-1 shadow-inner">
 				@for (langCode of getAvailableLanguages(); track langCode) {
 					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-2 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-1 hover:text-slate-300">
 						<span>{{ langCode === 'en' ? '🇺🇸' : '🇧🇷' }}</span>
@@ -56,23 +56,23 @@
 			</div>
 		</header>
 
-		<main class="flex-1 mx-auto w-full max-w-xl p-4 sm:p-6 pb-24 overflow-y-auto">
+		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 overflow-y-auto">
 			<!-- 🔐 PHASE 1: OPERATOR GATEWAY (NOT AUTHENTICATED) -->
 			@if (!svc.isAuthenticated()) {
-				<div class="rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-xl max-w-md mx-auto mt-8">
+				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl max-w-md mx-auto mt-8">
 					<h1 class="text-xl font-black text-slate-100 mb-1">{{ svc.t()['operatorAccess'] }}</h1>
 					<p class="text-xs text-slate-400 mb-6">{{ svc.t()['gatewayDesc'] }}</p>
 					
 					<form (submit)="handleLogin($event)" class="space-y-4">
 						<div class="flex flex-col gap-1">
 							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['email'] }}</label>
-							<input type="email" name="email" [(ngModel)]="credentials.email" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
+							<input type="email" name="email" [(ngModel)]="credentials.email" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
 						</div>
 						<div class="flex flex-col gap-1">
 							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['password'] }}</label>
-							<input type="password" name="password" [(ngModel)]="credentials.password" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
+							<input type="password" name="password" [(ngModel)]="credentials.password" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-3 text-sm text-slate-100 outline-none transition focus:border-emerald-500">
 						</div>
-						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase tracking-widest text-slate-950 shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-400 cursor-pointer">
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase tracking-widest text-slate-950 shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-400 cursor-pointer border-none">
 							{{ svc.t()['requestToken'] }}
 						</button>
 					</form>
@@ -84,24 +84,24 @@
 
 					<!-- 📊 SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD -->
 					@if (currentMenuSegment() === 'DASHBOARD' && svc.currentScope() === 'MASTER') {
-						<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl animate-fadeIn">
-							<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Fintech Global Liquidity Ledger</h2>
-							<div class="grid grid-cols-2 gap-3">
-								<div class="bg-slate-900 p-3 rounded-xl border border-slate-850">
-									<span class="block text-[10px] text-slate-500 font-bold uppercase">{{ svc.t()['totalDisbursed'] }}</span>
-									<span class="text-lg font-black text-slate-200 font-mono">{{ formatCents(globalMetrics().totalVolumeAdvancedCents || 0) }}</span>
+						<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4 animate-fadeIn">
+							<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+									<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['totalDisbursed'] }}</span>
+									<span class="text-xl font-black text-slate-200 font-mono">{{ formatCents(globalMetrics().totalVolumeAdvancedCents || 0) }}</span>
 								</div>
-								<div class="bg-slate-900 p-3 rounded-xl border border-slate-850">
-									<span class="block text-[10px] text-slate-500 font-bold uppercase">{{ svc.t()['feesCollected'] }}</span>
-									<span class="text-lg font-black text-emerald-400 font-mono">{{ formatCents(globalMetrics().totalFeesCollectedCents || 0) }}</span>
+								<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+									<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['feesCollected'] }}</span>
+									<span class="text-xl font-black text-emerald-400 font-mono">{{ formatCents(globalMetrics().totalFeesCollectedCents || 0) }}</span>
 								</div>
-								<div class="bg-slate-900 p-3 rounded-xl border border-slate-850">
-									<span class="block text-[10px] text-slate-500 font-bold uppercase">{{ svc.t()['receivablesFuture'] }}</span>
-									<span class="text-lg font-black text-amber-500 font-mono">{{ formatCents(globalMetrics().totalReceivablesCents || 0) }}</span>
+								<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+									<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['receivablesFuture'] }}</span>
+									<span class="text-xl font-black text-amber-500 font-mono">{{ formatCents(globalMetrics().totalReceivablesCents || 0) }}</span>
 								</div>
-								<div class="bg-slate-900 p-3 rounded-xl border border-slate-850">
-									<span class="block text-[10px] text-slate-500 font-bold uppercase">{{ svc.t()['overdueDefault'] }}</span>
-									<span class="text-lg font-black text-red-400 font-mono">{{ formatCents(globalMetrics().totalOverdueCents || 0) }}</span>
+								<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+									<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['overdueDefault'] }}</span>
+									<span class="text-xl font-black text-red-400 font-mono">{{ formatCents(globalMetrics().totalOverdueCents || 0) }}</span>
 								</div>
 							</div>
 						</div>
@@ -110,54 +110,49 @@
 					<!-- 🏢 SEGMENT: PARTNERS B2B INFRASTRUCTURE -->
 					@if (currentMenuSegment() === 'PARTNERS' && svc.currentScope() === 'MASTER') {
 						<div class="space-y-6 animate-fadeIn">
-							<!-- Provisioning Block -->
-							<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+							<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
 								<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">{{ svc.t()['provisionTenant'] }}</h2>
 								<form (submit)="handleCreateTenant($event)" class="space-y-4">
 									<div class="flex flex-col gap-1">
 										<label class="text-xs font-bold text-slate-400">{{ svc.t()['cnpj'] }}</label>
-										<input type="text" name="cnpj" [(ngModel)]="tenantForm.cnpj" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+										<input type="text" name="cnpj" [(ngModel)]="tenantForm.cnpj" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 									</div>
 									<div class="flex flex-col gap-1">
 										<label class="text-xs font-bold text-slate-400">{{ svc.t()['companyName'] }}</label>
-										<input type="text" name="name" [(ngModel)]="tenantForm.name" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+										<input type="text" name="name" [(ngModel)]="tenantForm.name" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 									</div>
-									<div class="grid grid-cols-2 gap-3">
+									<div class="grid grid-cols-2 gap-4">
 										<div class="flex flex-col gap-1">
 											<label class="text-xs font-bold text-slate-400">{{ svc.t()['businessModel'] }}</label>
-											<select name="businessType" [(ngModel)]="tenantForm.businessType" class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+											<select name="businessType" [(ngModel)]="tenantForm.businessType" class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 												<option value="REAL_ESTATE">REAL_ESTATE</option>
 												<option value="HR">HR</option>
 											</select>
 										</div>
 										<div class="flex flex-col gap-1">
 											<label class="text-xs font-bold text-slate-400">{{ svc.t()['globalLimit'] }}</label>
-											<input type="number" name="limit" [(ngModel)]="tenantForm.globalCreditLimitCents" required class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+											<input type="number" name="limit" [(ngModel)]="tenantForm.globalCreditLimitCents" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 										</div>
 									</div>
-
-									<!-- ⚙️ DYNAMIC PRICING GRID INJECTION -->
 									<app-pricing-manager (onMatrixChanged)="activePricingMatrix.set($event)"></app-pricing-manager>
-
-									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer mt-4">
+									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer border-none mt-4">
 										{{ svc.t()['deployTenant'] }}
 									</button>
 								</form>
 							</div>
 
-							<!-- Portfolios Viewer -->
-							<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
+							<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
 								<h2 class="text-sm font-black text-slate-200 mb-3">{{ svc.t()['activePortfolios'] }}</h2>
-								<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-850">
+								<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-800">
 									@for (t of tenants(); track t.id) {
-										<div (click)="selectTenant(t.id)" [class.border-l-2]="selectedTenantId() === t.id" class="border-emerald-500 bg-slate-900/40 p-3.5 transition hover:bg-slate-800/50 cursor-pointer flex flex-col gap-1">
+										<div (click)="selectTenant(t.id)" [class.border-l-4]="selectedTenantId() === t.id" class="border-emerald-500 bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5 shadow-inner">
 											<div class="flex justify-between items-center">
 												<span class="font-bold text-slate-200 text-sm">{{ t.name }}</span>
-												<span class="font-mono text-xs font-black text-emerald-400">{{ formatCents(t.globalCreditLimitCents) }}</span>
+												<span class="font-mono text-sm font-black text-emerald-400">{{ formatCents(t.globalCreditLimitCents) }}</span>
 											</div>
-											<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+											<div class="flex justify-between text-[10px] text-slate-400 font-mono tracking-wider">
 												<span>CNPJ: {{ t.cnpj }}</span>
-												<span>Model: {{ t.businessType }}</span>
+												<span>MODEL: {{ t.businessType }}</span>
 											</div>
 										</div>
 									} @empty {
@@ -167,26 +162,25 @@
 							</div>
 						</div>
 					}
-					<!-- 👥 SEGMENT: WORKSPACE BENEFICIARIES (FILTERED BY LOGGED PARTNER OR SELECTION) -->
+					<!-- 👥 SEÇÃO: LISTAGEM DE CONSUMIDORES VINCULADOS -->
 					@if (currentMenuSegment() === 'CONSUMERS') {
-						<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl animate-fadeIn">
+						<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl animate-fadeIn">
 							<h2 class="text-sm font-black text-slate-200 mb-3">{{ svc.t()['linkedConsumers'] }}</h2>
-							
 							@if (svc.currentScope() === 'MASTER' && !selectedTenantId()) {
-								<p class="text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-center font-bold">
-									⚠️ Selecione um Parceiro na aba de Portfólios para listar os beneficiários vinculados.
+								<p class="text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-center font-bold">
+									⚠️ {{ svc.t()['statementSelectProfile'] }}
 								</p>
 							} @else {
-								<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-850">
+								<div class="divide-y divide-slate-800/60 overflow-hidden rounded-xl border border-slate-800">
 									@for (user of endUsers(); track user.id) {
-										<div (click)="loadInspectionLayer(user.id)" class="bg-slate-900/40 p-3.5 transition hover:bg-slate-800/50 cursor-pointer flex flex-col gap-1">
+										<div (click)="loadInspectionLayer(user.id)" class="bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5 shadow-inner">
 											<div class="flex justify-between items-center">
 												<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
-												<span class="font-mono text-xs font-black text-emerald-400">{{ formatCents(user.marginAvailableCents) }}</span>
+												<span class="font-mono text-sm font-black text-emerald-400">{{ formatCents(user.marginAvailableCents) }}</span>
 											</div>
 											<div class="flex justify-between text-[10px] text-slate-400 font-mono">
-												<span>Ref: {{ user.externalId }}</span>
-												<span>Contract: {{ formatCents(user.monthlyContractValueCents) }}</span>
+												<span>REF: {{ user.externalId }}</span>
+												<span>CONTRACT: {{ formatCents(user.monthlyContractValueCents) }}</span>
 											</div>
 										</div>
 									} @empty {
@@ -197,49 +191,44 @@
 						</div>
 					}
 
-					<!-- 🔄 SEGMENT: BULK CONSUMER BATCH SYNC ONBOARDING -->
+					<!-- 🔄 SEÇÃO: SINCRONIZAÇÃO EM LOTE -->
 					@if (currentMenuSegment() === 'BATCH_SYNC') {
-						<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl animate-fadeIn">
-							<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">Sincronização de Funcionários em Lote</h2>
-							<p class="text-xs text-slate-400 mb-4">Insira a matriz estruturada de funcionários em formato JSON para processamento e readequação de margens de forma atômica.</p>
-							
+						<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl animate-fadeIn">
+							<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">{{ svc.t()['batchSyncTitle'] }}</h2>
+							<p class="text-xs text-slate-400 mb-4">{{ svc.t()['batchSyncDesc'] }}</p>
 							@if (svc.currentScope() === 'MASTER' && !selectedTenantId()) {
-								<p class="text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-center font-bold">
+								<p class="text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-center font-bold">
 									⚠️ Selecione um Parceiro na aba de Portfólios antes de injetar a sincronização.
 								</p>
 							} @else {
 								<form (submit)="handleBulkSync($event)" class="space-y-4">
 									<div class="flex flex-col gap-1">
-										<label class="text-xs font-bold text-slate-400">Payload da Matriz (Array JSON)</label>
-										<textarea rows="8" name="syncText" [(ngModel)]="syncRawText" placeholder='[\n  { "externalId": "EMP-01", "name": "João Silva", "monthlyContractValueCents": 350000 }\n]' required class="w-full font-mono text-xs rounded-lg border border-slate-800 bg-slate-900 p-3 text-slate-100 outline-none transition focus:border-emerald-500 resize-none"></textarea>
+										<label class="text-xs font-bold text-slate-400">Payload Array JSON</label>
+										<textarea rows="8" name="syncText" [placeholder]="svc.t()['batchSyncPlaceholder']" [(ngModel)]="syncRawText" required class="w-full font-mono text-xs rounded-lg border border-slate-800 bg-slate-950 p-3 text-slate-100 outline-none transition focus:border-emerald-500 resize-none"></textarea>
 									</div>
-									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer">
-										Disparar Carga Atômica
+									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer border-none">
+										{{ svc.t()['batchSyncButton'] }}
 									</button>
 								</form>
 							}
 						</div>
 					}
-
-					<!-- 📜 SEGMENT: TRANSACTION LEDGER STATEMENT HISTORY -->
+					<!-- 📜 SEÇÃO: EXTRATO IMUTÁVEL DO LIVRO RAZÃO -->
 					@if (currentMenuSegment() === 'STATEMENT') {
-						<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl animate-fadeIn">
-							<h2 class="text-sm font-black text-slate-200 mb-3">Extrato Geral Imutável</h2>
-							
+						<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl animate-fadeIn">
+							<h2 class="text-sm font-black text-slate-200 mb-3">{{ svc.t()['statementTitle'] }}</h2>
 							@if (svc.currentScope() !== 'END_USER' && !activeProfile()) {
-								<p class="text-xs text-slate-500 text-center py-4">Selecione um perfil de beneficiário para carregar as linhas auditadas do livro razão.</p>
+								<p class="text-xs text-slate-500 text-center py-4">{{ svc.t()['statementSelectProfile'] }}</p>
 							} @else {
 								<div class="space-y-2 max-h-96 overflow-y-auto pr-1">
 									@for (tx of transactions(); track tx.id) {
-										<div class="flex items-center justify-between rounded-lg bg-slate-900/50 p-3 text-xs font-mono border border-slate-850">
-											<div class="flex flex-col gap-0.5">
-												<span [class]="tx.type === 'DEBIT' ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'">
-													{{ tx.type }}
-												</span>
-												<span class="text-[9px] text-slate-500">Ref: {{ tx.advanceRequestId || 'Settlement Adjustment' }}</span>
+										<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850 shadow-inner">
+											<div class="flex flex-col gap-1">
+												<span [class]="tx.type === 'DEBIT' ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'">{{ tx.type }}</span>
+												<span class="text-[9px] text-slate-500">REF: {{ tx.advanceRequestId || 'Settlement Log' }}</span>
 											</div>
-											<div class="text-right flex flex-col gap-0.5">
-												<span class="text-slate-200 font-black">{{ formatCents(tx.amountCents) }}</span>
+											<div class="text-right flex flex-col gap-1">
+												<span class="text-slate-200 font-black text-sm">{{ formatCents(tx.amountCents) }}</span>
 												<span class="text-[9px] text-slate-500">{{ tx.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
 											</div>
 										</div>
@@ -250,79 +239,77 @@
 							}
 						</div>
 					}
-					<!-- 🧾 SEGMENT: MONTHLY CORPORATE COMPETENCE SETTLEMENT -->
+
+					<!-- 🧾 SEÇÃO: LIQUIDAÇÃO MENSAL CONTÁBIL -->
 					@if (currentMenuSegment() === 'SETTLEMENT' && svc.currentScope() === 'MASTER') {
 						<div class="space-y-6 animate-fadeIn">
-							<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
-								<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">Liquidação Mensal Contábil</h2>
+							<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+								<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">{{ svc.t()['settlementTitle'] }}</h2>
 								<form (submit)="handleClearCompetence($event)" class="space-y-4">
 									<div class="flex flex-col gap-1">
-										<label class="text-xs font-bold text-slate-400">ID do Parceiro Vinculado</label>
-										<input type="text" name="setTenant" [(ngModel)]="settlementForm.tenantId" required placeholder="UUID do Parceiro" class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+										<label class="text-xs font-bold text-slate-400">UUID do Parceiro</label>
+										<input type="text" name="setTenant" [(ngModel)]="settlementForm.tenantId" required class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 									</div>
 									<div class="flex flex-col gap-1">
-										<label class="text-xs font-bold text-slate-400">Competência de Fechamento (YYYY-MM)</label>
-										<input type="text" name="setComp" [(ngModel)]="settlementForm.billingCompetence" required placeholder="Ex: 2026-08" class="w-full rounded-lg border border-slate-800 bg-slate-900 p-2.5 text-sm outline-none focus:border-emerald-500">
+										<label class="text-xs font-bold text-slate-400">Competência (YYYY-MM)</label>
+										<input type="text" name="setComp" [(ngModel)]="settlementForm.billingCompetence" required placeholder="Ex: 2026-08" class="w-full rounded-lg border border-slate-800 bg-slate-950 p-2.5 text-sm outline-none focus:border-emerald-500">
 									</div>
-									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer">
-										Quitar Fatura Consolidada B2B
+									<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-400 cursor-pointer border-none">
+										{{ svc.t()['settlementButton'] }}
 									</button>
 								</form>
 							</div>
 
-							<!-- Historical Repayments Batches -->
-							<div class="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl">
-								<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Histórico de Lotes Conciliados</h3>
+							<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+								<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{{ svc.t()['settlementHistoryTitle'] }}</h3>
 								<div class="space-y-2">
 									@for (b of settlementBatches(); track b.id) {
-										<div class="flex items-center justify-between rounded-lg bg-slate-900/50 p-3 text-xs font-mono border border-slate-850">
+										<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850 shadow-inner">
 											<div>
-												<span class="block text-slate-200 font-bold">Competência: {{ b.billingCompetence }}</span>
+												<span class="block text-slate-200 font-bold">COMPETÊNCIA: {{ b.billingCompetence }}</span>
 												<span class="block text-[9px] text-slate-500">UUID: {{ b.id }}</span>
 											</div>
-											<span class="font-black text-emerald-400">{{ formatCents(b.totalSettledCents) }}</span>
+											<span class="font-black text-sm text-emerald-400">{{ formatCents(b.totalSettledCents) }}</span>
 										</div>
 									} @empty {
-										<p class="text-xs text-slate-600 text-center py-2">Nenhum lote de conciliação processado nesta organização.</p>
+										<p class="text-xs text-slate-600 text-center py-2">{{ svc.t()['settlementEmptyHistory'] }}</p>
 									}
 								</div>
 							</div>
 						</div>
 					}
-
 				</div>
 			}
-
-			<!-- 🔍 REAL-TIME 360 AUDIT LEDGER DRAWER -->
+			<!-- 🔍 PAINEL LATERAL DE TELEMETRIA CONSUMIDOR 360 -->
 			@if (activeProfile() && svc.currentScope() !== 'END_USER') {
-				<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-950 p-5 shadow-2xl relative animate-fadeIn">
-					<button (click)="activeProfile.set(null)" class="absolute top-4 right-4 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer border-none bg-transparent">✕ {{ svc.t()['close'] }}</button>
+				<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-900 p-6 shadow-2xl relative animate-fadeIn">
+					<button (click)="activeProfile.set(null)" class="absolute top-5 right-5 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer border-none bg-transparent">✕ {{ svc.t()['close'] }}</button>
 					<h3 class="text-sm font-black text-slate-100 mb-1">{{ svc.t()['telemetry'] }}</h3>
 					<p class="text-[11px] font-mono text-slate-400 mb-4 truncate">UUID: {{ activeProfile()?.id }}</p>
 					
-					<div class="grid grid-cols-2 gap-3 mb-4 text-xs font-mono">
-						<div class="bg-slate-900 p-2 rounded-lg border border-slate-850"><span class="block text-[10px] text-slate-500 font-bold">Holder:</span><span class="text-slate-200 font-bold">{{ activeProfile()?.name }}</span></div>
-						<div class="bg-slate-900 p-2 rounded-lg border border-slate-850"><span class="block text-[10px] text-slate-500 font-bold">Live Margin:</span><span class="text-emerald-400 font-bold">{{ formatCents(activeProfile()?.marginAvailableCents || '0') }}</span></div>
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-xs font-mono">
+						<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner"><span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['holder'] }}:</span><span class="text-slate-200 font-bold">{{ activeProfile()?.name }}</span></div>
+						<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner"><span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ svc.t()['liveMargin'] }}:</span><span class="text-emerald-400 font-bold">{{ formatCents(activeProfile()?.marginAvailableCents || '0') }}</span></div>
 					</div>
 
-					<div class="flex gap-2 mb-4">
-						<button (click)="loadLedgerStatementHistory(activeProfile()?.tenantId || '', activeProfile()?.id || ''); switchSegment('STATEMENT')" class="flex-1 py-2 rounded bg-slate-900 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">📜 Ver Extrato</button>
+					<div class="flex gap-3 mb-4">
+						<button (click)="loadLedgerStatementHistory(activeProfile()?.tenantId || '', activeProfile()?.id || ''); switchSegment('STATEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">📜 Ver Extrato</button>
 						@if (svc.currentScope() === 'MASTER') {
-							<button (click)="settlementForm.tenantId = activeProfile()?.tenantId || ''; switchSegment('SETTLEMENT')" class="flex-1 py-2 rounded bg-slate-900 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">🧾 Ir para Liquidação</button>
+							<button (click)="settlementForm.tenantId = activeProfile()?.tenantId || ''; switchSegment('SETTLEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">🧾 Ir para Liquidação</button>
 						}
 					</div>
 
 					<h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">{{ svc.t()['calendar'] }}</h4>
 					<div class="space-y-2 max-h-48 overflow-y-auto pr-1">
 						@for (inst of installments(); track inst.id) {
-							<div class="flex items-center justify-between rounded-lg bg-slate-900/50 p-2.5 text-xs font-mono border border-slate-900">
-								<div class="flex flex-col">
+							<div class="flex items-center justify-between rounded-lg bg-slate-950 p-3 text-xs font-mono border border-slate-900 shadow-inner">
+								<div class="flex flex-col gap-0.5">
 									<span class="text-slate-300 font-bold">Tier #{{ inst.installmentNumber }}</span>
 									<span class="text-[10px] text-slate-500">{{ inst.billingCompetence }}</span>
 								</div>
-								<div class="flex items-center gap-2">
-									<span class="text-red-400 font-black">{{ formatCents(inst.grossAmountCents) }}</span>
-									<span [class]="'rounded px-1.5 py-0.5 text-[9px] font-bold ' + (inst.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400')">
+								<div class="flex items-center gap-3">
+									<span class="text-red-400 font-black text-sm">{{ formatCents(inst.grossAmountCents) }}</span>
+									<span [class]="'rounded px-2 py-0.5 text-[9px] font-bold ' + (inst.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400')">
 										{{ inst.status }}
 									</span>
 								</div>
