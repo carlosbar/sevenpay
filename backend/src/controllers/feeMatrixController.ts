@@ -95,7 +95,7 @@ class FeeMatrixController {
 				const checkQuery = `SELECT id FROM tenant_fee_matrices WHERE tenant_id = $1 AND installments_count = $2;`;
 				const checkRes = await db.query(checkQuery, [tenantId, installmentsCount]);
 				if (checkRes.rows.length > 0) {
-					throw { statusCode: 409, message: 'Conflict detected. A fee configuration rule for this installment count tier already exists.' };
+					throw { statusCode: 409, errorToken: 'MATRIX_TIER_ALREADY_EXISTS' };
 				}
 
 				findQuery = `
@@ -109,7 +109,7 @@ class FeeMatrixController {
 			const queryResult = await db.query(findQuery, queryParams);
 			
 			if (queryResult.rows.length === 0) {
-				throw { statusCode: 404, message: 'Transaction failed. Targeted pricing matrix record not found for configuration override.' };
+				throw { statusCode: 404, errorToken: 'MATRIX_RECORD_NOT_FOUND' };
 			}
 
 			const matrixRow = queryResult.rows;
