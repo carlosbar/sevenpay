@@ -173,12 +173,14 @@ export class AppComponent implements OnInit {
 		event.preventDefault();
 		this.svc.login(this.credentials).subscribe({
 			next: () => {
-				// 🔄 FIXED: Check synchronous state initialization before routing background aggregates
-				if (this.svc.isAuthenticated() && this.svc.userContext()) {
+				const verifiedToken = localStorage.getItem('sp_token');
+				console.log(`[LOGIN CALLBACK TRIGGERED]: Active storage verification -> ${verifiedToken ? 'TOKEN_SEALED' : 'TOKEN_MISSING'}`);
+				
+				if (verifiedToken && this.svc.isAuthenticated()) {
 					this.evaluateWorkspaceQueryRouting();
 					this.credentials = { email: '', password: '' };
 				} else {
-					alert('Security handshake deferred. Please re-enter credentials.');
+					console.error('[SECURITY HANDSHAKE EXCEPTION]: Signals mismatch or storage propagation delayed.');
 					this.svc.logout();
 				}
 			},
