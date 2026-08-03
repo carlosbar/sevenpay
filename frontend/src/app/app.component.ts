@@ -47,12 +47,16 @@ export class AppComponent implements OnInit {
 
 	constructor(public svc: SevenPayService) {}
 
-  public ngOnInit(): void {
-		// 🔄 FIXED: Only pull server data if the authentication token context is fully synchronized and valid
-		if (this.svc.isAuthenticated() && this.svc.userContext()) {
+	public ngOnInit(): void {
+		// 🔄 CORRIGIDO: Só dispara o roteamento se o token e o contexto existirem de forma síncrona na memória
+		const hasToken = this.svc.token();
+		const hasContext = this.svc.userContext();
+
+		if (hasToken && hasContext) {
 			this.evaluateWorkspaceQueryRouting();
 		} else {
-			this.svc.logout(); // Clear any corrupted or expired local storage token leaks
+			// Força o deslogue automático se houver um token órfão ou quebrado no localStorage mitigando loops automáticos
+			this.svc.logout();
 		}
 	}
 
