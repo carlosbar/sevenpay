@@ -4,10 +4,11 @@ import { db } from '../config/db';
 import { PoolClient } from 'pg';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 // Schema validation for the batch endpoint wrapper structure
 const syncSchema: ValidationSchema = {
-	users: { type: 'string', required: true } // We will assert the array payload structure inside the handler
+	users: { type: 'array', required: true } // FIXED: Enforces structural validation alignment for array payloads
 };
 
 interface SyncUserPayload {
@@ -23,11 +24,19 @@ class TenantSyncController {
 	 * /api/v1/tenants/sync-users:
 	 *   post:
 	 *     summary: Bulk sync or onboard end users for a corporate tenant
-	 *     description: Processes an array of consumer contract records. Performs an atomic upsert operation (insert or update on conflict) while isolating horizontal domain boundaries via JWT tenant data.
+	 *     description: Processes an array of consumer contract records. Performs an atomic upsert operation (insert or update on conflict) while isolating horizontal domain boundaries via declarative guard layers.
 	 *     tags:
 	 *       - Tenant Workspace
 	 *     security:
 	 *       - BearerAuth: []
+	 *     parameters:
+	 *       - in: query
+	 *         name: tenantId
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *           format: uuid
+	 *         description: Strict UUID identifier utilized by the dynamic matrix route guard layer to isolate data visibility.
 	 *     requestBody:
 	 *       required: true
 	 *       content:
@@ -66,6 +75,7 @@ class TenantSyncController {
 	public async syncUsers(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
 		const { users } = req.body;
 		const context = req.userContext;
+		const targetTenantId = req.query.tenantId as string || null;
 		const client: PoolClient = await db.getClient();
 
 		try {
@@ -73,9 +83,9 @@ class TenantSyncController {
 				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
 			}
 
-			// 1. Enforce strict B2B isolation boundaries (Only corporate TENANT managers allowed)
-			if (context.scope !== 'TENANT' || !context.tenantId) {
-				throw { statusCode: 403, message: 'Access denied. Corporate user onboarding synchronization is restricted to tenant operators.' };
+			// 1. Enforce strict parameter presence barrier to isolate ledger lookups before database scan
+			if (!targetTenantId) {
+				throw { statusCode: 422, message: 'Validation failed. The tenantId query parameter is strictly required for this ledger transaction.' };
 			}
 
 			// 2. Validate structural integrity of the input array batch payload
@@ -93,7 +103,10 @@ class TenantSyncController {
 					throw { statusCode: 422, message: 'Processing aborted. Corrupted matrix attributes found inside the users payload block.' };
 				}
 
-				if (!Number.isInteger(user.monthlyContractValueCents) || user.monthlyContractValueCents <= 0) {
+				const isNegativeContract = Math.sign(user.monthlyContractValueCents) === -1;
+				const isZeroContract = user.monthlyContractValueCents === 0;
+
+				if (!Number.isInteger(user.monthlyContractValueCents) || isNegativeContract || isZeroContract) {
 					throw { statusCode: 422, message: 'Processing aborted. Contract numerical entries must be valid non-negative integer cents.' };
 				}
 
@@ -118,7 +131,7 @@ class TenantSyncController {
 				`;
 
 				await client.query(upsertQuery, [
-					context.tenantId,
+					targetTenantId,
 					user.externalId,
 					user.name,
 					contractValue.toString()
@@ -134,7 +147,7 @@ class TenantSyncController {
 				result: 'success',
 				data: {
 					synchronizedRecordsCount: processedCount,
-					targetTenantId: context.tenantId
+					targetTenantId: targetTenantId
 				}
 			});
 
@@ -154,7 +167,12 @@ export const routeConfig = {
 	method: 'post',
 	path: '/api/v1/tenants/sync-users',
 	handler: [
-		authorize('create'), // Asserts the enterprise operator holds write matrix clearance parameters
+		// 🛡️ Multi-rule matrix validation mapping exact RESTful operations and target credentials for master and tenant operators
+		authorize([
+			{ method: 'POST', scope: ScopeTarget.MASTER, action: ActionTarget.CREATE },
+			{ method: 'POST', scope: ScopeTarget.TENANT, action: ActionTarget.CREATE, validateTenantIdFrom: 'query' }
+		]),
+		validateBody(syncSchema),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => tenantSyncController.syncUsers(req, res, next)
 	]
 };
