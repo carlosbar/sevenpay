@@ -2,6 +2,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class StatementController {
 
@@ -10,7 +11,7 @@ class StatementController {
 	 * /api/v1/statements/history:
 	 *   get:
 	 *     summary: Retrieve immutable transaction financial ledger logs
-	 *     description: Fetches transactional history records from the append-only ledger. Applies strict multi-tenant boundary filtration based on JWT contexts to shield horizontal data access.
+	 *     description: Fetches transactional history records from the append-only ledger. Applies strict multi-tenant boundary filtration based on JWT contexts to shield horizontal data access. Accessible by MASTER, TENANT, and END_USER scopes.
 	 *     tags:
 	 *       - Financial Statement
 	 *     security:
@@ -82,8 +83,8 @@ class StatementController {
 			let statementQuery = '';
 			const queryParams: any[] = [limit, offset];
 
-			// 2. Multi-tenant routing rule gate based on user security scope matrix
-			if (context.scope === 'END_USER') {
+			// 2. Multi-tenant routing rule gate based on centralized security Enums
+			if (context.scope === ScopeTarget.END_USER) {
 				// Rigid data encapsulation: End users are locked exclusively into their signed end_user_id
 				if (!context.endUserId) {
 					throw { statusCode: 403, message: 'Context violation. This authenticated account is not mapped to a consumer profile.' };
@@ -97,7 +98,7 @@ class StatementController {
 					LIMIT $1 OFFSET $2;
 				`;
 				queryParams.push(context.endUserId);
-			} else if (context.scope === 'TENANT') {
+			} else if (context.scope === ScopeTarget.TENANT) {
 				// Isolation verification for business tenant operators
 				if (!context.tenantId) {
 					throw { statusCode: 403, message: 'Context violation. This authenticated account is not mapped to a business enterprise tenant.' };
@@ -112,7 +113,7 @@ class StatementController {
 					LIMIT $1 OFFSET $2;
 				`;
 				queryParams.push(context.tenantId);
-			} else {
+			} else if (context.scope === ScopeTarget.MASTER) {
 				// Global master dashboard visibility access for auditing management teams (SYSADMIN, MASTER_ADMIN)
 				statementQuery = `
 					SELECT id, advance_request_id AS "advanceRequestId", type, amount_cents::text AS "amountCents", created_at AS "createdAt"
@@ -120,6 +121,8 @@ class StatementController {
 					ORDER BY created_at DESC
 					LIMIT $1 OFFSET $2;
 				`;
+			} else {
+				throw { statusCode: 403, message: 'Access denied. Account profile scope lacks administrative query authorization.' };
 			}
 
 			// 3. Execute isolated parameterized transaction log fetch from Postgres pool
@@ -146,7 +149,12 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/statements/history',
 	handler: [
-		authorize('read'), // Asserts RBAC permission rules allow data extraction view
+		// 🛡️ Multi-rule matrix validation mapping exact RESTful operations and target credentials
+		authorize([
+			{ method: 'GET', scope: ScopeTarget.MASTER,   action: ActionTarget.READ },
+			{ method: 'GET', scope: ScopeTarget.TENANT,   action: ActionTarget.READ },
+			{ method: 'GET', scope: ScopeTarget.END_USER, action: ActionTarget.READ }
+		]),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => statementController.getHistory(req, res, next)
 	]
 };
