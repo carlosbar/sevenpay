@@ -34,8 +34,42 @@ export class SevenPayService {
 	constructor(private http: HttpClient) {
 		const savedToken = localStorage.getItem('sp_token');
 		if (savedToken) {
-			this.token.set(savedToken);
-			this.decodeAndSetContext(savedToken);
+			// 🔄 FIXED: Verify token integrity synchronously before populating reactive signals
+			const successfullyDecoded = this.decodeAndSetContext(savedToken);
+			if (successfullyDecoded) {
+				this.token.set(savedToken);
+			} else {
+				this.logout();
+			}
+		}
+	}
+
+	private decodeAndSetContext(token: string): boolean {
+		try {
+			const parts = token.split('.');
+			if (parts.length !== 3) return false;
+
+			// 🔄 FIXED: Replace Base64Url specific characters to make it compatible with native atob decoding
+			let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+			
+			// Pad the string with '=' characters if its length is not a multiple of 4
+			while (base64.length % 4 !== 0) {
+				base64 += '=';
+			}
+
+			const payload = JSON.parse(atob(base64));
+			this.userContext.set({
+				operatorId: payload.operatorId,
+				email: payload.email,
+				role: payload.role,
+				scope: payload.scope,
+				tenantId: payload.tenantId,
+				endUserId: payload.endUserId
+			});
+			return true;
+		} catch (error) {
+			console.error('JWT cryptographic decoding pipeline failed:', error);
+			return false;
 		}
 	}
 
@@ -53,16 +87,6 @@ export class SevenPayService {
 
 	private getHeaders(): HttpHeaders {
 		return new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.token()}` });
-	}
-
-	private decodeAndSetContext(token: string): void {
-		try {
-			const payload = JSON.parse(atob(token.split('.')[1]));
-			this.userContext.set({
-				operatorId: payload.operatorId, email: payload.email, role: payload.role,
-				scope: payload.scope, tenantId: payload.tenantId, endUserId: payload.endUserId
-			});
-		} catch { this.logout(); }
 	}
 
 	public login(credentials: any): Observable<any> {
