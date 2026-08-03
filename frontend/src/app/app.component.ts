@@ -48,9 +48,16 @@ export class AppComponent implements OnInit {
 	constructor(public svc: SevenPayService) {}
 
 	public ngOnInit(): void {
-		// 🛡️ HORIZONTAL PERIMETER LOCK: Restricts network triggers to fully verified active instances only
-		if (this.svc.isAuthenticated()) {
-			this.evaluateWorkspaceQueryRouting();
+		// 🛡️ REACTIVE TIMING LOCK: Validates session state straight from the storage layer to prevent racing early network calls
+		const localToken = localStorage.getItem('sp_token');
+		
+		if (localToken && this.svc.isAuthenticated()) {
+			// Delays background queries slightly to let Angular Zoneless change detection resolve computed signals
+			setTimeout(() => {
+				if (this.svc.isAuthenticated()) {
+					this.evaluateWorkspaceQueryRouting();
+				}
+			}, 0);
 		} else {
 			this.svc.logout();
 		}
