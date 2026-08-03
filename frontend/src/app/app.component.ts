@@ -48,11 +48,8 @@ export class AppComponent implements OnInit {
 	constructor(public svc: SevenPayService) {}
 
 	public ngOnInit(): void {
-		// 🔄 FIXED: Absolute execution guard preventing early background network calls
-		const activeToken = this.svc.token();
-		const activeContext = this.svc.userContext();
-
-		if (activeToken && activeContext) {
+		// 🛡️ HORIZONTAL PERIMETER LOCK: Restricts network triggers to fully verified active instances only
+		if (this.svc.isAuthenticated()) {
 			this.evaluateWorkspaceQueryRouting();
 		} else {
 			this.svc.logout();
