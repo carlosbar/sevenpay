@@ -50,7 +50,7 @@ class StatementController {
 			const context = req.userContext;
 
 			if (!context) {
-				throw { statusCode: 401, message: 'Security framework violation. Authenticated transaction profile context missing.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			// 1. Extract and enforce pagination and strict data isolation parameter constraints
@@ -61,7 +61,7 @@ class StatementController {
 
 			// 2. Enforce strict parameter presence barrier to isolate ledger lookups before database scan
 			if (!targetTenantId || !targetEndUserId) {
-				throw { statusCode: 422, message: 'Validation failed. Both tenantId and endUserId query parameters are strictly required for this ledger transaction.' };
+				throw { statusCode: 422, errorToken: 'QUERY_FILTRATION_VECTORS_REQUIRED' };
 			}
 
 			const queryParams: any[] = [limit, offset, targetEndUserId, targetTenantId];
