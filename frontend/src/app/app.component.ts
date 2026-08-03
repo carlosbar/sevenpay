@@ -173,11 +173,14 @@ export class AppComponent implements OnInit {
 		event.preventDefault();
 		this.svc.login(this.credentials).subscribe({
 			next: () => {
-				// 🔄 FIXED: Delay network aggregation queries until the async state signals are flushed and active
-				setTimeout(() => {
+				// 🔄 FIXED: Check synchronous state initialization before routing background aggregates
+				if (this.svc.isAuthenticated() && this.svc.userContext()) {
 					this.evaluateWorkspaceQueryRouting();
 					this.credentials = { email: '', password: '' };
-				}, 50);
+				} else {
+					alert('Security handshake deferred. Please re-enter credentials.');
+					this.svc.logout();
+				}
 			},
 			error: (err: any) => {
 				const token = err.error?.errorToken || 'AUTH_CREDENTIALS_INVALID';
