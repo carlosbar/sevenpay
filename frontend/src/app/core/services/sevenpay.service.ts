@@ -113,10 +113,12 @@ export class SevenPayService {
 	}
 
 	public getTenants(): Observable<any> {
+		// 🔄 CORRIGIDO: Injetando explicitamente os cabeçalhos com o token JWT
 		return this.http.get<any>(`${this.BASE_URL}/admin/tenants`, { headers: this.getHeaders() });
 	}
 
 	public getGlobalMetrics(): Observable<any> {
+		// 🔄 CORRIGIDO: Injetando explicitamente os cabeçalhos com o token JWT
 		return this.http.get<any>(`${this.BASE_URL}/admin/dashboard/metrics`, { headers: this.getHeaders() });
 	}
 
