@@ -80,17 +80,17 @@ class TenantSyncController {
 
 		try {
 			if (!context) {
-				throw { statusCode: 401, message: 'Security framework violation. Authenticated profile context missing.' };
+				throw { statusCode: 401, errorToken: 'AUTH_CREDENTIALS_INVALID' };
 			}
 
 			// 1. Enforce strict parameter presence barrier to isolate ledger lookups before database scan
 			if (!targetTenantId) {
-				throw { statusCode: 422, message: 'Validation failed. The tenantId query parameter is strictly required for this ledger transaction.' };
+				throw { statusCode: 422, errorToken: 'QUERY_TENANT_ID_REQUIRED' };
 			}
 
 			// 2. Validate structural integrity of the input array batch payload
 			if (!Array.isArray(users) || users.length === 0) {
-				throw { statusCode: 422, message: 'Validation failed. The property "users" must be a non-empty array block.' };
+				throw { statusCode: 422, errorToken: 'SYNC_ARRAY_PAYLOAD_EMPTY' };
 			}
 
 			await client.query('BEGIN');
@@ -100,14 +100,14 @@ class TenantSyncController {
 			// 3. Loop through payload executing high-performance upsert operations
 			for (const user of users as SyncUserPayload[]) {
 				if (!user.externalId || !user.name || !user.monthlyContractValueCents) {
-					throw { statusCode: 422, message: 'Processing aborted. Corrupted matrix attributes found inside the users payload block.' };
+					throw { statusCode: 422, errorToken: 'SYNC_USER_ATTRIBUTES_CORRUPTED' };
 				}
 
 				const isNegativeContract = Math.sign(user.monthlyContractValueCents) === -1;
 				const isZeroContract = user.monthlyContractValueCents === 0;
 
 				if (!Number.isInteger(user.monthlyContractValueCents) || isNegativeContract || isZeroContract) {
-					throw { statusCode: 422, message: 'Processing aborted. Contract numerical entries must be valid non-negative integer cents.' };
+					throw { statusCode: 422, errorToken: 'SYNC_CONTRACT_VALUE_INVALID' };
 				}
 
 				const contractValue = BigInt(user.monthlyContractValueCents);
