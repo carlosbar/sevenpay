@@ -134,4 +134,15 @@ export class SevenPayService {
 	public createAdvanceRequest(payload: AdvanceRequest): Observable<any> {
 		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload, { headers: this.getHeaders() });
 	}
+
+	// MASTER Scope: Stream all active B2B enterprise portfolios
+	public getTenants(): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/admin/tenants`, { headers: this.getHeaders() });
+	}
+
+	// MASTER Scope: Compute aggregated liquidity matrix telemetry
+	public getGlobalMetrics(): Observable<any> {
+		// Points directly to the immutable financial transactions ledger endpoint
+		return this.http.get<any>(`${this.BASE_URL}/admin/dashboard/metrics`, { headers: this.getHeaders() });
+	}
 }
