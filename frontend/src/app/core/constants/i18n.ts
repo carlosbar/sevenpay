@@ -43,7 +43,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 		overdueDefault: 'Overdue / Default',
 		close: '✕ Close'
 	},
-	pt: {
+	'pt-br': {
 		operatorAccess: 'Matriz de Acesso do Operador',
 		gatewayDesc: 'Pipeline Central do Gateway de Livro Razão Criptográfico',
 		email: 'Endereço de E-mail',
