@@ -106,10 +106,10 @@ export const routeConfig = {
 	method: 'get',
 	path: '/api/v1/end-users',
 	handler: [
-		// 🛡️ Universal policy configuration matrix checking administrative credentials for the operational GET verb
+		// 🛡️ Universal policy configuration matrix checking administrative credentials with anti-fraud cross-checks
 		authorize([
 			{ method: 'GET', scope: ScopeTarget.MASTER, action: ActionTarget.READ },
-			{ method: 'GET', scope: ScopeTarget.TENANT, action: ActionTarget.READ }
+			{ method: 'GET', scope: ScopeTarget.TENANT, action: ActionTarget.READ, validateTenantIdFrom: 'query' }
 		]),
 		(req: AuthenticatedRequest, res: Response, next: NextFunction) => endUserListController.listEndUsers(req, res, next)
 	]
