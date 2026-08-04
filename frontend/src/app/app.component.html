@@ -89,8 +89,10 @@
 					[currentSegment]="currentMenuSegment()"
 					[scope]="svc.currentScope() || ''"
 					[selectedTenantId]="selectedTenantId()"
+					[tenants]="tenants()"
 					[endUsers]="endUsers()"
 					[syncRawText]="syncRawText()"
+					(onSelectTenant)="selectTenant($event)"
 					(onInspectUser)="loadInspectionLayer($event)"
 					(onBulkSync)="handleBulkSync($event)">
 				</app-tenant-manager>
