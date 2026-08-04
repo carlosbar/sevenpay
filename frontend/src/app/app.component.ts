@@ -18,7 +18,6 @@ export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' |
 	imports: [
 		CommonModule, 
 		FormsModule, 
-		PricingManagerComponent, 
 		MasterDashboardComponent, /* Registers the global master admin component grid */
 		TenantManagerComponent,    /* Registers the B2B partner and user onboarding component */
 		TelemetryDrawerComponent   /* Registers the append-only ledger and auditing drawer */
