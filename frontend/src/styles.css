@@ -1,6 +1,6 @@
 /* ==========================================================================
    七 SEVENPAY CORE CREDIT ENGINE - UNIFIED PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Layout Grid & Core Typography Emulations
+   Standards: Strict Dark Matrix, Structural Border Shift & Typography Emulations
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -35,9 +35,10 @@ body {
 .mx-auto { margin-left: auto; margin-right: auto; }
 .box-border { box-sizing: border-box; }
 
-/* ─── NATIVE COCKPIT LAYOUT SHIFT UTILITIES ─── */
-.pl-64-layout {
-	padding-left: 16rem !important;
+/* ─── PRODUCTION SHIFT REFACTOR: MODEL FOR RIGID LAYOUT PROTECTION ─── */
+.main-content-shift {
+	border-left: 16rem solid transparent !important;
+	box-sizing: border-box;
 }
 
 /* ─── GRID RESPONSIVE MATRIX PIPELINES ─── */
@@ -49,8 +50,8 @@ body {
 }
 
 @media (max-w: 1024px) {
-	.pl-64-layout {
-		padding-left: 0 !important;
+	.main-content-shift {
+		border-left: 0 solid transparent !important;
 	}
 	aside {
 		display: none !important; /* Contextual safety trigger for mobile viewports */
@@ -174,11 +175,11 @@ textarea { resize: none; }
 .bg-transparent { background-color: transparent !important; }
 
 /* ─── PSEUDO-CLASS HOVER INTERCEPTORS ─── */
-.hover\:bg-slate-800\/60:hover { background-color: rgba(30, 41, 59, 0.6); }
-.hover\:bg-slate-800\/40:hover { background-color: rgba(30, 41, 59, 0.4); }
-.hover\:bg-emerald-400:hover { background-color: #34d399; }
-.hover\:text-slate-200:hover { color: #e2e8f0; }
-.hover\:text-slate-300:hover { color: #cbd5e1; }
+.hover*:bg-slate-800\/60:hover { background-color: rgba(30, 41, 59, 0.6); }
+.hover*:bg-slate-800\/40:hover { background-color: rgba(30, 41, 59, 0.4); }
+.hover*:bg-emerald-400:hover { background-color: #34d399; }
+.hover*:text-slate-200:hover { color: #e2e8f0; }
+.hover*:text-slate-300:hover { color: #cbd5e1; }
 
 /* ─── MICRO-ANIMATION HANDSHAKES ─── */
 .animate-fadeIn {
