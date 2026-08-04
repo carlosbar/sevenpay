@@ -8,9 +8,8 @@
 			@if (scope() === 'MASTER') {
 				<div class="w-full sm:w-64 flex flex-col gap-1">
 					<select [value]="selectedTenantId() || ''" (change)="onTenantDropdownChange($event)" class="font-mono text-xs">
-						<!-- 🌍 REAL-TIME ALIGNED DROPDOWN OPTIONS TRANSLATION MAP -->
 						<option value="" disabled selected>
-							{{ t()['activePortfolios'] ? (t()['linkedConsumers'] === 'Linked Consumer Profiles' ? '-- Select a B2B Partner --' : '-- Selecione um Parceiro B2B --') : '-- Selecione um Parceiro B2B --' }}
+							{{ t()['linkedConsumers'] === 'Linked Consumer Profiles' ? '-- Select a B2B Partner --' : '-- Selecione um Parceiro B2B --' }}
 						</option>
 						@for (t of tenants(); track t.id) {
 							<option [value]="t.id">{{ t.name }} (CNPJ: {{ t.cnpj }})</option>
