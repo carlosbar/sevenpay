@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-slate-950 text-slate-100 flex">
 	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX -->
 	@if (svc.isAuthenticated()) {
-		<aside class="fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-800 bg-slate-900 p-4 transition-transform duration-300 lg:static lg:translate-x-0 shadow-2xl flex flex-col justify-between">
+		<aside class="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between">
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
@@ -17,7 +17,7 @@
 						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">👥 Perfis de Consumidores Vinculados</button>
 						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🔄 Sincronização</button>
 					}
-					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📜 Extrato</button>
+					<button (click Papai)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📜 Extrato</button>
 				</nav>
 			</div>
 
@@ -32,9 +32,9 @@
 		</aside>
 	}
 
-	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATURAL FLEX WRAPPING WITH SHIFT CLASS) -->
-	<div class="flex-1 flex flex-col min-w-0" [class.main-content-shift]="svc.isAuthenticated()">
-		<!-- ─── HEADER BAR: RESOLVED DUPLICATION AND CLIPPING USING BOX MODEL STABILITY ─── -->
+	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (DYNAMIC SHIFT COMPENSATOR) -->
+	<div class="flex-1 flex flex-col min-w-0 box-border" [class.main-content-shift]="svc.isAuthenticated()">
+		<!-- GLOBAL TOP HEADER BAR -->
 		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border">
 			<div class="flex items-center gap-2">
 				<span class="text-xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
@@ -50,72 +50,76 @@
 			</div>
 		</header>
 
-		<!-- ─── WRAPPER LAYOUT SHIFT ONLY CONTENT SCANS ─── -->
-		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
-			<!-- AUTENTICAÇÃO GATEWAY -->
-			@if (!svc.isAuthenticated()) {
-				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
-					<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
-					<form (submit)="handleLogin($event)" class="space-y-4">
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
-							<input type="email" name="email" [(ngModel)]="credentials.email" required>
-						</div>
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
-							<input type="password" name="password" [(ngModel)]="credentials.password" required>
-						</div>
-						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
-							Autenticar
-						</button>
-					</form>
-				</div>
-			}
+		<!-- ─── RE-ALIGNED ENVELOPE: FORCES GRID INTEGRITY INSIDE PRODUCTION THEMES ─── -->
+		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
+			<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
+				<!-- AUTENTICAÇÃO GATEWAY -->
+				@if (!svc.isAuthenticated()) {
+					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
+						<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
+						<form (submit)="handleLogin($event)" class="space-y-4">
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
+								<input type="email" name="email" [(ngModel)]="credentials.email" required>
+							</div>
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
+								<input type="password" name="password" [(ngModel)]="credentials.password" required>
+							</div>
+							<div class="pt-2">
+								<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
+									Autenticar
+								</button>
+							</div>
+						</form>
+					</div>
+				}
 
-			<!-- SUBCOMPONENTS CONTAINER INTERFACES -->
-			@if (svc.isAuthenticated()) {
-				<app-master-dashboard 
-					[currentSegment]="currentMenuSegment()" 
-					[scope]="svc.currentScope() || ''"
-					[t]="svc.t()"
-					[metrics]="globalMetrics()"
-					[tenants]="tenants()"
-					[selectedTenantId]="selectedTenantId()"
-					[(tenantForm)]="tenantForm"
-					[(settlementForm)]="settlementForm"
-					[settlementBatches]="settlementBatches()"
-					(onSelectTenant)="selectTenant($event)"
-					(onCreateTenant)="handleCreateTenant($event)"
-					(onClearCompetence)="handleClearCompetence($event)">
-				</app-master-dashboard>
+				<!-- SUBCOMPONENTS CONTAINER INTERFACES -->
+				@if (svc.isAuthenticated()) {
+					<app-master-dashboard 
+						[currentSegment]="currentMenuSegment()" 
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[metrics]="globalMetrics()"
+						[tenants]="tenants()"
+						[selectedTenantId]="selectedTenantId()"
+						[(tenantForm)]="tenantForm"
+						[(settlementForm)]="settlementForm"
+						[settlementBatches]="settlementBatches()"
+						(onSelectTenant)="selectTenant($event)"
+						(onCreateTenant)="handleCreateTenant($event)"
+						(onClearCompetence)="handleClearCompetence($event)">
+					</app-master-dashboard>
 
-				<app-tenant-manager
-					[currentSegment]="currentMenuSegment()"
-					[scope]="svc.currentScope() || ''"
-					[t]="svc.t()"
-					[selectedTenantId]="selectedTenantId()"
-					[tenants]="tenants()"
-					[endUsers]="endUsers()"
-					[syncRawText]="syncRawText()"
-					(onSelectTenant)="selectTenant($event)"
-					(onInspectUser)="loadInspectionLayer($event)"
-					(onBulkSync)="handleBulkSync($event)">
-				</app-tenant-manager>
+					<app-tenant-manager
+						[currentSegment]="currentMenuSegment()"
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[selectedTenantId]="selectedTenantId()"
+						[tenants]="tenants()"
+						[endUsers]="endUsers()"
+						[syncRawText]="syncRawText()"
+						(onSelectTenant)="selectTenant($event)"
+						(onInspectUser)="loadInspectionLayer($event)"
+						(onBulkSync)="handleBulkSync($event)">
+					</app-tenant-manager>
 
-				<app-telemetry-drawer
-					[currentSegment]="currentMenuSegment()"
-					[scope]="svc.currentScope() || ''"
-					[t]="svc.t()"
-					[activeProfile]="activeProfile()"
-					[transactions]="transactions()"
-					[installments]="installments()"
-					[advanceForm]="advanceForm"
-					(onClose)="activeProfile.set(null)"
-					(onRequestAdvance)="handleRequestAdvance($event)"
-					(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
-					(onSwitchSegment)="switchSegment($any($event))">
-				</app-telemetry-drawer>
-			}
-		</main>
+					<app-telemetry-drawer
+						[currentSegment]="currentMenuSegment()"
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[activeProfile]="activeProfile()"
+						[transactions]="transactions()"
+						[installments]="installments()"
+						[advanceForm]="advanceForm"
+						(onClose)="activeProfile.set(null)"
+						(onRequestAdvance)="handleRequestAdvance($event)"
+						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
+						(onSwitchSegment)="switchSegment($any($event))">
+					</app-telemetry-drawer>
+				}
+			</main>
+		</div>
 	</div>
 </div>
