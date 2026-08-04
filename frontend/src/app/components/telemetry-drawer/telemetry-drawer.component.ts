@@ -20,6 +20,8 @@ export class TelemetryDrawerComponent {
 	/* ─── FORMS ACCELERATOR PASSED DOWN INTERNALLY ─── */
 	@Input() advanceForm: any;
 
+  public t = input.required<any>();
+
 	/* ─── STRICT TYPE-SAFE ROUTING MUTATION UTILITIES ─── */
 	@Output() onClose = new EventEmitter<void>();
 	@Output() onRequestAdvance = new EventEmitter<any>();
