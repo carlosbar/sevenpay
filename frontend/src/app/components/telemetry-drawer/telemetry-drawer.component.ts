@@ -13,7 +13,7 @@ export class TelemetryDrawerComponent {
 	/* ─── SIGNAL-BASED REACTIVE TIME-SERIES INPUT STREAMS ─── */
 	public currentSegment = input.required<string>();
 	public scope = input.required<string>();
-	public t = input.required<any>();
+	public t = input.required<any>(); /* Dynamic internationalization dictionary handshake */
 	public activeProfile = input<any | null>(null);
 	public transactions = input<any[]>([]);
 	public installments = input<any[]>([]);
@@ -25,5 +25,5 @@ export class TelemetryDrawerComponent {
 	public onClose = output<void>();
 	public onRequestAdvance = output<any>();
 	public onQueryLedger = output<{ tenantId: string, userId: string }>();
-	public onSwitchSegment = output<MenuSegment>();
+	public onSwitchSegment = output<MenuSegment>(); /* Strict Type Alignment with Parent Master Anchors */
 }
