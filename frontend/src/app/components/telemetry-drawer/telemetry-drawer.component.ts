@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MenuSegment } from '../../app.component';
 
 @Component({
 	selector: 'app-telemetry-drawer',
@@ -16,12 +17,12 @@ export class TelemetryDrawerComponent {
 	@Input() transactions: any[] = [];
 	@Input() installments: any[] = [];
 	
-	/* ─── CORRECTION VECTOR: CORE CREDIT DISPATCH INTERFACE MODEL ─── */
+	/* ─── FORMS ACCELERATOR PASSED DOWN INTERNALLY ─── */
 	@Input() advanceForm: any;
 
-	/* ─── DETERMINISTIC CROSS-COMPONENT REDIRECTION FLOWS ─── */
+	/* ─── STRICT TYPE-SAFE ROUTING MUTATION UTILITIES ─── */
 	@Output() onClose = new EventEmitter<void>();
 	@Output() onRequestAdvance = new EventEmitter<any>();
 	@Output() onQueryLedger = new EventEmitter<{ tenantId: string, userId: string }>();
-	@Output() onSwitchSegment = new EventEmitter<string>();
+	@Output() onSwitchSegment = new EventEmitter<MenuSegment>(); // Strict Type Alignment
 }
