@@ -1,0 +1,63 @@
+@if (scope === 'MASTER') {
+	<!-- SEGMENTO: DASHBOARD FINANCIAL -->
+	@if (currentSegment === 'DASHBOARD') {
+		<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
+			<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
+			<div class="grid grid-cols-2 gap-4">
+				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5">
+					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Desembolsado</span>
+					<span class="text-xl font-black text-slate-200 font-mono">{{ metrics.totalVolumeAdvancedCents }}</span>
+				</div>
+				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5">
+					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Taxas Recolhidas</span>
+					<span class="text-xl font-black text-emerald-400 font-mono">{{ metrics.totalFeesCollectedCents }}</span>
+				</div>
+				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5">
+					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Recebíveis (Futuro)</span>
+					<span class="text-xl font-black text-amber-500 font-mono">{{ metrics.totalReceivablesCents }}</span>
+				</div>
+				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5">
+					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Inadimplência / Atraso</span>
+					<span class="text-xl font-black text-red-400 font-mono">{{ metrics.totalOverdueCents }}</span>
+				</div>
+			</div>
+		</div>
+	}
+
+	<!-- SEGMENTO: PORTFÓLIOS B2B -->
+	@if (currentSegment === 'PARTNERS') {
+		<div class="space-y-6">
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">Provisionar Novo Parceiro</h2>
+				<!-- Formulário encapsulado emitindo o evento de criação -->
+				<form (submit)="onCreateTenant.emit($event)" class="space-y-4">
+					<div class="flex flex-col gap-1">
+						<label class="text-xs font-bold text-slate-400">CNPJ</label>
+						<input type="text" name="cnpj" required>
+					</div>
+					<div class="flex flex-col gap-1">
+						<label class="text-xs font-bold text-slate-400">Razão Social</label>
+						<input type="text" name="name" required>
+					</div>
+					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
+						Implantar Parceiro
+					</button>
+				</form>
+			</div>
+
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+				<h2 class="text-sm font-black text-slate-200 mb-3">Portfólios B2B Ativos</h2>
+				<div class="divide-y">
+					@for (t of tenants; track t.id) {
+						<div (click)="onSelectTenant.emit(t.id)" [class.border-l-4]="selectedTenantId === t.id" class="border-emerald-500 bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5">
+							<div class="flex justify-between items-center">
+								<span class="font-bold text-slate-200 text-sm">{{ t.name }}</span>
+								<span class="font-mono text-sm font-black text-emerald-400">{{ t.globalCreditLimitCents }}</span>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	}
+}
