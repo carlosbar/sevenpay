@@ -1,66 +1,66 @@
-<!-- ─── SEGMENT: APPEND-ONLY TIME-SERIES LEDGER STATEMENT ─── -->
-@if (currentSegment === 'STATEMENT') {
-	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-		<h2 class="text-sm font-black text-slate-200 mb-3">Extrato Imutável do Livro Razão</h2>
+<!-- ─── SEGMENT: APPEND-ONLY TIME-SERIES LEDGER STATEMENT LOG AUDIT ─── -->
+@if (currentSegment() === 'STATEMENT') {
+	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl animate-fadeIn">
+		<h2 class="text-sm font-black text-slate-200 mb-3">{{ t()['statementTitle'] }}</h2>
 		
 		<div class="space-y-2">
-			@for (tx of transactions; track tx.id) {
-				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850">
+			@for (tx of transactions(); track tx.id) {
+				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850 shadow-inner">
 					<div class="flex flex-col gap-0.5">
 						<span [class]="tx.type === 'DEBIT' ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'">{{ tx.type }}</span>
 						<span class="text-[9px] text-slate-500">REF: {{ tx.advanceRequestId || 'Settlement Transaction' }}</span>
 					</div>
-					<span class="text-slate-200 font-black text-sm">{{ tx.amountCents }}</span>
+					<span class="text-slate-200 font-black text-sm font-mono">{{ tx.amountCents }}</span>
 				</div>
 			} @empty {
-				<p class="text-xs text-slate-600 text-center py-4">Nenhum registro de transação financeira encontrado.</p>
+				<p class="text-xs text-slate-600 text-center py-4">{{ t()['noRows'] }}</p>
 			}
 		</div>
 	</div>
 }
 
-<!-- ─── LAYOUT COMPONENT: TELEMETRIA CONSUMIDOR 360 DRAWER POPUP ─── -->
-@if (activeProfile && scope !== 'END_USER') {
-	<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-900 p-6 relative">
-		<button (click)="onClose.emit()" class="absolute top-5 right-5 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer bg-transparent border-none">✕ Fechar</button>
-		<h3 class="text-sm font-black text-slate-100 mb-1">Telemetria Consumidor 360</h3>
-		<p class="text-[11px] font-mono text-slate-400 mb-4">UUID: {{ activeProfile.id }}</p>
+<!-- ─── LAYOUT COMPONENT: AUDITING SUB-LAYOUT TELEMETRY DRAW PANEL ─── -->
+@if (activeProfile() && scope() !== 'END_USER') {
+	<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-900 p-6 relative animate-fadeIn shadow-2xl">
+		<button (click)="onClose.emit()" class="absolute top-5 right-5 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer bg-transparent border-none">✕ {{ t()['close'] }}</button>
+		<h3 class="text-sm font-black text-slate-100 mb-1">{{ t()['telemetry'] }}</h3>
+		<p class="text-[11px] font-mono text-slate-400 mb-4 truncate">UUID: {{ activeProfile().id }}</p>
 		
 		<div class="grid grid-cols-2 gap-4 mb-4 text-xs font-mono">
-			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850">
-				<span class="block text-[10px] text-slate-500 font-bold uppercase">Titular:</span>
-				<span class="text-slate-200 font-bold">{{ activeProfile.name }}</span>
+			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner">
+				<span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['holder'] }}:</span>
+				<span class="text-slate-200 font-bold">{{ activeProfile().name }}</span>
 			</div>
-			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850">
-				<span class="block text-[10px] text-slate-500 font-bold uppercase">Margem Disponível:</span>
-				<span class="text-emerald-400 font-bold">{{ activeProfile.marginAvailableCents }}</span>
+			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner">
+				<span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['liveMargin'] }}:</span>
+				<span class="text-emerald-400 font-bold">{{ activeProfile().marginAvailableCents }}</span>
 			</div>
 		</div>
 
 		<div class="flex gap-3 mb-4">
-			<button (click)="onQueryLedger.emit({ tenantId: activeProfile.tenantId, userId: activeProfile.id }); onSwitchSegment.emit('STATEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">📜 Ver Extrato</button>
-			@if (scope === 'MASTER') {
-				<button (click)="advanceForm.tenantId = activeProfile.tenantId; onSwitchSegment.emit('SETTLEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold">🧾 Ir para Liquidação</button>
+			<button (click)="onQueryLedger.emit({ tenantId: activeProfile().tenantId, userId: activeProfile().id }); onSwitchSegment.emit('STATEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold transition">📜 Ver Extrato</button>
+			@if (scope() === 'MASTER') {
+				<button (click)="advanceForm().tenantId = activeProfile().tenantId; onSwitchSegment.emit('SETTLEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold transition">🧾 Ir para Liquidação</button>
 			}
 		</div>
 
-		<h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Calendário Contábil de Parcelas</h4>
-		<div class="space-y-2 max-h-48 overflow-y-auto">
-			@for (inst of installments; track inst.id) {
-				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-3 text-xs font-mono border border-slate-900">
+		<h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">{{ t()['calendar'] }}</h4>
+		<div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+			@for (inst of installments(); track inst.id) {
+				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-3 text-xs font-mono border border-slate-900 shadow-inner">
 					<div class="flex flex-col gap-0.5">
-						<span class="text-slate-300 font-bold">Parcela #{{ inst.installmentNumber }}</span>
+						<span class="text-slate-300 font-bold">Tier #{{ inst.installmentNumber }}</span>
 						<span class="text-[10px] text-slate-500">{{ inst.billingCompetence }}</span>
 					</div>
 					<div class="flex items-center gap-3">
-						<span class="text-red-400 font-black text-sm">{{ inst.grossAmountCents }}</span>
+						<span class="text-red-400 font-black text-sm font-mono">{{ inst.grossAmountCents }}</span>
 						<span [class]="'rounded px-2 py-0.5 text-[9px] font-bold ' + (inst.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400')">
 							{{ inst.status }}
 						</span>
 					</div>
 				</div>
 			} @empty {
-				<p class="text-xs text-slate-600 text-center py-2">Nenhuma amortização pendente registrada.</p>
+				<p class="text-xs text-slate-600 text-center py-2">{{ t()['emptyAmortization'] || 'Nenhuma amortização ativa registrada.' }}</p>
 			}
 		</div>
 	</div>
