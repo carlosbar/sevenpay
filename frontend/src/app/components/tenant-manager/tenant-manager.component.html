@@ -2,7 +2,7 @@
 @if (currentSegment() === 'CONSUMERS') {
 	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4">
 		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-			<h2 class="text-sm font-black text-slate-200">Consumidores Vinculados</h2>
+			<h2 class="text-sm font-black text-slate-200">{{ t()['linkedConsumers'] }}</h2>
 			
 			<!-- 🏢 MASTER SCOPE QUICK PARTER DROPDOWN SELECTOR -->
 			@if (scope() === 'MASTER') {
@@ -47,8 +47,8 @@
 <!-- ─── SEGMENT: INBOUND MASS ARRAY BULK SYNCHRONIZATION ─── -->
 @if (currentSegment() === 'BATCH_SYNC') {
 	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-		<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">Sincronização em Lote</h2>
-		<p class="text-xs text-slate-400 mb-4">Injete o bloco de texto contendo as inicializações em massa dos contratos dos consumidores.</p>
+		<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">{{ t()['batchSyncTitle'] }}</h2>
+		<p class="text-xs text-slate-400 mb-4">{{ t()['batchSyncDesc'] }}</p>
 		
 		@if (scope() === 'MASTER' && !selectedTenantId()) {
 			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
@@ -56,9 +56,9 @@
 			</div>
 		} @else {
 			<form (submit)="onBulkSync.emit($event)" class="space-y-4">
-				<textarea rows="6" [value]="syncRawText()" placeholder="Cole o bloco Array JSON aqui..."></textarea>
+				<textarea rows="6" [value]="syncRawText()" [placeholder]="t()['batchSyncPlaceholder']"></textarea>
 				<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
-					Executar Carga Contábil
+					{{ t()['batchSyncButton'] }}
 				</button>
 			</form>
 		}
