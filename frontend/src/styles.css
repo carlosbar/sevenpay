@@ -127,3 +127,13 @@ input:focus, select:focus, textarea:focus {
 	border-color: #10b981;
 	outline: none;
 }
+/* ─── ADDED ELEMENT: LAYOUT ALIGNMENT UTILITIES ─── */
+[style*="padding-left: 16rem"] {
+	padding-left: 16rem !important;
+}
+
+@media (max-w: 1024px) {
+	[style*="padding-left: 16rem"] {
+		padding-left: 0 !important;
+	}
+}
