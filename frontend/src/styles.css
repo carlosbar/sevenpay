@@ -137,3 +137,16 @@ input:focus, select:focus, textarea:focus {
 		padding-left: 0 !important;
 	}
 }
+/* ─── FIXED GRID SHIFT: PREVENTS ELEMENT CLIPPING OVERLAP ─── */
+.main-content-shift {
+	margin-left: 16rem;
+	width: calc(100% - 16rem);
+}
+
+/* ─── RESPONSIVE FALLBACK VIEWPORTS FOR MOBILE LAYOUT MATRICES ─── */
+@media (max-w: 1024px) {
+	.main-content-shift {
+		margin-left: 0;
+		width: 100%;
+	}
+}
