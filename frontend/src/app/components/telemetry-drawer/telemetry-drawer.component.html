@@ -1,67 +1,71 @@
-<!-- ─── SEGMENT: APPEND-ONLY TIME-SERIES LEDGER STATEMENT LOG AUDIT ─── -->
-@if (currentSegment() === 'STATEMENT') {
-	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl animate-fadeIn">
-		<h2 class="text-sm font-black text-slate-200 mb-3">{{ t()['statementTitle'] }}</h2>
-		
-		<div class="space-y-2">
-			@for (tx of transactions(); track tx.id) {
-				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850 shadow-inner">
-					<div class="flex flex-col gap-0.5">
-						<span [class]="tx.type === 'DEBIT' ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'">{{ tx.type }}</span>
-						<span class="text-[9px] text-slate-500">REF: {{ tx.advanceRequestId || 'Settlement Transaction' }}</span>
-					</div>
-					<span class="text-slate-200 font-black text-sm font-mono">{{ tx.amountCents }}</span>
+<!-- ─── SEGMENT: LINKED CONSUMERS B2B SCANS ─── -->
+@if (currentSegment() === 'CONSUMERS') {
+	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 animate-fadeIn">
+		<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+			<h2 class="text-sm font-black text-slate-200">{{ t()['linkedConsumers'] }}</h2>
+			
+			<!-- 🏢 MASTER SCOPE QUICK PARTER DROPDOWN SELECTOR -->
+			@if (scope() === 'MASTER') {
+				<div class="w-full sm:w-64 flex flex-col gap-1">
+					<select [value]="selectedTenantId() || ''" (change)="onTenantDropdownChange($event)" class="font-mono text-xs">
+						<!-- 🌍 REAL-TIME ALIGNED DROPDOWN OPTIONS TRANSLATION MAP -->
+						<option value="" disabled selected>
+							{{ t()['activePortfolios'] ? (t()['linkedConsumers'] === 'Linked Consumer Profiles' ? '-- Select a B2B Partner --' : '-- Selecione um Parceiro B2B --') : '-- Selecione um Parceiro B2B --' }}
+						</option>
+						@for (t of tenants(); track t.id) {
+							<option [value]="t.id">{{ t.name }} (CNPJ: {{ t.cnpj }})</option>
+						}
+					</select>
 				</div>
-			} @empty {
-				<p class="text-xs text-slate-600 text-center py-4">{{ t()['noRows'] }}</p>
 			}
 		</div>
+		
+		@if (scope() === 'MASTER' && !selectedTenantId()) {
+			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
+				<p class="text-xs text-amber-500 font-bold font-mono">
+					⚠️ {{ t()['linkedConsumers'] === 'Linked Consumer Profiles' ? 'Choose a B2B Partner in the selector above to list portfolio consumers.' : 'Escolha um Parceiro B2B no seletor acima para listar os consumidores da carteira.' }}
+				</p>
+			</div>
+		} @else {
+			<div class="divide-y overflow-hidden rounded-xl border border-slate-800">
+				@for (user of endUsers(); track user.id) {
+					<div (click)="onInspectUser.emit(user.id)" class="bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5 shadow-inner">
+						<div class="flex justify-between items-center">
+							<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
+							<span class="font-mono text-sm font-black text-emerald-400">{{ user.marginAvailableCents }}</span>
+						</div>
+						<div class="flex justify-between text-[10px] text-slate-500 font-mono">
+							<span>REF: {{ user.externalId }}</span>
+							<span>CONTRACT: {{ user.monthlyContractValueCents }}</span>
+						</div>
+					</div>
+				} @empty {
+					<div class="p-4 text-center">
+						<p class="text-xs text-slate-500 font-mono">Nenhum consumidor retornado pelo serviço para esta carteira B2B.</p>
+					</div>
+				}
+			</div>
+		}
 	</div>
 }
 
-<!-- ─── LAYOUT COMPONENT: AUDITING SUB-LAYOUT TELEMETRY DRAW PANEL ─── -->
-@if (activeProfile() && scope() !== 'END_USER') {
-	<div class="mt-6 rounded-2xl border border-emerald-500/20 bg-slate-900 p-6 relative animate-fadeIn shadow-2xl">
-		<button (click)="onClose.emit()" class="absolute top-5 right-5 text-xs font-bold text-slate-500 hover:text-slate-300 cursor-pointer bg-transparent border-none">✕ {{ t()['close'] }}</button>
-		<h3 class="text-sm font-black text-slate-100 mb-1">{{ t()['telemetry'] }}</h3>
-		<p class="text-[11px] font-mono text-slate-400 mb-4 truncate">UUID: {{ activeProfile().id }}</p>
+<!-- ─── SEGMENT: INBOUND MASS ARRAY BULK SYNCHRONIZATION ─── -->
+@if (currentSegment() === 'BATCH_SYNC') {
+	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+		<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">{{ t()['batchSyncTitle'] }}</h2>
+		<p class="text-xs text-slate-400 mb-4">{{ t()['batchSyncDesc'] }}</p>
 		
-		<div class="grid grid-cols-2 gap-4 mb-4 text-xs font-mono">
-			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner">
-				<span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['holder'] }}:</span>
-				<span class="text-slate-200 font-bold">{{ activeProfile().name }}</span>
+		@if (scope() === 'MASTER' && !selectedTenantId()) {
+			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
+				<p class="text-xs text-amber-500 font-bold font-mono">⚠️ Selecione um Parceiro na aba de Portfólios antes de injetar a sincronização.</p>
 			</div>
-			<div class="bg-slate-950 p-3 rounded-lg border border-slate-850 shadow-inner">
-				<span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['liveMargin'] }}:</span>
-				<span class="text-emerald-400 font-bold">{{ activeProfile().marginAvailableCents }}</span>
-			</div>
-		</div>
-
-		<div class="flex gap-3 mb-4">
-			<button (click)="onQueryLedger.emit({ tenantId: activeProfile().tenantId, userId: activeProfile().id }); onSwitchSegment.emit('STATEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold transition">📜 Ver Extrato</button>
-			@if (scope() === 'MASTER') {
-				<button (click)="advanceForm().tenantId = activeProfile().tenantId; onSwitchSegment.emit('SETTLEMENT')" class="flex-1 py-3 rounded-lg bg-slate-950 border border-slate-800 text-center text-xs font-mono text-slate-300 hover:bg-slate-850 cursor-pointer font-bold transition">🧾 Ir para Liquidação</button>
-			}
-		</div>
-
-		<h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">{{ t()['calendar'] }}</h4>
-		<div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-			@for (inst of installments(); track inst.id) {
-				<div class="flex items-center justify-between rounded-lg bg-slate-950 p-3 text-xs font-mono border border-slate-900 shadow-inner">
-					<div class="flex flex-col gap-0.5">
-						<span class="text-slate-300 font-bold">Tier #{{ inst.installmentNumber }}</span>
-						<span class="text-[10px] text-slate-500">{{ inst.billingCompetence }}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<span class="text-red-400 font-black text-sm font-mono">{{ inst.grossAmountCents }}</span>
-						<span [class]="'rounded px-2 py-0.5 text-[9px] font-bold ' + (inst.status === 'PAID' ? 'bg-emerald-950 text-emerald-400' : 'bg-slate-800 text-slate-400')">
-							{{ inst.status }}
-						</span>
-					</div>
-				</div>
-			} @empty {
-				<p class="text-xs text-slate-600 text-center py-2">{{ t()['emptyAmortization'] || 'Nenhuma amortização ativa registrada.' }}</p>
-			}
-		</div>
+		} @else {
+			<form (submit)="onBulkSync.emit($event)" class="space-y-4">
+				<textarea rows="6" [value]="syncRawText()" [placeholder]="t()['batchSyncPlaceholder']"></textarea>
+				<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
+					{{ t()['batchSyncButton'] }}
+				</button>
+			</form>
+		}
 	</div>
 }
