@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,16 +9,14 @@ import { FormsModule } from '@angular/forms';
 	templateUrl: './tenant-manager.component.html'
 })
 export class TenantManagerComponent {
-	/* ─── DATA LAYERS CONNECTED TO TARGET COMPANY ARRAYS ─── */
-	@Input() currentSegment!: string;
-	@Input() scope!: string;
-	@Input() selectedTenantId: string | null = null;
-	@Input() endUsers: any[] = [];
-	
-	/* ─── CORRECTION VECTOR: BINDING TO INPUT PAYLOAD TEXTAREA SIGNAL VECTOR ─── */
-	@Input() syncRawText!: string;
+	/* ─── SIGNAL-BASED REACTIVE INPUT MATRICES (REPLACES OLD INPUTS) ─── */
+	public currentSegment = input.required<string>();
+	public scope = input.required<string>();
+	public selectedTenantId = input<string | null>(null);
+	public endUsers = input<any[]>([]);
+	public syncRawText = input<string>('');
 
-	/* ─── PRIVILEGE ESCALATION SHIELDING EMITTERS ─── */
-	@Output() onInspectUser = new EventEmitter<string>();
-	@Output() onBulkSync = new EventEmitter<any>();
+	/* ─── OUTPUT EMITTERS FOR STATE MUTATION PROPAGATION ─── */
+	public onInspectUser = output<string>();
+	public onBulkSync = output<any>();
 }
