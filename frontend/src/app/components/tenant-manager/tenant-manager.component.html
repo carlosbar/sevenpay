@@ -1,15 +1,16 @@
-<!-- ─── SEGMENT: LINKED CONSUMERS AND PROFILES MATRIX ─── -->
-@if (currentSegment === 'CONSUMERS') {
+<!-- ─── SEGMENT: LINKED CONSUMERS AND PROFILES SCANS ─── -->
+@if (currentSegment() === 'CONSUMERS') {
 	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 		<h2 class="text-sm font-black text-slate-200 mb-3">Consumidores Vinculados</h2>
 		
-		@if (scope === 'MASTER' && !selectedTenantId) {
+		<!-- 🛡️ REAL-TIME SIGNAL EVALUATION GATEWAY -->
+		@if (scope() === 'MASTER' && !selectedTenantId()) {
 			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
 				<p class="text-xs text-amber-500 font-bold font-mono">⚠️ Selecione um Parceiro B2B na aba de Portfólios antes de listar.</p>
 			</div>
 		} @else {
 			<div class="divide-y overflow-hidden rounded-xl border border-slate-800">
-				@for (user of endUsers; track user.id) {
+				@for (user of endUsers(); track user.id) {
 					<div (click)="onInspectUser.emit(user.id)" class="bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5">
 						<div class="flex justify-between items-center">
 							<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
@@ -21,7 +22,7 @@
 						</div>
 					</div>
 				} @empty {
-					<p class="text-xs text-slate-500 p-4 text-center">Nenhum consumidor cadastrado para este parceiro.</p>
+					<p class="text-xs text-slate-500 p-4 text-center">Nenhum consumidor cadastrado ou encontrado para este parceiro.</p>
 				}
 			</div>
 		}
@@ -29,18 +30,18 @@
 }
 
 <!-- ─── SEGMENT: INBOUND MASS ARRAY BULK SYNCHRONIZATION ─── -->
-@if (currentSegment === 'BATCH_SYNC') {
+@if (currentSegment() === 'BATCH_SYNC') {
 	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 		<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">Sincronização em Lote</h2>
 		<p class="text-xs text-slate-400 mb-4">Injete o bloco de texto contendo as inicializações em massa dos contratos dos consumidores.</p>
 		
-		@if (scope === 'MASTER' && !selectedTenantId) {
+		@if (scope() === 'MASTER' && !selectedTenantId()) {
 			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
 				<p class="text-xs text-amber-500 font-bold font-mono">⚠️ Selecione um Parceiro na aba de Portfólios antes de injetar a sincronização.</p>
 			</div>
 		} @else {
 			<form (submit)="onBulkSync.emit($event)" class="space-y-4">
-				<textarea rows="6" [value]="syncRawText" placeholder="Cole o bloco Array JSON aqui..."></textarea>
+				<textarea rows="6" [value]="syncRawText()" placeholder="Cole o bloco Array JSON aqui..."></textarea>
 				<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
 					Executar Carga Contábil
 				</button>
