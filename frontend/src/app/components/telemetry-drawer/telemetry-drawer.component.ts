@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuSegment } from '../../app.component';
@@ -10,21 +10,20 @@ import { MenuSegment } from '../../app.component';
 	templateUrl: './telemetry-drawer.component.html'
 })
 export class TelemetryDrawerComponent {
-	/* ─── TIME-SERIES AND AMORTIZATION DATA STREAMS ─── */
-	@Input() currentSegment!: string;
-	@Input() scope!: string;
-	@Input() activeProfile: any | null = null;
-	@Input() transactions: any[] = [];
-	@Input() installments: any[] = [];
+	/* ─── SIGNAL-BASED REACTIVE TIME-SERIES INPUT STREAMS ─── */
+	public currentSegment = input.required<string>();
+	public scope = input.required<string>();
+	public t = input.required<any>();
+	public activeProfile = input<any | null>(null);
+	public transactions = input<any[]>([]);
+	public installments = input<any[]>([]);
 	
-	/* ─── FORMS ACCELERATOR PASSED DOWN INTERNALLY ─── */
-	@Input() advanceForm: any;
+	/* ─── INTERNAL CREDIT DISPATCH DATA MODELS ─── */
+	public advanceForm = input<any>({});
 
-  public t = input.required<any>();
-
-	/* ─── STRICT TYPE-SAFE ROUTING MUTATION UTILITIES ─── */
-	@Output() onClose = new EventEmitter<void>();
-	@Output() onRequestAdvance = new EventEmitter<any>();
-	@Output() onQueryLedger = new EventEmitter<{ tenantId: string, userId: string }>();
-	@Output() onSwitchSegment = new EventEmitter<MenuSegment>(); // Strict Type Alignment
+	/* ─── DETERMINISTIC ROUTING SEGMENT EMITTERS ─── */
+	public onClose = output<void>();
+	public onRequestAdvance = output<any>();
+	public onQueryLedger = output<{ tenantId: string, userId: string }>();
+	public onSwitchSegment = output<MenuSegment>();
 }
