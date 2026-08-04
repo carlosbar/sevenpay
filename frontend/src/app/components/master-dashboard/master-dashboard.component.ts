@@ -29,6 +29,8 @@ export class MasterDashboardComponent {
 	@Output() onCreateTenant = new EventEmitter<any>();
 	@Output() onClearCompetence = new EventEmitter<any>();
 
+  public t = input.required<any>();
+  
 	/* ─── PROPAGATION INTERCEPTORS TO TRIGGER PARENT REFLECTS ─── */
 	public updateTenantPayload(): void {
 		this.tenantFormChange.emit(this.tenantForm);
