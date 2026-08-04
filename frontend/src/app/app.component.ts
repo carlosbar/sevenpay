@@ -5,12 +5,24 @@ import { SevenPayService } from './core/services/sevenpay.service';
 import { PricingManagerComponent, PricingTierInput } from './components/pricing-manager/pricing-manager.component';
 import { TRANSLATIONS } from './core/constants/i18n';
 
+/* ─── B2B2C FINTECH SYSTEM SUBCOMPONENTS IMPORTS ─── */
+import { MasterDashboardComponent } from './components/master-dashboard/master-dashboard.component';
+import { TenantManagerComponent } from './components/tenant-manager/tenant-manager.component';
+import { TelemetryDrawerComponent } from './components/telemetry-drawer/telemetry-drawer.component';
+
 export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' | 'BATCH_SYNC' | 'SETTLEMENT';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [CommonModule, FormsModule, PricingManagerComponent],
+	imports: [
+		CommonModule, 
+		FormsModule, 
+		PricingManagerComponent, 
+		MasterDashboardComponent, /* Registers the global master admin component grid */
+		TenantManagerComponent,    /* Registers the B2B partner and user onboarding component */
+		TelemetryDrawerComponent   /* Registers the append-only ledger and auditing drawer */
+	],
 	templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
