@@ -1,0 +1,33 @@
+@if (currentSegment === 'CONSUMERS') {
+	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+		<h2 class="text-sm font-black text-slate-200 mb-3">Consumidores Vinculados</h2>
+		@if (scope === 'MASTER' && !selectedTenantId) {
+			<p class="text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl text-center font-bold">
+				⚠️ Selecione um Parceiro B2B na aba de Portfólios antes de listar.
+			</p>
+		} @else {
+			<div class="divide-y overflow-hidden rounded-xl border border-slate-800">
+				@for (user of endUsers; track user.id) {
+					<div (click)="onInspectUser.emit(user.id)" class="bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5">
+						<div class="flex justify-between items-center">
+							<span class="font-bold text-slate-200 text-sm">{{ user.name }}</span>
+							<span class="font-mono text-sm font-black text-emerald-400">{{ user.marginAvailableCents }}</span>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+}
+
+@if (currentSegment === 'BATCH_SYNC') {
+	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+		<h2 class="text-sm font-black text-emerald-400 mb-2 uppercase tracking-wider">Sincronização em Lote</h2>
+		<form (submit)="onBulkSync.emit($event)" class="space-y-4">
+			<textarea rows="6" placeholder="Cole o bloco Array JSON aqui..."></textarea>
+			<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer">
+				Executar Carga
+			</button>
+		</form>
+	</div>
+}
