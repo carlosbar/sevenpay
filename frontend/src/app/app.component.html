@@ -49,7 +49,7 @@
 		</header>
 
 		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6">
-			<!-- AUTENTICAÇÃO -->
+			<!-- AUTENTICAÇÃO GATEWAY -->
 			@if (!svc.isAuthenticated()) {
 				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
 					<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
@@ -69,7 +69,7 @@
 				</div>
 			}
 
-			<!-- RENDERIZAÇÃO DOS TRÊS SUBCOMPONENTES ISOLADOS -->
+			<!-- CONEXÃO DE ENTRADAS/SAÍDAS DOS TRÊS SUBCOMPONENTES ISOLADOS -->
 			@if (svc.isAuthenticated()) {
 				<app-master-dashboard 
 					[currentSegment]="currentMenuSegment()" 
@@ -77,18 +77,22 @@
 					[metrics]="globalMetrics()"
 					[tenants]="tenants()"
 					[selectedTenantId]="selectedTenantId()"
-					(onSelectTenant)="selectTenant($value)"
-					(onCreateTenant)="handleCreateTenant($value)"
-					(onClearCompetence)="handleClearCompetence($value)">
+					[tenantForm]="tenantForm"
+					[settlementForm]="settlementForm"
+					[settlementBatches]="settlementBatches()"
+					(onSelectTenant)="selectTenant($event)"
+					(onCreateTenant)="handleCreateTenant($event)"
+					(onClearCompetence)="handleClearCompetence($event)">
 				</app-master-dashboard>
 
 				<app-tenant-manager
 					[currentSegment]="currentMenuSegment()"
 					[scope]="svc.currentScope()"
 					[selectedTenantId]="selectedTenantId()"
-					[endUsers]="endUsers()"
-					(onInspectUser)="loadInspectionLayer($value)"
-					(onBulkSync)="handleBulkSync($value)">
+					[endUsers]="filteredEndUsers()"
+					[syncRawText]="syncRawText()"
+					(onInspectUser)="loadInspectionLayer($event)"
+					(onBulkSync)="handleBulkSync($event)">
 				</app-tenant-manager>
 
 				<app-telemetry-drawer
@@ -97,8 +101,11 @@
 					[activeProfile]="activeProfile()"
 					[transactions]="transactions()"
 					[installments]="installments()"
+					[advanceForm]="advanceForm"
 					(onClose)="activeProfile.set(null)"
-					(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)">
+					(onRequestAdvance)="handleRequestAdvance($event)"
+					(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
+					(onSwitchSegment)="switchSegment($event)">
 				</app-telemetry-drawer>
 			}
 		</main>
