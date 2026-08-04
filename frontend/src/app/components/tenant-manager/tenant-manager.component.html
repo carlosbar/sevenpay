@@ -1,9 +1,8 @@
-<!-- ─── SEGMENT: LINKED CONSUMERS AND PROFILES SCANS ─── -->
+<!-- ─── SEGMENT: LINKED CONSUMERS B2B SCANS ─── -->
 @if (currentSegment() === 'CONSUMERS') {
 	<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6">
 		<h2 class="text-sm font-black text-slate-200 mb-3">Consumidores Vinculados</h2>
 		
-		<!-- 🛡️ REAL-TIME SIGNAL EVALUATION GATEWAY -->
 		@if (scope() === 'MASTER' && !selectedTenantId()) {
 			<div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
 				<p class="text-xs text-amber-500 font-bold font-mono">⚠️ Selecione um Parceiro B2B na aba de Portfólios antes de listar.</p>
@@ -22,7 +21,9 @@
 						</div>
 					</div>
 				} @empty {
-					<p class="text-xs text-slate-500 p-4 text-center">Nenhum consumidor cadastrado ou encontrado para este parceiro.</p>
+					<div class="p-4 text-center">
+						<p class="text-xs text-slate-500 font-mono">Nenhum consumidor retornado pelo serviço para esta carteira B2B.</p>
+					</div>
 				}
 			</div>
 		}
