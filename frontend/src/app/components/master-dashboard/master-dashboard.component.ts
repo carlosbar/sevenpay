@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,34 +9,33 @@ import { FormsModule } from '@angular/forms';
 	templateUrl: './master-dashboard.component.html'
 })
 export class MasterDashboardComponent {
-	/* ─── RECONCILIATION AND SEGMENT SELECTION VECTORS ─── */
-	@Input() currentSegment!: string;
-	@Input() scope!: string;
-	@Input() metrics: any;
-	@Input() tenants: any[] = [];
-	@Input() selectedTenantId: string | null = null;
-	@Input() settlementBatches: any[] = [];
+	/* ─── SIGNAL-BASED REACTIVE INPUT MATRICES ─── */
+	public currentSegment = input.required<string>();
+	public scope = input.required<string>();
+	public t = input.required<any>(); /* Dynamic internationalization dictionary handshake */
+	public metrics = input<any>({});
+	public tenants = input<any[]>([]);
+	public selectedTenantId = input<string | null>(null);
+	public settlementBatches = input<any[]>([]);
 	
-	/* ─── TWO-WAY BINDING PROPERTIES SYSTEM ─── */
-	@Input() tenantForm: any;
-	@Output() tenantFormChange = new EventEmitter<any>();
+	/* ─── TWO-WAY PROXY EMULATIONS USING INBOUND TARGET REFERENCE REFLECTS ─── */
+	public tenantForm = input<any>({});
+	public tenantFormChange = output<any>();
 
-	@Input() settlementForm: any;
-	@Output() settlementFormChange = new EventEmitter<any>();
+	public settlementForm = input<any>({});
+	public settlementFormChange = output<any>();
 
-	/* ─── DELEGATED STRUCTURAL MUTATION EVENT EMITTERS ─── */
-	@Output() onSelectTenant = new EventEmitter<string>();
-	@Output() onCreateTenant = new EventEmitter<any>();
-	@Output() onClearCompetence = new EventEmitter<any>();
+	/* ─── DELEGATED INFRASTRUCTURE MUTATION EVENT EMITTERS ─── */
+	public onSelectTenant = output<string>();
+	public onCreateTenant = output<any>();
+	public onClearCompetence = output<any>();
 
-  public t = input.required<any>();
-  
-	/* ─── PROPAGATION INTERCEPTORS TO TRIGGER PARENT REFLECTS ─── */
+	/* ─── PROPAGATION INTERCEPTORS TO TRIGGER PARENT ALIGNMENTS ─── */
 	public updateTenantPayload(): void {
-		this.tenantFormChange.emit(this.tenantForm);
+		this.tenantFormChange.emit(this.tenantForm());
 	}
 
 	public updateSettlementPayload(): void {
-		this.settlementFormChange.emit(this.settlementForm);
+		this.settlementFormChange.emit(this.settlementForm());
 	}
 }
