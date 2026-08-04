@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-slate-950 text-slate-100 flex">
 	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX -->
 	@if (svc.isAuthenticated()) {
-		<aside class="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between">
+		<aside class="fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-800 bg-slate-900 p-4 transition-transform duration-300 lg:static lg:translate-x-0 shadow-2xl flex flex-col justify-between">
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
@@ -32,11 +32,13 @@
 		</aside>
 	}
 
-	<!-- 🎛 shrink/stretch wrapping logic -->
-	<div class="flex-1 flex flex-col min-w-0">
-		<!-- ─── RE-ALIGNED CONTAINER HEADER: POSITIONED ACCURATELY BY FLEXBOX NODES ─── -->
-		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border" [style.padding-left]="svc.isAuthenticated() ? '17.5rem' : '1.5rem'">
-			<span class="text-xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATURAL FLEX WRAPPING WITH SHIFT CLASS) -->
+	<div class="flex-1 flex flex-col min-w-0" [class.main-content-shift]="svc.isAuthenticated()">
+		<!-- ─── HEADER BAR: RESOLVED DUPLICATION AND CLIPPING USING BOX MODEL STABILITY ─── -->
+		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border">
+			<div class="flex items-center gap-2">
+				<span class="text-xl font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+			</div>
 			
 			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[10px] font-mono font-bold items-center gap-1">
 				@for (langCode of getAvailableLanguages(); track langCode) {
@@ -48,8 +50,8 @@
 			</div>
 		</header>
 
-		<!-- ─── WRAPPER LAYOUT SHIFT ONLY AFFECTS THE CONTENT LAYER ─── -->
-		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6" [style.padding-left]="svc.isAuthenticated() ? '17.5rem' : '1.5rem'">
+		<!-- ─── WRAPPER LAYOUT SHIFT ONLY CONTENT SCANS ─── -->
+		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 			<!-- AUTENTICAÇÃO GATEWAY -->
 			@if (!svc.isAuthenticated()) {
 				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
