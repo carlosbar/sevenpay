@@ -49,7 +49,7 @@
 		</header>
 
 		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6">
-			<!-- AUTENTICAÇÃO GATEWAY -->
+			<!-- OPERATOR ACCESS GATEWAY -->
 			@if (!svc.isAuthenticated()) {
 				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
 					<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
@@ -69,11 +69,11 @@
 				</div>
 			}
 
-			<!-- CONEXÃO DE ENTRADAS/SAÍDAS DOS TRÊS SUBCOMPONENTES ISOLADOS -->
+			<!-- ISOLATED ECOSYSTEM SUBCOMPONENTS PROXY LAYER -->
 			@if (svc.isAuthenticated()) {
 				<app-master-dashboard 
 					[currentSegment]="currentMenuSegment()" 
-					[scope]="svc.currentScope()"
+					[scope]="svc.currentScope() || ''"
 					[metrics]="globalMetrics()"
 					[tenants]="tenants()"
 					[selectedTenantId]="selectedTenantId()"
@@ -87,7 +87,7 @@
 
 				<app-tenant-manager
 					[currentSegment]="currentMenuSegment()"
-					[scope]="svc.currentScope()"
+					[scope]="svc.currentScope() || ''"
 					[selectedTenantId]="selectedTenantId()"
 					[endUsers]="filteredEndUsers()"
 					[syncRawText]="syncRawText()"
@@ -97,7 +97,7 @@
 
 				<app-telemetry-drawer
 					[currentSegment]="currentMenuSegment()"
-					[scope]="svc.currentScope()"
+					[scope]="svc.currentScope() || ''"
 					[activeProfile]="activeProfile()"
 					[transactions]="transactions()"
 					[installments]="installments()"
@@ -105,7 +105,7 @@
 					(onClose)="activeProfile.set(null)"
 					(onRequestAdvance)="handleRequestAdvance($event)"
 					(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
-					(onSwitchSegment)="switchSegment($event)">
+					(onSwitchSegment)="switchSegment($any($event))">
 				</app-telemetry-drawer>
 			}
 		</main>
