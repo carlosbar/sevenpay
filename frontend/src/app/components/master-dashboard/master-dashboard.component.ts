@@ -15,14 +15,26 @@ export class MasterDashboardComponent {
 	@Input() metrics: any;
 	@Input() tenants: any[] = [];
 	@Input() selectedTenantId: string | null = null;
-	
-	/* ─── CORRECTION VECTOR: DECLARED FORMS PASSED FROM THE PARENT TEMPLATE ─── */
-	@Input() tenantForm: any;
-	@Input() settlementForm: any;
 	@Input() settlementBatches: any[] = [];
+	
+	/* ─── TWO-WAY BINDING PROPERTIES SYSTEM ─── */
+	@Input() tenantForm: any;
+	@Output() tenantFormChange = new EventEmitter<any>();
+
+	@Input() settlementForm: any;
+	@Output() settlementFormChange = new EventEmitter<any>();
 
 	/* ─── DELEGATED STRUCTURAL MUTATION EVENT EMITTERS ─── */
 	@Output() onSelectTenant = new EventEmitter<string>();
 	@Output() onCreateTenant = new EventEmitter<any>();
 	@Output() onClearCompetence = new EventEmitter<any>();
+
+	/* ─── PROPAGATION INTERCEPTORS TO TRIGGER PARENT REFLECTS ─── */
+	public updateTenantPayload(): void {
+		this.tenantFormChange.emit(this.tenantForm);
+	}
+
+	public updateSettlementPayload(): void {
+		this.settlementFormChange.emit(this.settlementForm);
+	}
 }
