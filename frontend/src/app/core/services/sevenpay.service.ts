@@ -112,8 +112,18 @@ export class SevenPayService {
 		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload);
 	}
 
-	public getTenants(): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/admin/tenants`);
+	public getTenants(limit?: number, offset?: number): Observable<any> {
+		let params = new HttpParams();
+		
+		if (limit !== undefined) {
+			params = params.set('limit', limit.toString());
+		}
+		if (offset !== undefined) {
+			params = params.set('offset', offset.toString());
+		}
+
+		// Aligned with your backend base route: /api/v1/admin/tenants
+		return this.http.get<any>('/api/v1/admin/tenants', { params });
 	}
 
 	public getGlobalMetrics(): Observable<any> {
