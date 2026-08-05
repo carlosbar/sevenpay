@@ -110,16 +110,12 @@ export class SevenPayService {
 		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload);
 	}
 
-	/* ─── RE-ALIGNED PARAMS PIPELINE INTERCEPTING OPTIONAL PAGINATION VECTORS ─── */
-	public getTenants(limit?: number, offset?: number): Observable<any> {
+	public getTenants(limit?: number, offset?: number, search?: string): Observable<any> {
 		let params = new HttpParams();
 		
-		if (limit !== undefined) {
-			params = params.set('limit', limit.toString());
-		}
-		if (offset !== undefined) {
-			params = params.set('offset', offset.toString());
-		}
+		if (limit !== undefined) params = params.set('limit', limit.toString());
+		if (offset !== undefined) params = params.set('offset', offset.toString());
+		if (search !== undefined && search.length > 0) params = params.set('search', search);
 
 		return this.http.get<any>(`${this.BASE_URL}/admin/tenants`, { 
 			headers: this.getHeaders(), 
