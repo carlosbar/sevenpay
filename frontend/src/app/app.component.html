@@ -10,27 +10,27 @@
 				</div>
 
 				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH ICON WIDTH LOCKS ─── -->
-				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
+				<nav class="space-y-1 font-mono uppercase tracking-wider">
 					@if (svc.currentScope() === 'MASTER') {
-						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
-							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] }}
+						<button (click)="switchSegment('DASHBOARD')" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="rounded-lg border-none bg-transparent cursor-pointer">
+							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || 'Dashboard' }}
 						</button>
-						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+						<button (click)="switchSegment('PARTNERS')" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="rounded-lg border-none bg-transparent cursor-pointer">
 							<span class="menu-icon-wrapper">🏢</span> Portfólios B2B
 						</button>
-						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+						<button (click)="switchSegment('SETTLEMENT')" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="rounded-lg border-none bg-transparent cursor-pointer">
 							<span class="menu-icon-wrapper">🧾</span> Liquidação
 						</button>
 					}
 					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
-							<span class="menu-icon-wrapper">👥</span> Perfis de Consumidores Vinculados
+						<button (click)="switchSegment('CONSUMERS')" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="rounded-lg border-none bg-transparent cursor-pointer">
+							<span class="menu-icon-wrapper">👥</span> Consumidores
 						</button>
-						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+						<button (click)="switchSegment('BATCH_SYNC')" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="rounded-lg border-none bg-transparent cursor-pointer">
 							<span class="menu-icon-wrapper">🔄</span> Sincronização
 						</button>
 					}
-					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+					<button (click)="switchSegment('STATEMENT')" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="rounded-lg border-none bg-transparent cursor-pointer">
 						<span class="menu-icon-wrapper">📜</span> Extrato
 					</button>
 				</nav>
@@ -61,7 +61,7 @@
 				</span>
 			</div>
 			
-			<!-- Compact i18n switcher -->
+			<!-- i18n SELECTOR -->
 			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-[9px] sm:text-[10px] font-mono font-bold items-center gap-0.5 shadow-inner shrink-0">
 				@for (langCode of getAvailableLanguages(); track langCode) {
 					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-1.5 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-0.5 hover:text-slate-300">
@@ -74,7 +74,6 @@
 
 		<!-- CONTENT MAIN INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
-			<!-- ─── RE-ALIGNED: PADDING SYSTEM FOR MULTI-SCREEN MATRIX RESPONSIVENESS ─── -->
 			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
