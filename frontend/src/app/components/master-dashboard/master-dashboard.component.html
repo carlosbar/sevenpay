@@ -42,13 +42,13 @@
 					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
 				</div>
 
-				<!-- 🔍 FIXED FUZZY SEARCH WRAPPER: Enforces strict layout boxing to prevent input right-side overflows -->
+				<!-- 🔍 FIXED FUZZY SEARCH WRAPPER: Enforces strict layout boxing and optimized compact placeholder strings -->
 				<div class="w-full flex box-border relative">
 					<input 
 						type="text" 
 						[value]="searchTerm()" 
 						(input)="onSearchChange($event)"
-						placeholder="🔍 Buscar parceiro por nome aproximado..." 
+						placeholder="🔍 Nome do parceiro... (Ex: Carta/Certa)" 
 						style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
 				</div>
