@@ -36,20 +36,22 @@
 
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATIVE FLUID NODE) -->
 	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
-		<!-- GLOBAL TOP HEADER BAR -->
-		<header>
-			<div class="flex items-center gap-1">
-				<!-- ☰ HIGH-CONTRAST TRIGGER INTERCEPTED BY OUR EXPLICIT STYLES.CSS UTILITY -->
+		<!-- GLOBAL TOP HEADER BAR (REAL-TIME WRAPPING AND COMPACT TEXT FOR PHONE SHIELDS) -->
+		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border w-full">
+			<div class="flex items-center gap-1.5 min-w-0">
+				<!-- High-contrast mobile menu trigger -->
 				@if (svc.isAuthenticated()) {
 					<button (click)="isSidebarOpen.set(!isSidebarOpen())">☰</button>
 				}
-				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
+				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block">
+					{{ currentMenuSegment() }}
+				</span>
 			</div>
 			
-			<!-- i18n SELECTOR -->
-			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[10px] font-mono font-bold items-center gap-1 shadow-inner">
+			<!-- Compact i18n switcher -->
+			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-[9px] sm:text-[10px] font-mono font-bold items-center gap-0.5 shadow-inner shrink-0">
 				@for (langCode of getAvailableLanguages(); track langCode) {
-					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-2 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-1 hover:text-slate-300">
+					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-1.5 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-0.5 hover:text-slate-300">
 						<span>{{ langCode === 'en' ? '🇺🇸' : '🇧🇷' }}</span>
 						<span class="uppercase">{{ langCode }}</span>
 					</button>
