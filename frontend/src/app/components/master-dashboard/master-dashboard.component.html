@@ -81,13 +81,13 @@
 				<div class="flex items-center justify-between pt-2 text-xs font-mono">
 					<span class="text-slate-500">Exibindo registros de parceiros ativos</span>
 					<div class="flex gap-2">
-						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
-						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+						<!-- 🌍 REAL-TIME ALIGNED: Consumes raw decorator properties safely without parentheses -->
+						<button (click)="onPrevPage.emit()" [disabled]="offset === 0" [class.opacity-50]="offset === 0" [class.cursor-not-allowed]="offset === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							◀ {{ t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
 						</button>
 						
-						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
-						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+						<!-- 🌍 REAL-TIME ALIGNED: Consumes raw decorator properties safely without parentheses -->
+						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit" [class.opacity-50]="tenants().length < limit" [class.cursor-not-allowed]="tenants().length < limit" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							{{ t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
 						</button>
 					</div>
