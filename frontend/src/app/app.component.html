@@ -88,8 +88,8 @@
 					(onSelectTenant)="selectTenant($event)"
 					(onCreateTenant)="handleCreateTenant($event)"
 					(onClearCompetence)="handleClearCompetence($event)"
-					(onNextPage)="console.log('Next cursor increment triggered')"
-					(onPrevPage)="console.log('Prev cursor decrement triggered')">
+					(onNextPage)="nextTenantsPage()"
+					(onPrevPage)="prevTenantsPage()">
 				</app-master-dashboard>
 
 				<app-tenant-manager
