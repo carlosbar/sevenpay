@@ -26,6 +26,11 @@ export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' |
 	templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
+
+	private searchSubject = new Subject<string>();
+	private searchSubscription!: Subscription;
+	public currentSearchQuery = signal<string>('');
+
 	public isSidebarOpen = signal<boolean>(false);
 	public currentMenuSegment = signal<MenuSegment>('DASHBOARD');
 
@@ -60,6 +65,17 @@ export class AppComponent implements OnInit {
 	constructor(public svc: SevenPayService) {}
 
 	public ngOnInit(): void {
+		/* 🛡️ SECURITY DEBOUNCE BAR: Holds request pipeline for 2 seconds to avoid spamming the Core Engine */
+		this.searchSubscription = this.searchSubject.pipe(
+			debounceTime(2000), 
+			distinctUntilChanged()
+		).subscribe(query => {
+			this.currentSearchQuery.set(query);
+			this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
+			this.loadFintechControlTowerData();
+		});
+
+		/* ─── YOUR EXACT ORIGINAL SECURITY HANDSHAKE LOGIC PRESERVED UNTOUCHED ─── */
 		const localToken = localStorage.getItem('sp_token');
 		if (localToken && this.svc.isAuthenticated()) {
 			setTimeout(() => {
@@ -72,23 +88,11 @@ export class AppComponent implements OnInit {
 		}
 	}
 
-	private searchSubject = new Subject<string>();
-	private searchSubscription!: Subscription;
-	public currentSearchQuery = signal<string>('');
-
-	public ngOnInit(): void {
-		/* 🛡️ SECURITY DEBOUNCE BAR: Holds request pipeline for 2 seconds to avoid spamming the Core Engine */
-		this.searchSubscription = this.searchSubject.pipe(
-			debounceTime(2000), 
-			distinctUntilChanged()
-		).subscribe(query => {
-			this.currentSearchQuery.set(query);
-			this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
-			this.loadFintechControlTowerData();
-		});
-
+	/* ─── DESTRUCTION SHIELD: Clean up subscription to prevent memory leaks ─── */
 	public ngOnDestroy(): void {
-		if (this.searchSubscription) this.searchSubscription.unsubscribe();
+		if (this.searchSubscription) {
+			this.searchSubscription.unsubscribe();
+		}
 	}
 
 	public handleFuzzySearchTrigger(query: string): void {
