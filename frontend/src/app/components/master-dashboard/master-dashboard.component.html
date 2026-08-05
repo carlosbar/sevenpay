@@ -42,6 +42,24 @@
 					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
 				</div>
 
+        <!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PORTFOLIO GRID -->
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
+				
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
+					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Monitoramento de Carteiras B2B</h3>
+					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
+				</div>
+
+				<!-- 🔍 FUZZY LEVENSHTEIN FILTER TERMINAL INTERFACE -->
+				<div class="w-full box-border relative">
+					<input 
+						type="text" 
+						[value]="searchTerm()" 
+						(input)="onSearchChange($event)"
+						placeholder="🔍 Buscar parceiro por nome aproximado... (Ex: Carta/Certa)" 
+						class="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
+				</div>
+
 				<!-- 📱 MOBILE VIEW: RESPONSIVE CARDS (HIDDEN NATIVELY ON DESKTOPS VIA CLASS) -->
 				<div class="hide-on-desktop space-y-3 w-full box-border">
 					@for (partner of tenants(); track partner.id) {
