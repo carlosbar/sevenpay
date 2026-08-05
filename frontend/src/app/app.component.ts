@@ -122,8 +122,11 @@ export class AppComponent implements OnInit {
 		});
 	}
 
-	/* ─── CURSOR NAVIGATION TRIGGERS FOR THE ADVANCED MONITORING GRID ─── */
+	/* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
 	public nextTenantsPage(): void {
+		/* 🛡️ SECURITY SHIELD: Block execution if the current payload array length indicates end of database */
+		if (this.tenants().length < this.tenantsLimit()) return;
+		
 		this.tenantsOffset.update(current => current + this.tenantsLimit());
 		this.loadFintechControlTowerData();
 	}
@@ -133,7 +136,6 @@ export class AppComponent implements OnInit {
 		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
 		this.loadFintechControlTowerData();
 	}
-
 	public selectTenant(tenantId: string): void {
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
 		if (this.selectedTenantId()) {
