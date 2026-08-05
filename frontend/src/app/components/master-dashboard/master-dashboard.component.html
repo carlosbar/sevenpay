@@ -42,13 +42,13 @@
 					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
 				</div>
 
-				<!-- 🔍 FIXED FUZZY SEARCH WRAPPER: Enforces strict layout boxing and optimized compact placeholder strings -->
+				<!-- 🔍 FIXED FUZZY SEARCH WRAPPER: Enforces strict layout boxing to prevent input right-side overflows -->
 				<div class="w-full flex box-border relative">
 					<input 
 						type="text" 
 						[value]="searchTerm()" 
 						(input)="onSearchChange($event)"
-						placeholder="🔍 Nome do parceiro... (Ex: Carta/Certa)" 
+						placeholder="🔍 Buscar parceiro por nome aproximado..." 
 						style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
 				</div>
@@ -121,6 +121,7 @@
 												🚨 Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 											</span>
 										} @else {
+											<!-- 💻 DESKTOP ADAPTER: Retains the original structural padding format for large screens -->
 											<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
 												✓ Regular
 											</span>
