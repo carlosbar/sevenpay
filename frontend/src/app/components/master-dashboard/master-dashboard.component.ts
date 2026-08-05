@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, Input } from '@angular/core'; /* FIXED: Explicitly imported classic Input decorator */
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -15,12 +15,12 @@ export class MasterDashboardComponent {
 	public t = input.required<any>(); /* Dynamic internationalization dictionary handshake */
 	public metrics = input<any>({});
 	public tenants = input<any[]>([]);
-	public selectedTenantId = input<string | null>(null);
+	@Input() selectedTenantId: string | null = null; /* Restored to decorator fallback for rigid binding symmetry */
 	public settlementBatches = input<any[]>([]);
 	
-	/* ─── EXPLICIT PARAMS FOR RIGID PIPELINE PAGINATION TRAVAS ─── */
-	public limit = input<number>(5);
-	public offset = input<number>(0);
+	/* ─── FIXED HOOK: STRATIFIED CLASSIC DECORATORS TO BYPASS COMPILER CACHE GLITCHES ─── */
+	@Input() limit: number = 5;
+	@Input() offset: number = 0;
 	
 	/* ─── TWO-WAY PROXY EMULATIONS USING INBOUND REFERENCE ARRAYS ─── */
 	public tenantForm = input<any>({});
