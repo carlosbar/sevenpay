@@ -11,7 +11,7 @@ class TenantListController {
 	 * /api/v1/admin/tenants:
 	 *   get:
 	 *     summary: List all corporate tenants
-	 *     description: Retrieves a paginated list of all B2B partner companies provisioned in the ecosystem. Restricted exclusively to master operations.
+	 *     description: Retrieves a paginated list of all B2B partner companies provisioned in the ecosystem. Restricted exclusively to master operations with fuzzy search support.
 	 *     tags:
 	 *       - Admin Dashboard
 	 *     security:
@@ -29,6 +29,11 @@ class TenantListController {
 	 *           type: integer
 	 *           default: 0
 	 *         description: Initial rows to skip for pagination
+	 *       - in: query
+	 *         name: search
+	 *         schema:
+	 *           type: string
+	 *         description: Fuzzy search term to scan similar or proximate partner names using trigrams
 	 *     responses:
 	 *       200:
 	 *         description: Tenant registers fetched successfully
@@ -47,15 +52,39 @@ class TenantListController {
 
 			const limit = parseInt(req.query.limit as string, 10) || 10;
 			const offset = parseInt(req.query.offset as string, 10) || 0;
+			
+			/* ─── CAPTURE FUZZY SEARCH TERMS FROM INBOUND REQ STREAM ─── */
+			const search = (req.query.search as string || '').trim();
 
-			const query = `
-				SELECT id, cnpj, name, business_type AS "businessType", global_credit_limit_cents::text AS "globalCreditLimitCents", created_at AS "createdAt"
-				FROM tenants
-				ORDER BY name ASC
-				LIMIT $1 OFFSET $2;
-			`;
+			let query: string;
+			let queryParams: any[];
 
-			const result = await db.query(query, [limit, offset]);
+			if (search.length > 0) {
+				/* 
+				   ─── TRIGRAM SIMILARITY PIPELINE REFAC ───
+				   1. word_similarity(search, name) > 0.3 checks for typographic neighbors (e.g. carta/certa)
+				   2. ORDER BY similarity distance (<->) pushes closest phonetic matches to the top
+				*/
+				query = `
+					SELECT id, cnpj, name, business_type AS "businessType", global_credit_limit_cents::text AS "globalCreditLimitCents", created_at AS "createdAt"
+					FROM tenants
+					WHERE name % $1 OR name ILIKE $2
+					ORDER BY (name <-> $1) ASC, name ASC
+					LIMIT $3 OFFSET $4;
+				`;
+				queryParams = [search, `%${search}%`, limit, offset];
+			} else {
+				/* Fallback to traditional lexicographical scrolling sequence if search field is clear */
+				query = `
+					SELECT id, cnpj, name, business_type AS "businessType", global_credit_limit_cents::text AS "globalCreditLimitCents", created_at AS "createdAt"
+					FROM tenants
+					ORDER BY name ASC
+					LIMIT $1 OFFSET $2;
+				`;
+				queryParams = [limit, offset];
+			}
+
+			const result = await db.query(query, queryParams);
 
 			res.status(200).json({
 				result: 'success',
