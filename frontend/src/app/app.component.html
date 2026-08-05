@@ -53,8 +53,15 @@
 			<div class="flex items-center gap-1.5 min-w-0">
 				<!-- Mobile-only backup trigger placeholder -->
 				<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer text-base">☰</button>
-				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block">
-					{{ currentMenuSegment() }} SYSTEM
+				
+				<!-- 🌍 FIXED DYNAMIC HEADER TITLE: Maps routing tokens dynamically to localized strings maps -->
+				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block font-bold">
+					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || 'Dashboard' }} }
+					@if (currentMenuSegment() === 'PARTNERS') { Portfólios B2B }
+					@if (currentMenuSegment() === 'SETTLEMENT') { Liquidação }
+					@if (currentMenuSegment() === 'CONSUMERS') { Consumidores }
+					@if (currentMenuSegment() === 'BATCH_SYNC') { Sincronização }
+					@if (currentMenuSegment() === 'STATEMENT') { Extrato }
 				</span>
 			</div>
 			
