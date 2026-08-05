@@ -1,6 +1,6 @@
 /* ==========================================================================
    七 SEVENPAY CORE CREDIT ENGINE - UNIFIED MOBILE-FIRST PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Grid Layouts & Balanced Scale Fonts
+   Standards: Strict Dark Matrix, Fluid Grid Layouts & High-Contrast Navigation
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -131,6 +131,28 @@ aside nav button span.menu-icon-wrapper {
 	width: 1.25rem !important;
 	min-width: 1.25rem !important;
 	font-size: 0.95rem !important;
+}
+
+/* ─── PROTECTIVE ACCENTS AGAINST REPETITIVE BADGE OVERFLOWS ON MOBILE ─── */
+.bg-slate-950 .border-b {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 1rem !important; /* Forces physical boundary between name strings and status tags */
+	width: 100% !important;
+}
+
+.bg-slate-950 .border-b > div:first-child {
+	min-width: 0 !important; /* Permits the text to truncate cleanly instead of shoving indicators */
+	flex: 1 1 0% !important;
+}
+
+/* ─── ENFORCES STRICT WIDTH PRESERVATION ON PORTFOLIO BADGES ─── */
+.bg-slate-950 .border-b span.shrink-0 {
+	white-space: nowrap !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 }
 
 /* ─── CORE STRUCTURAL UTILITIES ─── */
