@@ -81,18 +81,17 @@
 				<div class="flex items-center justify-between pt-2 text-xs font-mono">
 					<span class="text-slate-500">Exibindo registros de parceiros ativos</span>
 					<div class="flex gap-2">
-						<!-- 🌍 REAL-TIME ALIGNED: Consumes raw decorator properties safely without parentheses -->
-						<button (click)="onPrevPage.emit()" [disabled]="offset === 0" [class.opacity-50]="offset === 0" [class.cursor-not-allowed]="offset === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
+						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							◀ {{ t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
 						</button>
 						
-						<!-- 🌍 REAL-TIME ALIGNED: Consumes raw decorator properties safely without parentheses -->
-						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit" [class.opacity-50]="tenants().length < limit" [class.cursor-not-allowed]="tenants().length < limit" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
+						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							{{ t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
 						</button>
 					</div>
 				</div>
-
 			</div>
 
 		</div>
@@ -122,6 +121,7 @@
 				<h2 class="text-sm font-black text-slate-200 mb-3">{{ t()['activePortfolios'] }}</h2>
 				<div class="divide-y overflow-hidden rounded-xl border border-slate-800">
 					@for (t of tenants(); track t.id) {
+						<!-- 🛡️ REAL-TIME FIXED HANDSHAKE Matrix: Call with execution parentheses -->
 						<div (click)="onSelectTenant.emit(t.id)" [class.border-l-4]="selectedTenantId() === t.id" class="border-emerald-500 bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5 shadow-inner">
 							<div class="flex justify-between items-center">
 								<span class="font-bold text-slate-200 text-sm">{{ t.name }}</span>
