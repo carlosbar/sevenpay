@@ -80,8 +80,8 @@
 
 		<!-- CONTENT MAIN AREA INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 max-w-full overflow-x-hidden">
-			<!-- ─── RE-ALIGNED CONTAINER: REPLACED MAX-W-5XL WITH MAX-W-NONE W-FULL FOR EDGE-TO-EDGE FLUIDITY ─── -->
-			<main class="flex-1 p-3 sm:p-6 lg:p-8 max-w-none w-full mx-auto space-y-6 box-border">
+			<!-- ─── RE-ALIGNED CONTAINER: BOUNDED WITHIN THE BOUNDARIES OF THE DEVICE WITHOUT HORIZONTAL LEAKS ─── -->
+			<main class="fluid-cockpit-container flex-1 p-3 sm:p-6 lg:p-8 space-y-6">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
