@@ -128,6 +128,10 @@
 										}
 									</td>
 								</tr>
+							} @empty {
+								<tr>
+									<td colspan="4" class="p-6 text-center text-slate-500 italic">Nenhum parceiro portando portfólios no momento.</td>
+								</tr>
 							}
 						</tbody>
 					</table>
@@ -138,10 +142,10 @@
 					<span class="text-slate-500 hidden sm:inline">Exibindo registros de parceiros ativos</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2">
 						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							◀ {{ t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
+							◀ {{ t()['menuDashboard'] === 'Dashboard' || t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
 						</button>
 						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							{{ t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
+							{{ t()['menuDashboard'] === 'Dashboard' || t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
 						</button>
 					</div>
 				</div>
