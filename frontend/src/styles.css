@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED MOBILE-FIRST PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Mobile-First Fluid Grid & Overlap Shields
+   七 SEVENPAY CORE CREDIT ENGINE - FIXED PRODUCTION RESPONSIVE MATRIX
+   Standards: Strict Dark Matrix, Grid Overlay Shields & Mobile Drawer
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -15,7 +15,21 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── MOBILE-FIRST COCKPIT SYSTEM (DEFAULT: SINGLE COLUMN TOP-DOWN) ─── */
+/* ─── GLOBAL ECOSYSTEM STRUCTURE ─── */
+.min-h-screen { min-height: 100vh; }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-1 { flex: 1 1 0%; }
+.grid { display: grid; }
+.hidden { display: none; }
+.w-64 { width: 16rem; }
+.w-full { width: 100%; }
+.max-w-5xl { max-w: 64rem; }
+.max-w-md { max-w: 28rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.box-border { box-sizing: border-box; }
+
+/* ─── FIXED HOOK LAYOUT COCKPIT SYSTEM (MOBILE-FIRST FLEX) ─── */
 .workspace-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -34,26 +48,35 @@ body {
 @media (min-width: 1024px) {
 	.workspace-wrapper {
 		display: grid;
-		grid-template-columns: 16rem 1fr; /* Rigid placement for sidebar navigation */
-	}
-	.main-content-area {
-		padding-left: 0 !important; /* Clears manual padding since grid enforces separation */
+		grid-template-columns: 16rem 1fr; /* Sidebar takes 16rem, cockpit takes the rest natively */
 	}
 }
 
-/* ─── CORE STRUCTURAL UTILITIES ─── */
-.min-h-screen { min-height: 100vh; }
-.flex { display: flex; }
-.flex-col { display: flex; flex-direction: column; }
-.flex-1 { flex: 1 1 0%; }
-.grid { display: grid; }
-.hidden { display: none; }
-.w-64 { width: 16rem; }
-.w-full { width: 100%; }
-.max-w-5xl { max-w: 64rem; }
-.max-w-md { max-w: 28rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.box-border { box-sizing: border-box; }
+/* ─── RESPONSIVE SIDEBAR OVERLAY DRAWER MODULE ─── */
+.sidebar-drawer {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 16rem;
+	z-index: 50;
+	transform: translateX(-100%);
+	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	box-sizing: border-box;
+}
+
+/* ─── ACTIVE EMULATION VECTOR: POP SIDEBAR OVER THE SCREEN ON SMARTPHONES ─── */
+.sidebar-drawer.active {
+	transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+	.sidebar-drawer {
+		position: static !important;
+		transform: translateX(0) !important; /* Force always visible on desktop viewports */
+		min-height: 100vh;
+	}
+}
 
 /* ─── HEADER BAR LAYOUT SCANS ─── */
 header {
@@ -130,36 +153,7 @@ header {
 .border-amber-500\/20 { border-color: rgba(245, 158, 11, 0.2); }
 .divide-y > * + * { border-top: 1px solid #1e293b; }
 
-/* ─── FINTECH DESIGN SYSTEM TYPOGRAPHY ─── */
-.text-xs { font-size: 0.75rem; }
-.text-sm { font-size: 0.875rem; }
-.text-base { font-size: 1rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-\[10px\] { font-size: 10px; }
-.text-\[11px\] { font-size: 11px; }
-.text-\[9px\] { font-size: 9px; }
-.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-.font-bold { font-weight: 700; }
-.font-black { font-weight: 900; }
-.uppercase { text-transform: uppercase; }
-.tracking-wider { letter-spacing: 0.05em; }
-.tracking-widest { letter-spacing: 0.1em; }
-.text-left { text-align: left; }
-.text-center { text-align: center; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* ─── TEXT PORTFOLIO COLOR PALETTE ─── */
-.text-slate-100 { color: #f8fafc; }
-.text-slate-200 { color: #e2e8f0; }
-.text-slate-300 { color: #cbd5e1; }
-.text-slate-400 { color: #94a3b8; }
-.text-slate-500 { color: #64748b; }
-.text-emerald-400 { color: #34d399; }
-.text-amber-500 { color: #f59e0b; }
-.text-red-400 { color: #f87171; }
-
-/* ─── FORM INTERFACES & NATIVE RESET PACKS ─── */
+/* ─── DESIGN SYSTEM FORM INPUT RENDERING ─── */
 input, select, textarea {
 	background-color: #020617;
 	border: 1px solid #1e293b;
@@ -177,7 +171,7 @@ input:focus, select:focus, textarea:focus {
 }
 textarea { resize: none; }
 
-/* ─── INTERACTIVE AND ANIMATION COMPONENT METRICS ─── */
+/* ─── INTERACTIVE SYSTEM CONFIGURATIONS ─── */
 .rounded { border-radius: 0.25rem; }
 .rounded-lg { border-radius: 0.5rem; }
 .rounded-xl { border-radius: 0.75rem; }
@@ -193,27 +187,6 @@ textarea { resize: none; }
 .hover\:bg-emerald-400:hover { background-color: #34d399; }
 .hover\:text-slate-200:hover { color: #e2e8f0; }
 .hover\:text-slate-300:hover { color: #cbd5e1; }
-
-/* ─── COMPONENT DISPLAY UTILITIES FOR THE MOBILE OVERLAY MATRIX ─── */
-.mobile-nav-toggle {
-	display: block;
-	background: transparent;
-	border: none;
-	color: #cbd5e1;
-	font-size: 1.25rem;
-	cursor: pointer;
-}
-
-@media (min-width: 1024px) {
-	.mobile-nav-toggle {
-		display: none !important; /* Hide hamburger completely on laptop/desktop viewports */
-	}
-	.mobile-sidebar-hide {
-		transform: translateX(0) !important; /* Force sidebar overlay visible on desktop sheets */
-		position: static !important;
-		min-height: 100vh !important;
-	}
-}
 
 /* ─── MICRO-ANIMATION HANDSHAKES ─── */
 .animate-fadeIn {
