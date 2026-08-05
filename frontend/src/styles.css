@@ -202,3 +202,21 @@ textarea { resize: none; }
 	from { opacity: 0; transform: translateY(4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── FIXED HIGH-CONTRAST MOBILE HAMBURGER BUTTON UTILITY ─── */
+header button {
+	color: #34d399 !important; /* Force Emerald 400 visibility */
+	font-size: 1.5rem !important; /* Make it large enough for fingers */
+	font-weight: 900 !important;
+	background: transparent !important;
+	border: none !important;
+	cursor: pointer !important;
+	display: block !important;
+	padding-right: 0.5rem !important;
+}
+
+@media (min-width: 1024px) {
+	header button {
+		display: none !important; /* Absolute block against desktop duplications */
+	}
+}
