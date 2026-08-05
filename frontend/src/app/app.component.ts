@@ -1,4 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SevenPayService } from './core/services/sevenpay.service';
@@ -68,6 +70,29 @@ export class AppComponent implements OnInit {
 		} else {
 			this.svc.logout();
 		}
+	}
+
+	private searchSubject = new Subject<string>();
+	private searchSubscription!: Subscription;
+	public currentSearchQuery = signal<string>('');
+
+	public ngOnInit(): void {
+		/* 🛡️ SECURITY DEBOUNCE BAR: Holds request pipeline for 2 seconds to avoid spamming the Core Engine */
+		this.searchSubscription = this.searchSubject.pipe(
+			debounceTime(2000), 
+			distinctUntilChanged()
+		).subscribe(query => {
+			this.currentSearchQuery.set(query);
+			this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
+			this.loadFintechControlTowerData();
+		});
+
+	public ngOnDestroy(): void {
+		if (this.searchSubscription) this.searchSubscription.unsubscribe();
+	}
+
+	public handleFuzzySearchTrigger(query: string): void {
+		this.searchSubject.next(query);
 	}
 
 	public getAvailableLanguages(): ('en' | 'pt-br')[] {
