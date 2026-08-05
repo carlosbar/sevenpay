@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC BREAKPOINT STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Native Grid & Fixed Core Viewports
+   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC PRODUCTION STYLESHEET
+   Standards: Strict Dark Matrix, Fluid Native Grid & Edge-to-Edge Fill
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -136,6 +136,12 @@ header {
 	width: 100%;
 }
 
+/* ─── WORKSPACE LAYOUT EXTENSIONS FOR FULL FILL GENERATIONS ─── */
+.max-w-none {
+	max-width: none !important;
+	width: 100% !important;
+}
+
 /* ─── ACCELERATORS BOX METRICS ─── */
 .min-h-screen { min-height: 100vh; }
 .flex { display: flex; }
@@ -144,7 +150,6 @@ header {
 .grid { display: grid; }
 .hidden { display: none; }
 .w-full { width: 100%; }
-.max-w-5xl { max-w: 64rem; }
 .max-w-md { max-w: 28rem; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 
@@ -155,7 +160,7 @@ header {
 	.sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 
-/* ─── ESCAPED SINTAX FALLBACKS FOR SPACHING SYSTEM CONTROLS ─── */
+/* ─── SPACING SYSTEM CONTROLS ─── */
 .p-1 { padding: 0.25rem; }
 .p-2 { padding: 0.5rem; }
 .p-3 { padding: 0.75rem; }
@@ -196,7 +201,7 @@ header {
 .border-emerald-500\/20 { border-color: rgba(16, 185, 129, 0.2); }
 .divide-y > * + * { border-top: 1px solid #1e293b; }
 
-/* ─── FIXED SELETORS FOR LOGOUT AND SPACING BUTTONS ─── */
+/* ─── FIXED SELETOK FOR LOGOUT AND SPACING BUTTONS ─── */
 .logout-btn-matrix {
 	background-color: rgba(239, 68, 68, 0.15) !important;
 	color: #f87171 !important;
