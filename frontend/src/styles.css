@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Layout Grid & Fixed Core Viewports
+   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED MOBILE-FIRST PRODUCTION STYLESHEET
+   Standards: Strict Dark Matrix, Mobile-First Fluid Grid & Overlap Shields
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -15,7 +15,33 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── CORE STRUCTURAL GRID INTERFACES ─── */
+/* ─── MOBILE-FIRST COCKPIT SYSTEM (DEFAULT: SINGLE COLUMN TOP-DOWN) ─── */
+.workspace-wrapper {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-height: 100vh;
+}
+
+.workspace-unauthenticated {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-height: 100vh;
+}
+
+/* ─── DESKTOP ENHANCEMENT BREAKPOINT (TRIGGERED AT 1024px VIEWPORTS) ─── */
+@media (min-width: 1024px) {
+	.workspace-wrapper {
+		display: grid;
+		grid-template-columns: 16rem 1fr; /* Rigid placement for sidebar navigation */
+	}
+	.main-content-area {
+		padding-left: 0 !important; /* Clears manual padding since grid enforces separation */
+	}
+}
+
+/* ─── CORE STRUCTURAL UTILITIES ─── */
 .min-h-screen { min-height: 100vh; }
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
@@ -29,49 +55,21 @@ body {
 .mx-auto { margin-left: auto; margin-right: auto; }
 .box-border { box-sizing: border-box; }
 
-/* ─── FIXED HOOK LAYOUT COCKPIT SYSTEM ─── */
-.workspace-wrapper {
-	display: grid;
-	grid-template-columns: 16rem 1fr; /* Sidebar takes 16rem, content takes the rest natively */
-	min-h-screen: 100vh;
-	width: 100%;
-}
-
-.workspace-unauthenticated {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	min-height: 100vh;
-}
-
-/* ─── HEADER BAR MATRIX LAYOUT RESET ─── */
+/* ─── HEADER BAR LAYOUT SCANS ─── */
 header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	border-bottom: 1px solid #1e293b;
 	background-color: #0f172a;
-	padding: 1rem 1.5rem;
+	padding: 1rem 1.25rem;
 	box-sizing: border-box;
 	width: 100%;
 }
 
-/* ─── GRID RESPONSIVE PIPELINES ─── */
+/* ─── GRID RESPONSIVE MATRIX PIPELINES ─── */
 .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
 .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-@media (min-width: 640px) {
-	.sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-w: 1024px) {
-	.workspace-wrapper {
-		grid-template-columns: 1fr; /* Collapse sidebar grid on mobile screens */
-	}
-	aside {
-		display: none !important;
-	}
-}
 
 /* ─── BOX METRICS & SPACING SYSTEM ─── */
 .p-1 { padding: 0.25rem; }
@@ -195,6 +193,27 @@ textarea { resize: none; }
 .hover\:bg-emerald-400:hover { background-color: #34d399; }
 .hover\:text-slate-200:hover { color: #e2e8f0; }
 .hover\:text-slate-300:hover { color: #cbd5e1; }
+
+/* ─── COMPONENT DISPLAY UTILITIES FOR THE MOBILE OVERLAY MATRIX ─── */
+.mobile-nav-toggle {
+	display: block;
+	background: transparent;
+	border: none;
+	color: #cbd5e1;
+	font-size: 1.25rem;
+	cursor: pointer;
+}
+
+@media (min-width: 1024px) {
+	.mobile-nav-toggle {
+		display: none !important; /* Hide hamburger completely on laptop/desktop viewports */
+	}
+	.mobile-sidebar-hide {
+		transform: translateX(0) !important; /* Force sidebar overlay visible on desktop sheets */
+		position: static !important;
+		min-height: 100vh !important;
+	}
+}
 
 /* ─── MICRO-ANIMATION HANDSHAKES ─── */
 .animate-fadeIn {
