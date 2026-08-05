@@ -256,13 +256,14 @@ input, select, textarea {
 	color: #f8fafc !important;
 	width: 100% !important;
 	max-width: 100% !important;
-	box-sizing: border-box !important; /* CRITICAL FIXED HOOK: Forces padding inside the 100% width grid boundary */
+	box-sizing: border-box !important; /* Forces total filling without overflowing the container viewports */
 	border-radius: 0.5rem !important;
-	padding: 0.625rem !important;
+	padding: 0.625rem 0.75rem !important;
 	font-family: inherit !important;
 	font-size: 0.875rem !important;
 }
 input:focus, select:focus, textarea:focus { border-color: #10b981 !important; outline: none !important; }
+
 .rounded-lg { border-radius: 0.5rem; }
 .rounded-xl { border-radius: 0.75rem; }
 .rounded-2xl { border-radius: 1rem; }
