@@ -288,6 +288,17 @@ aside button.bg-red-500\/10:hover {
 	color: #ef4444 !important; /* Bright Red 500 on mouse hover shakes */
 }
 
+/* ─── ADDED ELEMENT: LAYOUT PADDING SHIFT FOR HEADERS ON DESKTOP ─── */
+.pl-64-layout {
+	padding-left: 16rem !important;
+}
+
+@media (max-w: 1024px) {
+	.pl-64-layout {
+		padding-left: 0 !important; /* Resets to fluid behavior on smartphones */
+	}
+}
+
 /* ─── INTERACTIVE SYSTEM CONFIGURATIONS ─── */
 .rounded { border-radius: 0.25rem; }
 .rounded-lg { border-radius: 0.5rem; }
