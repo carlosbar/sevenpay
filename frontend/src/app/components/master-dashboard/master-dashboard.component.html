@@ -1,30 +1,100 @@
 @if (scope() === 'MASTER') {
 	<!-- ─── SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD ─── -->
 	@if (currentSegment() === 'DASHBOARD') {
-		<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 animate-fadeIn">
-			<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
-			<div class="grid grid-cols-2 gap-4">
-				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
-					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] }}</span>
-					<span class="text-xl font-black text-slate-200 font-mono">{{ metrics().totalVolumeAdvancedCents }}</span>
-				</div>
-				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
-					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] }}</span>
-					<span class="text-xl font-black text-emerald-400 font-mono">{{ metrics().totalFeesCollectedCents }}</span>
-				</div>
-				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
-					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] }}</span>
-					<span class="text-xl font-black text-amber-500 font-mono">{{ metrics().totalReceivablesCents }}</span>
-				</div>
-				<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
-					<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] }}</span>
-					<span class="text-xl font-black text-red-400 font-mono">{{ metrics().totalOverdueCents }}</span>
+		<div class="space-y-6 animate-fadeIn">
+			
+			<!-- TOP CORE METRICS MATRIX -->
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-2xl">
+				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] }}</span>
+						<span class="text-xl font-black text-slate-200 font-mono">{{ metrics().totalVolumeAdvancedCents }}</span>
+					</div>
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] }}</span>
+						<span class="text-xl font-black text-emerald-400 font-mono">{{ metrics().totalFeesCollectedCents }}</span>
+					</div>
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] }}</span>
+						<span class="text-xl font-black text-amber-500 font-mono">{{ metrics().totalReceivablesCents }}</span>
+					</div>
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] }}</span>
+						<span class="text-xl font-black text-red-400 font-mono">{{ metrics().totalOverdueCents }}</span>
+					</div>
 				</div>
 			</div>
+
+			<!-- 🏢 EXTENDED MODULE: ADVANCED PARTNERS AUDIT GRID -->
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
+				<div class="flex justify-between items-center border-b border-slate-800 pb-2">
+					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Monitoramento de Carteiras B2B</h3>
+					<span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
+				</div>
+
+				<div class="overflow-x-auto rounded-xl border border-slate-800">
+					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
+						<thead>
+							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
+								<th class="p-3">Parceiro / CNPJ</th>
+								<th class="p-3 text-right">Resgates (Mês)</th>
+								<th class="p-3 text-right">Margem Disponível</th>
+								<th class="p-3 text-center">Status / Atrasos</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-800/60">
+							@for (partner of tenants(); track partner.id) {
+								<tr class="hover:bg-slate-900/40 transition">
+									<td class="p-3">
+										<span class="block font-bold text-slate-100 text-sm">{{ partner.name }}</span>
+										<span class="block text-[10px] text-slate-500">CNPJ: {{ partner.cnpj }}</span>
+									</td>
+									<td class="p-3 text-right font-bold text-slate-200">
+										{{ partner.totalMonthDisbursedCents || 'R$ 0,00' }}
+									</td>
+									<td class="p-3 text-right font-bold text-emerald-400">
+										{{ partner.availableCreditMarginCents || 'R$ 0,00' }}
+									</td>
+									<td class="p-3 text-center">
+										@if (partner.hasOverdueInstallments) {
+											<span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-[10px] font-bold text-red-400 uppercase tracking-wider">
+												🚨 Atraso: {{ partner.overdueAmountCents }}
+											</span>
+										} @else {
+											<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+												✓ Regular
+											</span>
+										}
+									</td>
+								</tr>
+							} @empty {
+								<tr>
+									<td colspan="4" class="p-6 text-center text-slate-500 italic">Nenhum parceiro portando portfólios no momento.</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+
+				<!-- 📑 PAGINATION NAVIGATION CONTROLS MATRIX -->
+				<div class="flex items-center justify-between pt-2 text-xs font-mono">
+					<span class="text-slate-500">Exibindo registros de parceiros ativos</span>
+					<div class="flex gap-2">
+						<button (click)="onPrevPage.emit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+							◀ Voltar
+						</button>
+						<button (click)="onNextPage.emit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+							Avançar ▶
+						</button>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	}
 
-	<!-- ─── SEGMENT: PARTNERS B2B INFRASTRUCTURE ─── -->
+	<!-- SEGMENTO: PORTFÓLIOS B2B -->
 	@if (currentSegment() === 'PARTNERS') {
 		<div class="space-y-6 animate-fadeIn">
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
@@ -62,7 +132,7 @@
 		</div>
 	}
 
-	<!-- ─── SEGMENT: MONTHLY INVOICING RECONCILIATION CLEARANCE ─── -->
+	<!-- SEGMENTO: LIQUIDAÇÃO CONTÁBIL MENSAL -->
 	@if (currentSegment() === 'SETTLEMENT') {
 		<div class="space-y-6 animate-fadeIn">
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
