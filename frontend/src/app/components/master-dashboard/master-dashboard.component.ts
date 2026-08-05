@@ -18,7 +18,7 @@ export class MasterDashboardComponent {
 	public selectedTenantId = input<string | null>(null);
 	public settlementBatches = input<any[]>([]);
 	
-	/* ─── FIXED PIPELINE: ARRAYS FOR RIGID PIPELINE PAGINATION TRAVAS ─── */
+	/* ─── EXPLICIT PARAMS FOR RIGID PIPELINE PAGINATION TRAVAS ─── */
 	public limit = input<number>(5);
 	public offset = input<number>(0);
 	
