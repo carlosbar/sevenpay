@@ -9,12 +9,11 @@
 					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
-				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH ICON WIDTH LOCKS ─── -->
+				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH UNIQUE MANUALLY ASSIGNED EMOJI WRAPPERS ─── -->
 				<nav class="space-y-1 font-mono uppercase tracking-wider">
 					@if (svc.currentScope() === 'MASTER') {
-						<!-- 📊 FIXED: Removed manual span icon to prevent redundancy with i18n string maps -->
 						<button (click)="switchSegment('DASHBOARD')" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="rounded-lg border-none bg-transparent cursor-pointer">
-							{{ svc.t()['menuDashboard'] || '📊 Dashboard' }}
+							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || 'Dashboard' }}
 						</button>
 						<button (click)="switchSegment('PARTNERS')" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="rounded-lg border-none bg-transparent cursor-pointer">
 							<span class="menu-icon-wrapper">🏢</span> Portfólios B2B
