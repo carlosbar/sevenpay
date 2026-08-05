@@ -1,6 +1,6 @@
 // src/app/core/services/sevenpay.service.ts
 import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { TRANSLATIONS } from '../constants/i18n';
 
@@ -44,7 +44,6 @@ export class SevenPayService {
 	}
 
 	private getHeaders(): HttpHeaders {
-		// 🔄 FIXED: Reads the reactive signal string directly at the exact moment of execution
 		const currentToken = this.token();
 		return new HttpHeaders({
 			'Content-Type': 'application/json',
@@ -78,7 +77,6 @@ export class SevenPayService {
 	}
 
 	public login(credentials: any): Observable<any> {
-		// 🔄 CORRIGIDO: Rota alterada de /auth/loqin para /auth/login para casar com o backend
 		return this.http.post<any>(`${this.BASE_URL}/auth/login`, credentials).pipe(
 			tap(res => {
 				if (res.result === 'success' && res.data?.token) {
@@ -112,6 +110,7 @@ export class SevenPayService {
 		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload);
 	}
 
+	/* ─── RE-ALIGNED PARAMS PIPELINE INTERCEPTING OPTIONAL PAGINATION VECTORS ─── */
 	public getTenants(limit?: number, offset?: number): Observable<any> {
 		let params = new HttpParams();
 		
@@ -122,8 +121,10 @@ export class SevenPayService {
 			params = params.set('offset', offset.toString());
 		}
 
-		// Aligned with your backend base route: /api/v1/admin/tenants
-		return this.http.get<any>('/api/v1/admin/tenants', { params });
+		return this.http.get<any>(`${this.BASE_URL}/admin/tenants`, { 
+			headers: this.getHeaders(), 
+			params 
+		});
 	}
 
 	public getGlobalMetrics(): Observable<any> {
