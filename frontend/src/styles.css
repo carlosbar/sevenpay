@@ -13,13 +13,14 @@ body {
 	min-height: 100vh; 
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	overflow-x: hidden; /* Prevent body baseline scroll leaks */
+	overflow-x: hidden;
 }
 
-/* ─── NATIVE MASTER LAYOUT GRID SYSTEM ─── */
+/* ─── COCKPIT MASTER GRID LAYOUT SYSTEM (MOBILE-FIRST FLEX) ─── */
 .workspace-wrapper {
-	display: grid;
-	grid-template-columns: 16rem 1fr; /* Fixed sidebar, fluid cockpit area */
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 	min-height: 100vh;
 	box-sizing: border-box;
 }
@@ -31,7 +32,16 @@ body {
 	min-height: 100vh;
 }
 
-/* ─── SIDEBAR SYSTEM ARCHITECTURE ─── */
+/* ─── DESKTOP ENHANCEMENT BREAKPOINT (TRIGGERED AT 1024px VIEWPORTS) ─── */
+@media (min-width: 1024px) {
+	.workspace-wrapper {
+		display: grid;
+		grid-template-columns: 16rem 1fr; /* Fixed sidebar width, fluid cockpit rest */
+		min-height: 100vh;
+	}
+}
+
+/* ─── RESPONSIVE OVERLAY MENU PANEL FOR SMALL SCREEN MODULES ─── */
 .sidebar-panel {
 	background-color: #0f172a;
 	border-right: 1px solid #1e293b;
@@ -40,9 +50,27 @@ body {
 	flex-direction: column;
 	justify-content: space-between;
 	box-sizing: border-box;
-	height: 100vh;
-	position: sticky;
+	position: fixed; /* Slides on top of everything on smartphones */
 	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 16rem;
+	z-index: 50;
+	transform: translateX(-100%);
+	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── TOGGLE SHIFT EMULATION MATRIX ─── */
+.sidebar-panel.active {
+	transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+	.sidebar-panel {
+		position: sticky !important;
+		transform: translateX(0) !important; /* Force static inline visual on notebooks */
+		height: 100vh;
+	}
 }
 
 /* ─── SIDEBAR BUTTON TYPOGRAPHY SCANS (STRICTLY ISOLATED TO THE NAV ELEMENT) ─── */
@@ -56,7 +84,7 @@ body {
 	background: transparent;
 	border: none;
 	border-radius: 0.5rem;
-	color: #94a3b8; /* Elegant slate contrast */
+	color: #94a3b8;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 	font-size: 0.75rem;
 	font-weight: 750;
@@ -72,7 +100,7 @@ body {
 }
 
 .sidebar-navigation-links button.active-route {
-	color: #34d399; /* Emerald selected text */
+	color: #34d399;
 	background-color: #1e293b;
 }
 
@@ -86,11 +114,11 @@ body {
 	text-align: center;
 }
 
-/* ─── WORKSPACE COCKPIT AND HEADER BAR NODES ─── */
+/* ─── WORKSPACE COCKPIT AREA NODES ─── */
 .cockpit-area {
 	display: flex;
 	flex-direction: column;
-	min-width: 0; /* CRITICAL: Prevents flex children from overflowing horizontally */
+	min-width: 0;
 	box-sizing: border-box;
 }
 
@@ -100,12 +128,12 @@ header {
 	justify-content: space-between;
 	border-bottom: 1px solid #1e293b;
 	background-color: #0f172a;
-	padding: 1rem 1.5rem;
+	padding: 1rem 1.25rem;
 	box-sizing: border-box;
 	width: 100%;
 }
 
-/* ─── BOX METRICS & GRID ACCELERATORS ─── */
+/* ─── ACCELERATORS BOX METRICS ─── */
 .min-h-screen { min-height: 100vh; }
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
@@ -122,11 +150,6 @@ header {
 
 @media (min-width: 640px) {
 	.sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-}
-
-@media (max-w: 1024px) {
-	.workspace-wrapper { grid-template-columns: 1fr; }
-	.sidebar-panel { display: none !important; }
 }
 
 /* ─── FIXED SIGNATURES: ESCAPED DECIMAL POINTS FOR NATURAL CSS COMPLIANCE ─── */
@@ -212,7 +235,17 @@ header {
 	.show-on-desktop { display: block !important; }
 }
 
-/* ─── NATIVE CORE RESET FORM INTERFACES ─── */
+/* ─── FORM BASES AND LOGOUTS INTERFACES ─── */
+aside button.bg-red-500\/10 {
+	background-color: rgba(239, 68, 68, 0.15) !important;
+	color: #f87171 !important;
+	border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+aside button.bg-red-500\/10:hover {
+	background-color: rgba(239, 68, 68, 0.25) !important;
+	color: #ef4444 !important;
+}
+
 input, select, textarea {
 	background-color: #020617;
 	border: 1px solid #1e293b;
