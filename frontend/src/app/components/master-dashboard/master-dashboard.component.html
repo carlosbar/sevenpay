@@ -81,11 +81,14 @@
 				<div class="flex items-center justify-between pt-2 text-xs font-mono">
 					<span class="text-slate-500">Exibindo registros de parceiros ativos</span>
 					<div class="flex gap-2">
-						<button (click)="onPrevPage.emit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							◀ Voltar
+						<!-- 🌍 REAL-TIME ALIGNED: Consumes strict i18n keys and disables naturally at offset 0 -->
+						<button (click)="onPrevPage.emit()" [disabled]="offset === 0" [class.opacity-50]="offset === 0" [class.cursor-not-allowed]="offset === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+							◀ {{ t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
 						</button>
-						<button (click)="onNextPage.emit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							Avançar ▶
+						
+						<!-- 🌍 REAL-TIME ALIGNED: Consumes strict i18n keys and disables naturally when database limits are hit -->
+						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit" [class.opacity-50]="tenants().length < limit" [class.cursor-not-allowed]="tenants().length < limit" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+							{{ t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
 						</button>
 					</div>
 				</div>
