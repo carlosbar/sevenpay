@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - FIXED PRODUCTION RESPONSIVE MATRIX
-   Standards: Strict Dark Matrix, Grid Overlay Shields & Mobile Drawer
+   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED MOBILE-FIRST PRODUCTION STYLESHEET
+   Standards: Strict Dark Matrix, Mobile-First Fluid Grid & Rigid Sidebar Layouts
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -14,20 +14,6 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
-
-/* ─── GLOBAL ECOSYSTEM STRUCTURE ─── */
-.min-h-screen { min-height: 100vh; }
-.flex { display: flex; }
-.flex-col { display: flex; flex-direction: column; }
-.flex-1 { flex: 1 1 0%; }
-.grid { display: grid; }
-.hidden { display: none; }
-.w-64 { width: 16rem; }
-.w-full { width: 100%; }
-.max-w-5xl { max-w: 64rem; }
-.max-w-md { max-w: 28rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.box-border { box-sizing: border-box; }
 
 /* ─── FIXED HOOK LAYOUT COCKPIT SYSTEM (MOBILE-FIRST FLEX) ─── */
 .workspace-wrapper {
@@ -89,6 +75,73 @@ header {
 	box-sizing: border-box;
 	width: 100%;
 }
+
+/* ─── HIGH-CONTRAST MOBILE HAMBURGER BUTTON UTILITY ─── */
+header button {
+	color: #34d399 !important; /* Force Emerald 400 visibility */
+	font-size: 1.5rem !important; /* Make it large enough for fingers */
+	font-weight: 900 !important;
+	background: transparent !important;
+	border: none !important;
+	cursor: pointer !important;
+	display: block !important;
+	padding-right: 0.5rem !important;
+}
+
+@media (min-width: 1024px) {
+	header button {
+		display: none !important; /* Absolute block against desktop duplications */
+	}
+}
+
+/* ─── FIXED RIGID ICON ALIGNMENT MATRIX FOR SIDEBAR BUTTONS ─── */
+aside nav button {
+	display: flex !important;
+	align-items: center !important; /* Forces vertical centering even if text wraps to 2 lines */
+	justify-content: flex-start !important;
+	gap: 0.75rem !important; /* Establishes absolute rigid spacing between icon and text */
+	text-align: left !important;
+}
+
+/* ─── INJECTS FIXED WIDTH INTERCEPTOR OVER EMOTICONS OR ICONS ─── */
+aside nav button span.menu-icon-wrapper {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 1.25rem !important; /* Guarantees every single icon occupies exactly the same width block */
+	min-width: 1.25rem !important;
+	text-align: center !important;
+}
+
+/* ─── HIGH-CONTRAST MOBILE SIDEBAR BUTTON TEXT ACCENTS ─── */
+.sidebar-drawer nav button {
+	color: #ffffff !important; /* Force full white visibility over dark backgrounds */
+	font-weight: 700 !important;
+	font-size: 0.8125rem !important; /* Enhanced readable font scaling */
+	display: flex !important;
+	align-items: center !important;
+	width: 100% !important;
+	opacity: 1 !important;
+}
+
+/* ─── HIGHLIGHT STATE FOR ACTIVE MOBILE NAVIGATION NODES ─── */
+.sidebar-drawer nav button.text-emerald-400 {
+	color: #34d399 !important; /* Preserves active segment identity */
+}
+
+/* ─── CORE STRUCTURAL UTILITIES ─── */
+.min-h-screen { min-height: 100vh; }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-1 { flex: 1 1 0%; }
+.grid { display: grid; }
+.hidden { display: none; }
+.w-64 { width: 16rem; }
+.w-full { width: 100%; }
+.max-w-5xl { max-w: 64rem; }
+.max-w-md { max-w: 28rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.box-border { box-sizing: border-box; }
 
 /* ─── GRID RESPONSIVE MATRIX PIPELINES ─── */
 .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
@@ -177,23 +230,6 @@ input:focus, select:focus, textarea:focus {
 }
 textarea { resize: none; }
 
-/* ─── INTERACTIVE SYSTEM CONFIGURATIONS ─── */
-.rounded { border-radius: 0.25rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-.rounded-2xl { border-radius: 1rem; }
-.cursor-pointer { cursor: pointer; }
-.transition { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-.border-none { border: none !important; }
-.bg-transparent { background-color: transparent !important; }
-
-/* ─── PSEUDO-CLASS HOVER INTERCEPTORS ─── */
-.hover\:bg-slate-800\/60:hover { background-color: rgba(30, 41, 59, 0.6); }
-.hover\:bg-slate-800\/40:hover { background-color: rgba(30, 41, 59, 0.4); }
-.hover\:bg-emerald-400:hover { background-color: #34d399; }
-.hover\:text-slate-200:hover { color: #e2e8f0; }
-.hover\:text-slate-300:hover { color: #cbd5e1; }
-
 /* ─── MICRO-ANIMATION HANDSHAKES ─── */
 .animate-fadeIn {
 	animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -201,37 +237,4 @@ textarea { resize: none; }
 @keyframes fadeIn {
 	from { opacity: 0; transform: translateY(4px); }
 	to { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── FIXED HIGH-CONTRAST MOBILE HAMBURGER BUTTON UTILITY ─── */
-header button {
-	color: #34d399 !important; /* Force Emerald 400 visibility */
-	font-size: 1.5rem !important; /* Make it large enough for fingers */
-	font-weight: 900 !important;
-	background: transparent !important;
-	border: none !important;
-	cursor: pointer !important;
-	display: block !important;
-	padding-right: 0.5rem !important;
-}
-
-@media (min-width: 1024px) {
-	header button {
-		display: none !important; /* Absolute block against desktop duplications */
-	}
-}
-/* ─── FIXED HIGH-CONTRAST MOBILE SIDEBAR BUTTON TEXT ACCENTS ─── */
-.sidebar-drawer nav button {
-	color: #ffffff !important; /* Force full white visibility over dark backgrounds */
-	font-weight: 700 !important;
-	font-size: 0.8125rem !important; /* Enhanced readable font scaling */
-	display: flex !important;
-	align-items: center !important;
-	width: 100% !important;
-	opacity: 1 !important;
-}
-
-/* ─── HIGHLIGHT STATE FOR ACTIVE MOBILE NAVIGATION NODES ─── */
-.sidebar-drawer nav button.text-emerald-400 {
-	color: #34d399 !important; /* Preserves active segment identity */
 }
