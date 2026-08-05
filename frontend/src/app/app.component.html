@@ -1,10 +1,15 @@
 <div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
-	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX -->
+	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX (DYNAMICALLY SLIDES OVER ON MOBILE VIA SIGNALS) -->
 	@if (svc.isAuthenticated()) {
-		<aside class="border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between box-border min-h-screen">
+		<aside 
+			[style.transform]="isSidebarOpen() ? 'translateX(0)' : 'translateX(-100%)'"
+			class="mobile-sidebar-hide fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between box-border transition duration-300 ease-in-out shadow-2xl">
+			
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+					<!-- Mobile-only explicit dismiss interface -->
+					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
 				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
@@ -33,10 +38,14 @@
 	}
 
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATIVE FLUID NODE) -->
-	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
+	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1 main-content-area">
 		<!-- GLOBAL TOP HEADER BAR -->
 		<header>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center gap-3">
+				<!-- ☰ MOBILE-FIRST NAVIGATION INTERFACE TOGGLE BUTTON -->
+				@if (svc.isAuthenticated()) {
+					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="mobile-nav-toggle">☰</button>
+				}
 				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
 			</div>
 			
@@ -53,7 +62,7 @@
 
 		<!-- CONTENT MAIN INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
-			<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
+			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
@@ -86,7 +95,6 @@
 						[tenants]="tenants()"
 						[selectedTenantId]="selectedTenantId()"
 						[(tenantForm)]="tenantForm"
-						[(ngModel)]="tenantForm"
 						[(settlementForm)]="settlementForm"
 						[settlementBatches]="settlementBatches()"
 						(onSelectTenant)="selectTenant($event)"
