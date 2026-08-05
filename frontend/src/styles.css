@@ -271,7 +271,22 @@ input:focus, select:focus, textarea:focus {
 	border-color: #10b981;
 	outline: none;
 }
+
 textarea { resize: none; }
+
+/* ─── FIXED HIGH-CONTRAST LOGOUT BUTTON ACCENT ─── */
+aside button.bg-red-500\/10 {
+	background-color: rgba(239, 68, 68, 0.15) !important; /* Slightly deeper red mask */
+	color: #f87171 !important; /* Force solid vibrant Red 400 text visibility */
+	border: 1px solid rgba(239, 68, 68, 0.3) !important;
+	opacity: 1 !important;
+	transition: all 0.2s ease-in-out !important;
+}
+
+aside button.bg-red-500\/10:hover {
+	background-color: rgba(239, 68, 68, 0.25) !important;
+	color: #ef4444 !important; /* Bright Red 500 on mouse hover shakes */
+}
 
 /* ─── INTERACTIVE SYSTEM CONFIGURATIONS ─── */
 .rounded { border-radius: 0.25rem; }
