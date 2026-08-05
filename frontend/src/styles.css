@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC BREAKPOINT STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Native Grid & Fixed Core Viewports
+   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC PRODUCTION STYLESHEET
+   Standards: Strict Dark Matrix, Fluid Native Grid & Bounded Edge Viewports
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -115,14 +115,13 @@ aside.active {
 	text-align: center;
 }
 
-/* ─── WORKSPACE COCKPIT AREA NODES (SHIELDED AGAINST TEXT OVERFLOWS) ─── */
+/* ─── WORKSPACE COCKPIT AREA NODES (SHIELDED AGAINST HORIZONTAL DISPLACEMENTS) ─── */
 .cockpit-area {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
-	max-width: 100vw;
+	width: 100%;
 	box-sizing: border-box;
-	overflow-x: hidden;
 }
 
 header {
@@ -136,11 +135,23 @@ header {
 	width: 100%;
 }
 
-/* ─── FIXED HOOK FOR EDGE-TO-EDGE METRIC GENERATIONS PREVENTING OVERFLOWS ─── */
-.fluid-cockpit-container {
+/* ─── 📐 FIXED BILATERAL SYMMETRY: Enforces exact mirror padding across mobile screens ─── */
+.fluid-main-viewport {
 	width: 100%;
-	max-width: 100%;
 	box-sizing: border-box;
+	padding: 0.75rem !important; /* Establishes clean 12px margins on both left and right edges */
+}
+
+@media (min-width: 640px) {
+	.fluid-main-viewport {
+		padding: 1.5rem !important; /* Expands smoothly into 24px margins on tablets */
+	}
+}
+
+@media (min-width: 1024px) {
+	.fluid-main-viewport {
+		padding: 2rem !important; /* Standard comfortable padding on desktop monitors */
+	}
 }
 
 /* ─── ACCELERATORS BOX METRICS ─── */
@@ -151,6 +162,7 @@ header {
 .grid { display: grid; }
 .hidden { display: none; }
 .w-full { width: 100%; }
+.max-w-5xl { max-w: 64rem; }
 .max-w-md { max-w: 28rem; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 
@@ -240,15 +252,6 @@ header {
 .text-amber-500 { color: #f59e0b; }
 .text-red-400 { color: #f87171; }
 
-/* ─── RESPONSIVE SYSTEM ADAPTERS ─── */
-.hide-on-desktop { display: block !important; }
-.show-on-desktop { display: none !important; }
-
-@media (min-width: 640px) {
-	.hide-on-desktop { display: none !important; }
-	.show-on-desktop { display: block !important; }
-}
-
 /* ─── FORM INPUT MATRICES RESET WITH ABSOLUTE BOUNDARY SHIELDS ─── */
 input, select, textarea {
 	background-color: #020617 !important;
@@ -256,14 +259,13 @@ input, select, textarea {
 	color: #f8fafc !important;
 	width: 100% !important;
 	max-width: 100% !important;
-	box-sizing: border-box !important; /* Forces total filling without overflowing the container viewports */
+	box-sizing: border-box !important; /* CRITICAL FIXED HOOK: Forces padding inside the 100% width grid boundary */
 	border-radius: 0.5rem !important;
 	padding: 0.625rem 0.75rem !important;
 	font-family: inherit !important;
 	font-size: 0.875rem !important;
 }
 input:focus, select:focus, textarea:focus { border-color: #10b981 !important; outline: none !important; }
-
 .rounded-lg { border-radius: 0.5rem; }
 .rounded-xl { border-radius: 0.75rem; }
 .rounded-2xl { border-radius: 1rem; }
