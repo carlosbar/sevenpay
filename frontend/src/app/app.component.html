@@ -5,8 +5,6 @@
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
-					<!-- Mobile close button cross -->
-					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
 				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH UNIQUE MANUALLY ASSIGNED EMOJI WRAPPERS ─── -->
@@ -79,8 +77,9 @@
 		</header>
 
 		<!-- CONTENT MAIN AREA INJECTIONS -->
-		<div class="w-full flex-1 flex flex-col box-border min-w-0 max-w-full overflow-x-hidden">
-			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
+		<div class="flex-1 flex flex-col box-border min-w-0 max-w-full overflow-x-hidden">
+			<!-- ─── FIXED MAIN CONTAINER: REMOVED CONCURRENT W-FULL BINDINGS TO ELIMINATE HORIZONTAL SCROLLS ─── -->
+			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
