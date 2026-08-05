@@ -1,6 +1,6 @@
 /* ==========================================================================
-   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Native Grid & Edge-to-Edge Fill
+   七 SEVENPAY CORE CREDIT ENGINE - UNIFIED METRIC BREAKPOINT STYLESHEET
+   Standards: Strict Dark Matrix, Fluid Native Grid & Fixed Core Viewports
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -136,10 +136,11 @@ header {
 	width: 100%;
 }
 
-/* ─── WORKSPACE LAYOUT EXTENSIONS FOR FULL FILL GENERATIONS ─── */
-.max-w-none {
-	max-width: none !important;
-	width: 100% !important;
+/* ─── FIXED HOOK FOR EDGE-TO-EDGE METRIC GENERATIONS PREVENTING OVERFLOWS ─── */
+.fluid-cockpit-container {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
 /* ─── ACCELERATORS BOX METRICS ─── */
