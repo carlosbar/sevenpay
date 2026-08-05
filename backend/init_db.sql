@@ -22,6 +22,7 @@ DROP TYPE IF EXISTS pix_key_type CASCADE;
 
 -- Enables the extension required for auto-generating UUIDs in PostgreSQL
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- ============================================================================
 -- 2. CUSTOM DATA TYPES (ENUMS)
