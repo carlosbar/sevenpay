@@ -1,39 +1,76 @@
 @if (scope() === 'MASTER') {
 	<!-- ─── SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD ─── -->
 	@if (currentSegment() === 'DASHBOARD') {
-		<div class="space-y-6 animate-fadeIn">
+		<div class="space-y-6 animate-fadeIn box-border w-full">
 			
-			<!-- TOP CORE METRICS MATRIX -->
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-2xl">
+			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS (1 COLUMN ON MOBILE, 2 COLUMNS ON DESKTOP) -->
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
 				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+				
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border">
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] }}</span>
-						<span class="text-xl font-black text-slate-200 font-mono">{{ metrics().totalVolumeAdvancedCents }}</span>
+						<span class="text-lg font-black text-slate-200 font-mono truncate">{{ metrics().totalVolumeAdvancedCents || 0 }}</span>
 					</div>
-					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] }}</span>
-						<span class="text-xl font-black text-emerald-400 font-mono">{{ metrics().totalFeesCollectedCents }}</span>
+						<span class="text-lg font-black text-emerald-400 font-mono truncate">{{ metrics().totalFeesCollectedCents || 0 }}</span>
 					</div>
-					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] }}</span>
-						<span class="text-xl font-black text-amber-500 font-mono">{{ metrics().totalReceivablesCents }}</span>
+						<span class="text-lg font-black text-amber-500 font-mono truncate">{{ metrics().totalReceivablesCents || 0 }}</span>
 					</div>
-					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1.5 shadow-inner">
+					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] }}</span>
-						<span class="text-xl font-black text-red-400 font-mono">{{ metrics().totalOverdueCents }}</span>
+						<span class="text-lg font-black text-red-400 font-mono truncate">{{ metrics().totalOverdueCents || 0 }}</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- 🏢 EXTENDED MODULE: ADVANCED PARTNERS AUDIT GRID -->
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
-				<div class="flex justify-between items-center border-b border-slate-800 pb-2">
+			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PORTFOLIO GRID -->
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
 					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Monitoramento de Carteiras B2B</h3>
-					<span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
+					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
 				</div>
 
-				<div class="overflow-x-auto rounded-xl border border-slate-800">
+				<!-- 📱 MOBILE VIEW: RESPONSIVE MINI-CARDS (HIDDEN ON DESKTOP VIEWPORTS) -->
+				<div class="block sm:hidden space-y-3 w-full box-border">
+					@for (partner of tenants(); track partner.id) {
+						<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 space-y-2 shadow-inner text-xs font-mono">
+							<div class="border-b border-slate-800 pb-1.5 flex justify-between items-start">
+								<div>
+									<span class="block font-bold text-slate-100 text-sm font-sans">{{ partner.name }}</span>
+									<span class="block text-[9px] text-slate-500">CNPJ: {{ partner.cnpj }}</span>
+								</div>
+								@if (partner.hasOverdueInstallments) {
+									<span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider shrink-0">🚨 Atraso</span>
+								} @else {
+									<span class="rounded bg-emerald-950 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider shrink-0">✓ OK</span>
+								}
+							</div>
+							<div class="grid grid-cols-2 gap-2 pt-0.5">
+								<div>
+									<span class="block text-[9px] text-slate-500 font-bold uppercase">Resgates (Mês)</span>
+									<span class="text-slate-200 font-bold font-mono">{{ partner.totalMonthDisbursedCents || 'R$ 0,00' }}</span>
+								</div>
+								<div>
+									<span class="block text-[9px] text-slate-500 font-bold uppercase">Disponível</span>
+									<span class="text-emerald-400 font-bold font-mono">{{ partner.availableCreditMarginCents || 'R$ 0,00' }}</span>
+								</div>
+							</div>
+							@if (partner.hasOverdueInstallments) {
+								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center">
+									Montante em Atraso: {{ partner.overdueAmountCents }}
+								</div>
+							}
+						</div>
+					} @empty {
+						<p class="text-xs text-slate-500 text-center italic py-4">Nenhum parceiro portando carteiras.</p>
+					}
+				</div>
+				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN ON PHONE VIEWPORTS) -->
+				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
 						<thead>
 							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
@@ -77,17 +114,14 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION NAVIGATION CONTROLS MATRIX -->
-				<div class="flex items-center justify-between pt-2 text-xs font-mono">
-					<span class="text-slate-500">Exibindo registros de parceiros ativos</span>
-					<div class="flex gap-2">
-						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
-						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+				<!-- 📑 PAGINATION CONTROLS CONTROLLER -->
+				<div class="flex items-center justify-between pt-2 text-xs font-mono w-full box-border">
+					<span class="text-slate-500 hidden sm:inline">Exibindo registros de parceiros ativos</span>
+					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2">
+						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							◀ {{ t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
 						</button>
-						
-						<!-- 🌍 REAL-TIME ALIGNED: Evaluates limit triggers securely via reactive signals -->
-						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
+						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
 							{{ t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
 						</button>
 					</div>
@@ -99,8 +133,8 @@
 
 	<!-- SEGMENTO: PORTFÓLIOS B2B -->
 	@if (currentSegment() === 'PARTNERS') {
-		<div class="space-y-6 animate-fadeIn">
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+		<div class="space-y-6 animate-fadeIn w-full box-border">
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl">
 				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">{{ t()['provisionTenant'] }}</h2>
 				<form (submit)="onCreateTenant.emit($event)" class="space-y-4">
 					<div class="flex flex-col gap-1">
@@ -115,62 +149,6 @@
 						{{ t()['deployTenant'] }}
 					</button>
 				</form>
-			</div>
-
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-				<h2 class="text-sm font-black text-slate-200 mb-3">{{ t()['activePortfolios'] }}</h2>
-				<div class="divide-y overflow-hidden rounded-xl border border-slate-800">
-					@for (t of tenants(); track t.id) {
-						<!-- 🛡️ REAL-TIME FIXED HANDSHAKE Matrix: Call with execution parentheses -->
-						<div (click)="onSelectTenant.emit(t.id)" [class.border-l-4]="selectedTenantId() === t.id" class="border-emerald-500 bg-slate-950 p-4 transition hover:bg-slate-800/40 cursor-pointer flex flex-col gap-1.5 shadow-inner">
-							<div class="flex justify-between items-center">
-								<span class="font-bold text-slate-200 text-sm">{{ t.name }}</span>
-								<span class="font-mono text-sm font-black text-emerald-400">{{ t.globalCreditLimitCents }}</span>
-							</div>
-						</div>
-					} @empty {
-						<p class="text-xs text-slate-500 p-4 text-center">{{ t()['noTenants'] }}</p>
-					}
-				</div>
-			</div>
-		</div>
-	}
-
-	<!-- SEGMENTO: LIQUIDAÇÃO CONTÁBIL MENSAL -->
-	@if (currentSegment() === 'SETTLEMENT') {
-		<div class="space-y-6 animate-fadeIn">
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">{{ t()['settlementTitle'] }}</h2>
-				<form (submit)="onClearCompetence.emit($event)" class="space-y-4">
-					<div class="flex flex-col gap-1">
-						<label class="text-xs font-bold text-slate-400">UUID do {{ t()['businessType'] || 'Parceiro' }}</label>
-						<input type="text" name="setTenant" [(ngModel)]="settlementForm().tenantId" (ngModelChange)="updateSettlementPayload()" required class="w-full">
-					</div>
-					<div class="flex flex-col gap-1">
-						<label class="text-xs font-bold text-slate-400">Competência (YYYY-MM)</label>
-						<input type="text" name="setComp" [(ngModel)]="settlementForm().billingCompetence" (ngModelChange)="updateSettlementPayload()" required placeholder="Ex: 2026-08" class="w-full">
-					</div>
-					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none">
-						{{ t()['settlementButton'] }}
-					</button>
-				</form>
-			</div>
-
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
-				<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{{ t()['settlementHistoryTitle'] }}</h3>
-				<div class="space-y-2">
-					@for (b of settlementBatches(); track b.id) {
-						<div class="flex items-center justify-between rounded-lg bg-slate-950 p-4 text-xs font-mono border border-slate-850 shadow-inner">
-							<div>
-								<span class="block text-slate-200 font-bold">COMPETÊNCIA: {{ b.billingCompetence }}</span>
-								<span class="block text-[9px] text-slate-500">UUID: {{ b.id }}</span>
-							</div>
-							<span class="font-black text-sm text-emerald-400">{{ b.totalSettledCents }}</span>
-						</div>
-					} @empty {
-						<p class="text-xs text-slate-600 text-center py-2">{{ t()['settlementEmptyHistory'] }}</p>
-					}
-				</div>
 			</div>
 		</div>
 	}
