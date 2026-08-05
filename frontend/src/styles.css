@@ -114,12 +114,14 @@ body {
 	text-align: center;
 }
 
-/* ─── WORKSPACE COCKPIT AREA NODES ─── */
+/* ─── WORKSPACE COCKPIT AREA NODES (SHIELDED AGAINST TEXT OVERFLOWS) ─── */
 .cockpit-area {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
+	max-width: 100vw; /* CRITICAL SHIELD: Forces inner contents to remain within device boundary */
 	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
 header {
