@@ -9,17 +9,30 @@
 					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
+				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH ICON WIDTH LOCKS ─── -->
 				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
 					@if (svc.currentScope() === 'MASTER') {
-						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">{{ svc.t()['menuDashboard'] }}</button>
-						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🏢 Portfólios B2B</button>
-						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🧾 Liquidação</button>
+						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] }}
+						</button>
+						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+							<span class="menu-icon-wrapper">🏢</span> Portfólios B2B
+						</button>
+						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+							<span class="menu-icon-wrapper">🧾</span> Liquidação
+						</button>
 					}
 					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">👥 Perfis de Consumidores Vinculados</button>
-						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🔄 Sincronização</button>
+						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+							<span class="menu-icon-wrapper">👥</span> Perfis de Consumidores Vinculados
+						</button>
+						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+							<span class="menu-icon-wrapper">🔄</span> Sincronização
+						</button>
 					}
-					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📜 Extrato</button>
+					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent">
+						<span class="menu-icon-wrapper">📜</span> Extrato
+					</button>
 				</nav>
 			</div>
 
@@ -36,7 +49,7 @@
 
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATIVE FLUID NODE) -->
 	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
-		<!-- GLOBAL TOP HEADER BAR (REAL-TIME WRAPPING AND COMPACT TEXT FOR PHONE SHIELDS) -->
+		<!-- GLOBAL TOP HEADER BAR -->
 		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border w-full">
 			<div class="flex items-center gap-1.5 min-w-0">
 				<!-- High-contrast mobile menu trigger -->
@@ -61,7 +74,7 @@
 
 		<!-- CONTENT MAIN INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
-			<!-- ─── RE-ALIGNED: INJECTED BALANCED PADDING SYSTEM FOR MULTI-SCREEN MATRIX RESPONSIVENESS ─── -->
+			<!-- ─── RE-ALIGNED: PADDING SYSTEM FOR MULTI-SCREEN MATRIX RESPONSIVENESS ─── -->
 			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
