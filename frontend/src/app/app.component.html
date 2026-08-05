@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX (FIXED FLOATING LAYER) -->
+<div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
+	<!-- 🗂️ SIDEBAR NAVIGATION MATRIX -->
 	@if (svc.isAuthenticated()) {
-		<aside class="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between">
+		<aside class="border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between box-border min-h-screen">
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
@@ -9,7 +9,6 @@
 
 				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
 					@if (svc.currentScope() === 'MASTER') {
-						<!-- 📊 FIXED DUPLICATION: Removed hardcoded emoji since it propagates from the translation dictionary directly -->
 						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">{{ svc.t()['menuDashboard'] }}</button>
 						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🏢 Portfólios B2B</button>
 						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🧾 Liquidação</button>
@@ -33,10 +32,10 @@
 		</aside>
 	}
 
-	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER -->
-	<div class="flex-1 flex flex-col min-w-0 box-border">
-		<!-- ─── HEADER BAR: ALIGNED USING THE DYNAMIC EXTERNAL MARGIN SHIFT UTILITY ─── -->
-		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border" [class.header-shift]="svc.isAuthenticated()">
+	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATIVE FLUID NODE) -->
+	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
+		<!-- GLOBAL TOP HEADER BAR -->
+		<header>
 			<div class="flex items-center gap-2">
 				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
 			</div>
@@ -52,74 +51,72 @@
 			</div>
 		</header>
 
-		<!-- CONTENT ELEMENT CONTAINER -->
-		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden" [class.main-shift]="svc.isAuthenticated()">
-			<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
-				<!-- AUTENTICAÇÃO GATEWAY -->
-				@if (!svc.isAuthenticated()) {
-					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
-						<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
-						<form (submit)="handleLogin($event)" class="space-y-4">
-							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
-								<input type="email" name="email" [(ngModel)]="credentials.email" required>
-							</div>
-							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
-								<input type="password" name="password" [(ngModel)]="credentials.password" required>
-							</div>
-							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none">
-								Autenticar
-							</button>
-						</form>
-					</div>
-				}
+		<!-- CONTENT MAIN INJECTIONS -->
+		<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
+			<!-- AUTENTICAÇÃO GATEWAY -->
+			@if (!svc.isAuthenticated()) {
+				<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
+					<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
+					<form (submit)="handleLogin($event)" class="space-y-4">
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
+							<input type="email" name="email" [(ngModel)]="credentials.email" required>
+						</div>
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
+							<input type="password" name="password" [(ngModel)]="credentials.password" required>
+						</div>
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
+							Autenticar
+						</button>
+					</form>
+				</div>
+			}
 
-				<!-- SUBCOMPONENTS CONTAINER INTERFACES -->
-				@if (svc.isAuthenticated()) {
-					<app-master-dashboard 
-						[currentSegment]="currentMenuSegment()" 
-						[scope]="svc.currentScope() || ''"
-						[t]="svc.t()"
-						[metrics]="globalMetrics()"
-						[tenants]="tenants()"
-						[selectedTenantId]="selectedTenantId()"
-						[(tenantForm)]="tenantForm"
-						[(settlementForm)]="settlementForm"
-						[settlementBatches]="settlementBatches()"
-						(onSelectTenant)="selectTenant($event)"
-						(onCreateTenant)="handleCreateTenant($event)"
-						(onClearCompetence)="handleClearCompetence($event)">
-					</app-master-dashboard>
+			<!-- SUBCOMPONENTS INTERFACES PROXY LAYER -->
+			@if (svc.isAuthenticated()) {
+				<app-master-dashboard 
+					[currentSegment]="currentMenuSegment()" 
+					[scope]="svc.currentScope() || ''"
+					[t]="svc.t()"
+					[metrics]="globalMetrics()"
+					[tenants]="tenants()"
+					[selectedTenantId]="selectedTenantId()"
+					[(tenantForm)]="tenantForm"
+					[(settlementForm)]="settlementForm"
+					[settlementBatches]="settlementBatches()"
+					(onSelectTenant)="selectTenant($event)"
+					(onCreateTenant)="handleCreateTenant($event)"
+					(onClearCompetence)="handleClearCompetence($event)">
+				</app-master-dashboard>
 
-					<app-tenant-manager
-						[currentSegment]="currentMenuSegment()"
-						[scope]="svc.currentScope() || ''"
-						[t]="svc.t()"
-						[selectedTenantId]="selectedTenantId()"
-						[tenants]="tenants()"
-						[endUsers]="endUsers()"
-						[syncRawText]="syncRawText()"
-						(onSelectTenant)="selectTenant($event)"
-						(onInspectUser)="loadInspectionLayer($event)"
-						(onBulkSync)="handleBulkSync($event)">
-					</app-tenant-manager>
+				<app-tenant-manager
+					[currentSegment]="currentMenuSegment()"
+					[scope]="svc.currentScope() || ''"
+					[t]="svc.t()"
+					[selectedTenantId]="selectedTenantId()"
+					[tenants]="tenants()"
+					[endUsers]="endUsers()"
+					[syncRawText]="syncRawText()"
+					(onSelectTenant)="selectTenant($event)"
+					(onInspectUser)="loadInspectionLayer($event)"
+					(onBulkSync)="handleBulkSync($event)">
+				</app-tenant-manager>
 
-					<app-telemetry-drawer
-						[currentSegment]="currentMenuSegment()"
-						[scope]="svc.currentScope() || ''"
-						[t]="svc.t()"
-						[activeProfile]="activeProfile()"
-						[transactions]="transactions()"
-						[installments]="installments()"
-						[advanceForm]="advanceForm"
-						(onClose)="activeProfile.set(null)"
-						(onRequestAdvance)="handleRequestAdvance($event)"
-						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
-						(onSwitchSegment)="switchSegment($any($event))">
-					</app-telemetry-drawer>
-				}
-			</main>
-		</div>
+				<app-telemetry-drawer
+					[currentSegment]="currentMenuSegment()"
+					[scope]="svc.currentScope() || ''"
+					[t]="svc.t()"
+					[activeProfile]="activeProfile()"
+					[transactions]="transactions()"
+					[installments]="installments()"
+					[advanceForm]="advanceForm"
+					(onClose)="activeProfile.set(null)"
+					(onRequestAdvance)="handleRequestAdvance($event)"
+					(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
+					(onSwitchSegment)="switchSegment($any($event))">
+				</app-telemetry-drawer>
+			}
+		</main>
 	</div>
 </div>
