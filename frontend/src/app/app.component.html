@@ -1,13 +1,14 @@
 <div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
-	<!-- 🗂️ SIDEBAR NAVIGATION MODULE (CLEAN RIGID PANEL GRID COL 1) -->
+	<!-- 🗂️ SIDEBAR NAVIGATION MODULE (SLIDES CORRECTLY VIA ISSIDEBAROPEN) -->
 	@if (svc.isAuthenticated()) {
-		<aside class="sidebar-panel">
+		<aside [class.active]="isSidebarOpen()" class="sidebar-panel">
 			<div class="space-y-6">
 				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
 					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+					<!-- Mobile close button cross -->
+					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
-				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITHOUT HARDCODED CLASS CONFLICTS ─── -->
 				<nav class="sidebar-navigation-links space-y-1">
 					@if (svc.currentScope() === 'MASTER') {
 						<button (click)="switchSegment('DASHBOARD')" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
@@ -46,15 +47,15 @@
 		</aside>
 	}
 
-	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER AREA (CLEAN FLUID GRID COL 2) -->
+	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER AREA (CLEAN FLUID ACCENTS) -->
 	<div class="cockpit-area flex-1 flex flex-col">
 		<!-- GLOBAL TOP HEADER BAR -->
-		<header>
-			<div class="flex items-center gap-1.5 min-w-0">
-				<!-- Mobile-only backup trigger placeholder -->
-				<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer text-base">☰</button>
-				
-				<!-- 🌍 FIXED DYNAMIC HEADER TITLE: Maps routing tokens dynamically to localized strings maps -->
+		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border w-full">
+			<div class="flex items-center gap-2.5 min-w-0">
+				<!-- High-contrast mobile menu trigger visible exclusively on screens under 1024px -->
+				@if (svc.isAuthenticated()) {
+					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none">☰</button>
+				}
 				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block font-bold">
 					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || 'Dashboard' }} }
 					@if (currentMenuSegment() === 'PARTNERS') { Portfólios B2B }
@@ -143,8 +144,7 @@
 						[advanceForm]="advanceForm"
 						(onClose)="activeProfile.set(null)"
 						(onRequestAdvance)="handleRequestAdvance($event)"
-						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
-						(onSwitchSegment)="switchSegment($any($event))">
+						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)">
 					</app-telemetry-drawer>
 				}
 			</main>
