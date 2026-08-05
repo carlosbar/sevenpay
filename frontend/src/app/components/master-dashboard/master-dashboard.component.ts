@@ -34,6 +34,9 @@ export class MasterDashboardComponent {
 	public onNextPage = output<void>(); /* Triggers background cursor index increment */
 	public onPrevPage = output<void>(); /* Triggers background cursor index decrement */
 
+	@Input() limit: number = 5;
+	@Input() offset: number = 0;
+  
 	/* ─── PROPAGATION INTERCEPTORS TO PARENT REFLECTS ─── */
 	public updateTenantPayload(): void {
 		this.tenantFormChange.emit(this.tenantForm());
