@@ -52,47 +52,46 @@
 						class="w-full px-4 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
 				</div>
 
-				<!-- 📱 MOBILE VIEW: RESPONSIVE TILES PREVENTING OVERLAPS -->
-				<div class="hide-on-desktop space-y-3 w-full box-border">
+				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES UTILIZING THE ENTIRE VISUAL AREA -->
+				<div class="block sm:hidden space-y-3 w-full box-border">
 					@for (partner of tenants(); track partner.id) {
-						<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 space-y-3 shadow-inner text-xs font-mono">
-							<!-- Top Row: Corporate Name and Status Badge -->
-							<div class="flex justify-between items-start gap-2 border-b border-slate-800 pb-2">
-								<span class="font-bold text-slate-100 text-sm font-sans block truncate max-w-[70%]">{{ partner.name }}</span>
-								
-								<div class="shrink-0">
+						<div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2">
+							<!-- Top Row: Corporate Name and Status Badge Aligned -->
+							<div class="flex justify-between items-center gap-2 border-b border-slate-800 pb-1.5">
+								<span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[75%]">{{ partner.name }}</span>
+								<div class="shrink-0 flex items-center">
 									@if (partner.hasOverdueInstallments) {
-										<span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">🚨 Atraso</span>
+										<span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">🚨 Atraso</span>
 									} @else {
-										<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">✓ OK</span>
+										<span class="rounded bg-emerald-950 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">✓ OK</span>
 									}
 								</div>
 							</div>
 							
-							<!-- Middle Row: CNPJ explicitly on its own line -->
-							<div class="text-[10px] text-slate-500 font-mono">
-								<span class="text-slate-400 font-sans font-bold">CNPJ:</span> {{ partner.cnpj }}
+							<!-- Isolated Middle Subtitle: CNPJ Line -->
+							<div class="text-[10px] text-slate-500 font-sans border-b border-slate-900/60 pb-1.5">
+								<span class="text-slate-400 font-bold">CNPJ:</span> {{ partner.cnpj }}
 							</div>
 
-							<!-- Bottom Metrics: Disbursed and Available Financial Margins -->
-							<div class="flex flex-col gap-2 pt-1 border-t border-slate-900/60">
-								<div class="flex justify-between items-center text-[11px]">
-									<span class="text-slate-500 font-bold uppercase text-[9px]">Resgates (Mês)</span>
-									<span class="text-slate-200 font-bold font-mono">
+							<!-- 📐 FIXED HORIZONTAL GRID METRICS: Utilizes the entire clear space side-by-side -->
+							<div class="grid grid-cols-2 gap-2 text-left">
+								<div class="flex flex-col gap-0.5">
+									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Resgates (Mês)</span>
+									<span class="text-slate-200 font-bold font-mono text-[11px]">
 										{{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</span>
 								</div>
-								<div class="flex justify-between items-center text-[11px]">
-									<span class="text-slate-500 font-bold uppercase text-[9px]">Margem Disponível</span>
-									<span class="text-emerald-400 font-bold font-mono">
+								<div class="flex flex-col gap-0.5 border-l border-slate-900 pl-2">
+									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Disponível</span>
+									<span class="text-emerald-400 font-bold font-mono text-[11px]">
 										{{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</span>
 								</div>
 							</div>
 							
-							<!-- Inadimplência Details overlay block -->
+							<!-- Inadimplência Details overlay block if active -->
 							@if (partner.hasOverdueInstallments) {
-								<div class="bg-red-500/5 border border-red-500/10 rounded p-2 text-[10px] text-red-400 font-bold text-center">
+								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center mt-1">
 									Montante em Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 								</div>
 							}
@@ -102,7 +101,7 @@
 					}
 				</div>
 				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN NATIVELY ON CELLPHONES VIA CLASS) -->
-				<div class="show-on-desktop overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
+				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
 						<thead>
 							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
