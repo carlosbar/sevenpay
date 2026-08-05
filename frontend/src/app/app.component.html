@@ -76,11 +76,12 @@
 
 				<!-- SUBCOMPONENTS INTERFACES PROXY LAYER -->
 				@if (svc.isAuthenticated()) {
-					<!-- ─── RE-ALIGNED: FIXED RESIDUAL CONSOLE LOGS BY BINDING STRICT COMPONENT METHOD CURSORS ─── -->
 					<app-master-dashboard 
 						[currentSegment]="currentMenuSegment()" 
 						[scope]="svc.currentScope() || ''"
 						[t]="svc.t()"
+						[limit]="tenantsLimit()"
+						[offset]="tenantsOffset()"
 						[metrics]="globalMetrics()"
 						[tenants]="tenants()"
 						[selectedTenantId]="selectedTenantId()"
