@@ -38,10 +38,10 @@
 	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
 		<!-- GLOBAL TOP HEADER BAR -->
 		<header>
-			<div class="flex items-center gap-3">
-				<!-- ☰ HAMBURGER TRIGGER BUTTON WITH PROFESSIONAL CONTRAST ACCENTS -->
+			<div class="flex items-center gap-1">
+				<!-- ☰ HIGH-CONTRAST TRIGGER INTERCEPTED BY OUR EXPLICIT STYLES.CSS UTILITY -->
 				@if (svc.isAuthenticated()) {
-					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black">☰</button>
+					<button (click)="isSidebarOpen.set(!isSidebarOpen())">☰</button>
 				}
 				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
 			</div>
@@ -59,7 +59,7 @@
 
 		<!-- CONTENT MAIN INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
-			<!-- ─── RE-ALIGNED: PADDING ADJUSTMENT FOR EXTRA PHONE SCREEN RESPONSIVENESS ─── -->
+			<!-- ─── RE-ALIGNED: INJECTED BALANCED PADDING SYSTEM FOR MULTI-SCREEN MATRIX RESPONSIVENESS ─── -->
 			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
