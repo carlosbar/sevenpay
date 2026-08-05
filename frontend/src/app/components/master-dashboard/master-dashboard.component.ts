@@ -12,13 +12,13 @@ export class MasterDashboardComponent {
 	/* ─── SIGNAL-BASED REACTIVE INPUT MATRICES ─── */
 	public currentSegment = input.required<string>();
 	public scope = input.required<string>();
-	public t = input.required<any>(); /* Dynamic internationalization dictionary handshake */
+	public t = input.required<any>();
 	public metrics = input<any>({});
 	public tenants = input<any[]>([]);
 	public selectedTenantId = input<string | null>(null);
 	public settlementBatches = input<any[]>([]);
 	
-	/* ─── TWO-WAY PROXY EMULATIONS USING INBOUND TARGET REFERENCE REFLECTS ─── */
+	/* ─── TWO-WAY PROXY EMULATIONS USING INBOUND REFERENCE ARRAYS ─── */
 	public tenantForm = input<any>({});
 	public tenantFormChange = output<any>();
 
@@ -30,7 +30,11 @@ export class MasterDashboardComponent {
 	public onCreateTenant = output<any>();
 	public onClearCompetence = output<any>();
 
-	/* ─── PROPAGATION INTERCEPTORS TO TRIGGER PARENT ALIGNMENTS ─── */
+	/* ─── PAGINATION MATRIX PIPELINE SIGNATURES ─── */
+	public onNextPage = output<void>(); /* Triggers background cursor index increment */
+	public onPrevPage = output<void>(); /* Triggers background cursor index decrement */
+
+	/* ─── PROPAGATION INTERCEPTORS TO PARENT REFLECTS ─── */
 	public updateTenantPayload(): void {
 		this.tenantFormChange.emit(this.tenantForm());
 	}
