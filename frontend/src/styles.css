@@ -1,6 +1,6 @@
 /* ==========================================================================
    七 SEVENPAY CORE CREDIT ENGINE - UNIFIED MOBILE-FIRST PRODUCTION STYLESHEET
-   Standards: Strict Dark Matrix, Fluid Grid Layouts & High-Contrast Navigation
+   Standards: Strict Dark Matrix, Fluid Grid Layouts & Balanced Scale Fonts
    Commentary Pattern: Universal English Compliance Only
    ========================================================================== */
 
@@ -95,16 +95,16 @@ header button {
 	}
 }
 
-/* ─── FIXED HIGH-CONTRAST SIDEBAR BUTTON MATRIX FOR MAXIMUM READABILITY ─── */
+/* ─── FIXED HIGH-CONTRAST SIDEBAR BUTTON MATRIX (ISOLATED ESCOPE FOR MENU ONLY) ─── */
 aside nav button {
 	display: flex !important;
-	align-items: center !important;
+	align-items: center !important; /* Forces vertical centering even if text wraps to 2 lines */
 	justify-content: flex-start !important;
 	gap: 0.625rem !important; /* Elegant compact spacing between icon and characters */
 	text-align: left !important;
 	color: #94a3b8 !important; /* High-contrast Slate 400 default for unselected options */
 	font-weight: 700 !important;
-	font-size: 0.75rem !important;
+	font-size: 0.75rem !important; /* Stable compact sizing for structural layouts */
 	padding: 0.75rem 0.5rem !important;
 	width: 100% !important;
 	white-space: nowrap !important; /* Shields text from awkward multi-line breaking */
