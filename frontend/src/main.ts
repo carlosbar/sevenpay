@@ -1,14 +1,19 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { provideHttpClient } from '@angular/common/http';
 
-// 🔄 FIXED: Bootstrapping application binding the functional cryptographic security interceptor layer
+/* ─── REGISTRATION MATRICES FOR PT-BR LOCALIZATION AND CURRENCY PIPES ─── */
+import { LOCALE_ID } from '@angular/core';
+import registerLocalePt from '@angular/common/locales/pt';
+import { registerLocaleData } from '@angular/common';
+
+// Register the Portuguese data array into Angular core runtime engine
+registerLocaleData(registerLocalePt);
+
 bootstrapApplication(AppComponent, {
 	providers: [
-		provideHttpClient(
-			withInterceptors([authInterceptor])
-		)
+		provideHttpClient(),
+		/* ─── SHIELD: ENFORCES PT-BR LOCALE DISPATCH ACROSS ALL NATIVE PIPES ─── */
+		{ provide: LOCALE_ID, useValue: 'pt-BR' }
 	]
-}).catch((err) => console.error(err));
+}).catch(err => console.error(err));
