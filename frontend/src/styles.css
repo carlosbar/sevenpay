@@ -193,7 +193,7 @@ header {
 .bg-emerald-500 { background-color: #10b981; color: #020617; }
 .bg-emerald-950 { background-color: #064e3b; }
 
-.border { 1px solid #1e293b; }
+.border { border: 1px solid #1e293b; }
 .border-b { border-bottom: 1px solid #1e293b; }
 .border-t { border-top: 1px solid #1e293b; }
 .border-slate-800 { border-color: #1e293b; }
