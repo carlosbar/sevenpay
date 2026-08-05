@@ -1,197 +1,134 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SevenPayService } from './core/services/sevenpay.service';
-import { PricingTierInput } from './components/pricing-manager/pricing-manager.component';
-import { TRANSLATIONS } from './core/constants/i18n';
+<div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
+	<!-- 🗂️ SIDEBAR NAVIGATION DRAWER MODULE -->
+	@if (svc.isAuthenticated()) {
+		<aside [class.active]="isSidebarOpen()" class="sidebar-drawer border-r border-slate-800 bg-slate-900 p-4 flex flex-col justify-between box-border">
+			<div class="space-y-6">
+				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
+					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+					<!-- Mobile-only explicit close cross interface -->
+					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
+				</div>
 
-import { MasterDashboardComponent } from './components/master-dashboard/master-dashboard.component';
-import { TenantManagerComponent } from './components/tenant-manager/tenant-manager.component';
-import { TelemetryDrawerComponent } from './components/telemetry-drawer/telemetry-drawer.component';
+				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
+					@if (svc.currentScope() === 'MASTER') {
+						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">{{ svc.t()['menuDashboard'] }}</button>
+						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🏢 Portfólios B2B</button>
+						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🧾 Liquidação</button>
+					}
+					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
+						<button (click)="switchSegment('CONSUMERS')" [class.bg-slate-800]="currentMenuSegment() === 'CONSUMERS'" [class.text-emerald-400]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">👥 Perfis de Consumidores Vinculados</button>
+						<button (click)="switchSegment('BATCH_SYNC')" [class.bg-slate-800]="currentMenuSegment() === 'BATCH_SYNC'" [class.text-emerald-400]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🔄 Sincronização</button>
+					}
+					<button (click)="switchSegment('STATEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'STATEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📜 Extrato</button>
+				</nav>
+			</div>
 
-export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' | 'BATCH_SYNC' | 'SETTLEMENT';
+			<div class="pt-4 border-t border-slate-800">
+				<div class="rounded-lg bg-slate-950 px-2 py-2 font-mono text-[10px] text-center border border-slate-800 mb-3 text-slate-400 font-bold uppercase tracking-wider">
+					SCOPE: {{ svc.currentScope() }}
+				</div>
+				<button (click)="svc.logout()" class="w-full rounded-lg bg-red-500/10 p-3 text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer uppercase font-mono tracking-widest">
+					Sair
+				</button>
+			</div>
+		</aside>
+	}
 
-@Component({
-	selector: 'app-root',
-	standalone: true,
-	imports: [
-		CommonModule, 
-		FormsModule, 
-		MasterDashboardComponent, 
-		TenantManagerComponent,    
-		TelemetryDrawerComponent   
-	],
-	templateUrl: './app.component.html'
-})
-export class AppComponent implements OnInit {
-	public isSidebarOpen = signal<boolean>(false);
-	public currentMenuSegment = signal<MenuSegment>('DASHBOARD');
-
-	public tenants = signal<any[]>([]);
-	public endUsers = signal<any[]>([]);
-	public transactions = signal<any[]>([]);
-	public settlementBatches = signal<any[]>([]);
-	public activeProfile = signal<any | null>(null);
-	public installments = signal<any[]>([]);
-	public globalMetrics = signal<any>({});
-	public selectedTenantId = signal<string | null>(null);
-
-	/* ─── PAGINATION MATRIX TRACKING SIGNALS ─── */
-	public tenantsLimit = signal<number>(5);
-	public tenantsOffset = signal<number>(0);
-
-	public filteredEndUsers = computed(() => {
-		const tenantId = this.selectedTenantId();
-		if (!tenantId) return [];
-		return this.endUsers().filter(user => user.tenantId === tenantId);
-	});
-
-	public credentials = { email: '', password: '' };
-	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
-	public advanceForm = { requestedAmount: null as number | null, installmentsTotal: 1 };
-	public settlementForm = { tenantId: '', billingCompetence: '' };
-	public syncRawText = signal<string>('');
-	public activePricingMatrix = signal<PricingTierInput[]>([
-		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
-	]);
-
-	constructor(public svc: SevenPayService) {}
-
-	public ngOnInit(): void {
-		const localToken = localStorage.getItem('sp_token');
-		if (localToken && this.svc.isAuthenticated()) {
-			setTimeout(() => {
-				if (this.svc.isAuthenticated()) {
-					this.evaluateWorkspaceQueryRouting();
+	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER (NATIVE FLUID NODE) -->
+	<div class="flex flex-col min-w-0 box-border bg-slate-950 flex-1">
+		<!-- GLOBAL TOP HEADER BAR -->
+		<header>
+			<div class="flex items-center gap-3">
+				<!-- ☰ HAMBURGER TRIGGER BUTTON FOR MOBILE LAYOUT OVERLAYS -->
+				@if (svc.isAuthenticated()) {
+					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer text-base">☰</button>
 				}
-			}, 0);
-		} else {
-			this.svc.logout();
-		}
-	}
-
-	public getAvailableLanguages(): ('en' | 'pt-br')[] {
-		return Object.keys(TRANSLATIONS) as ('en' | 'pt-br')[];
-	}
-
-	public formatCents(centsValue: string | number): string {
-		const parsed = typeof centsValue === 'string' ? parseFloat(centsValue) : centsValue;
-		return (parsed / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-	}
-
-	public switchSegment(target: MenuSegment): void {
-		this.currentMenuSegment.set(target);
-		this.isSidebarOpen.set(false);
-		this.syncSegmentContextData(target);
-	}
-
-	private syncSegmentContextData(segment: MenuSegment): void {
-		const tenantId = this.selectedTenantId() || this.svc.userContext()?.tenantId;
-		const endUserId = this.svc.userContext()?.endUserId;
-
-		if (segment === 'STATEMENT' && tenantId && endUserId) {
-			this.loadLedgerStatementHistory(tenantId, endUserId);
-		}
-		if (segment === 'SETTLEMENT' && tenantId) {
-			this.loadTenantSettlementBatches(tenantId);
-		}
-	}
-
-	public evaluateWorkspaceQueryRouting(): void {
-		const scope = this.svc.currentScope();
-		if (scope === 'MASTER') {
-			this.loadFintechControlTowerData();
-			this.switchSegment('DASHBOARD');
-		} else if (scope === 'TENANT') {
-			this.loadActiveWorkspaceUsers();
-			this.switchSegment('CONSUMERS');
-		} else if (scope === 'END_USER') {
-			const consumerId = this.svc.userContext()?.endUserId;
-			if (consumerId) this.loadConsumerSelfProfile(consumerId);
-			this.switchSegment('STATEMENT');
-		}
-	}
-
-	/* ─── UPDATED LOOKUP: CONSUMING LIMIT AND OFFSET SIGNALS FOR PAGINATION ─── */
-	public loadFintechControlTowerData(): void {
-		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset()).subscribe({
-			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); }
-		});
-		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); }
-		});
-	}
-
-	/* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
-	public nextTenantsPage(): void {
-		/* 🛡️ SECURITY SHIELD: Block execution if the current payload array length indicates end of database */
-		if (this.tenants().length < this.tenantsLimit()) return;
-		
-		this.tenantsOffset.update(current => current + this.tenantsLimit());
-		this.loadFintechControlTowerData();
-	}
-
-	public prevTenantsPage(): void {
-		if (this.tenantsOffset() === 0) return;
-		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
-		this.loadFintechControlTowerData();
-	}
-	public selectTenant(tenantId: string): void {
-		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
-		if (this.selectedTenantId()) {
-			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
-				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
-			});
-		}
-	}
-
-	public loadActiveWorkspaceUsers(): void {
-		const tenantId = this.svc.userContext()?.tenantId;
-		if (tenantId) {
-			this.svc.getEndUsers(50, 0, tenantId).subscribe({
-				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
-			});
-		}
-	}
-
-	public loadLedgerStatementHistory(tenantId: string, endUserId: string): void {
-		this.svc.getHistory(tenantId, endUserId).subscribe({
-			next: (res) => { if (res.result === 'success') this.transactions.set(res.data?.transactions || []); }
-		});
-	}
-
-	public loadTenantSettlementBatches(tenantId: string): void {
-		this.svc.getSettlementBatches(tenantId).subscribe({
-			next: (res) => { if (res.result === 'success') this.settlementBatches.set(res.data?.batches || []); }
-		});
-	}
-
-	public loadConsumerSelfProfile(consumerId: string): void {
-		this.svc.inspectEndUser(consumerId, this.svc.userContext()?.tenantId || '').subscribe({
-			next: (res) => {
-				if (res.result === 'success') {
-					this.activeProfile.set(res.data.profile);
-					this.installments.set(res.data.amortizationInstallments || []);
+				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
+			</div>
+			
+			<!-- i18n SELECTOR -->
+			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[10px] font-mono font-bold items-center gap-1 shadow-inner">
+				@for (langCode of getAvailableLanguages(); track langCode) {
+					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-2 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-1 hover:text-slate-300">
+						<span>{{ langCode === 'en' ? '🇺🇸' : '🇧🇷' }}</span>
+						<span class="uppercase">{{ langCode }}</span>
+					</button>
 				}
-			}
-		});
-	}
+			</div>
+		</header>
 
-	public loadInspectionLayer(endUserId: string): void {
-		const tenantId = this.selectedTenantId() || this.svc.userContext()?.tenantId || '';
-		this.svc.inspectEndUser(endUserId, tenantId).subscribe({
-			next: (res) => {
-				if (res.result === 'success') {
-					this.activeProfile.set(res.data.profile);
-					this.installments.set(res.data.amortizationInstallments || []);
+		<!-- CONTENT MAIN INJECTIONS -->
+		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
+			<main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
+				<!-- AUTENTICAÇÃO GATEWAY -->
+				@if (!svc.isAuthenticated()) {
+					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
+						<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
+						<form (submit)="handleLogin($event)" class="space-y-4">
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
+								<input type="email" name="email" [(ngModel)]="credentials.email" required>
+							</div>
+							<div class="flex flex-col gap-1">
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
+								<input type="password" name="password" [(ngModel)]="credentials.password" required>
+							</div>
+							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
+								Autenticar
+							</button>
+						</form>
+					</div>
 				}
-			}
-		});
-	}
 
-	public handleLogin(event: Event): void { event.preventDefault(); }
-	public handleCreateTenant(event: any): void { event.preventDefault(); }
-	public handleClearCompetence(event: any): void { event.preventDefault(); }
-	public handleBulkSync(event: any): void { event.preventDefault(); }
-	public handleRequestAdvance(event: any): void { event.preventDefault(); }
-}
+				<!-- SUBCOMPONENTS INTERFACES PROXY LAYER -->
+				@if (svc.isAuthenticated()) {
+					<app-master-dashboard 
+						[currentSegment]="currentMenuSegment()" 
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[limit]="tenantsLimit()"
+						[offset]="tenantsOffset()"
+						[metrics]="globalMetrics()"
+						[tenants]="tenants()"
+						[selectedTenantId]="selectedTenantId()"
+						[(tenantForm)]="tenantForm"
+						[(settlementForm)]="settlementForm"
+						[settlementBatches]="settlementBatches()"
+						(onSelectTenant)="selectTenant($event)"
+						(onCreateTenant)="handleCreateTenant($event)"
+						(onClearCompetence)="handleClearCompetence($event)"
+						(onNextPage)="nextTenantsPage()"
+						(onPrevPage)="prevTenantsPage()">
+					</app-master-dashboard>
+
+					<app-tenant-manager
+						[currentSegment]="currentMenuSegment()"
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[selectedTenantId]="selectedTenantId()"
+						[tenants]="tenants()"
+						[endUsers]="endUsers()"
+						[syncRawText]="syncRawText()"
+						(onSelectTenant)="selectTenant($event)"
+						(onInspectUser)="loadInspectionLayer($event)"
+						(onBulkSync)="handleBulkSync($event)">
+					</app-tenant-manager>
+
+					<app-telemetry-drawer
+						[currentSegment]="currentMenuSegment()"
+						[scope]="svc.currentScope() || ''"
+						[t]="svc.t()"
+						[activeProfile]="activeProfile()"
+						[transactions]="transactions()"
+						[installments]="installments()"
+						[advanceForm]="advanceForm"
+						(onClose)="activeProfile.set(null)"
+						(onRequestAdvance)="handleRequestAdvance($event)"
+						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)"
+						(onSwitchSegment)="switchSegment($any($event))">
+					</app-telemetry-drawer>
+				}
+			</main>
+		</div>
+	</div>
+</div>
