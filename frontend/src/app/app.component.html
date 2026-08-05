@@ -9,6 +9,7 @@
 					<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
 				</div>
 
+				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH AUTOMATIC CLOSE HANDSHAKES ─── -->
 				<nav class="sidebar-navigation-links space-y-1">
 					@if (svc.currentScope() === 'MASTER') {
 						<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
@@ -40,7 +41,8 @@
 				<div class="rounded-lg bg-slate-950 px-2 py-2.5 font-mono text-[10px] text-center border border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
 					SCOPE: {{ svc.currentScope() }}
 				</div>
-				<button (click)="svc.logout()" class="w-full rounded-lg bg-red-500/10 p-3 text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer uppercase font-mono tracking-widest">
+				<!-- 🔄 FIXED: Swapped inline slash utilities into a strict native stylesheet class model -->
+				<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg">
 					Sair
 				</button>
 			</div>
@@ -52,7 +54,7 @@
 		<!-- GLOBAL TOP HEADER BAR -->
 		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border">
 			<div class="flex items-center gap-2.5 min-w-0">
-				<!-- ☰ FIXED: Added relative z-50 to ensure click capture on overlay mobile matrix layers -->
+				<!-- High-contrast mobile menu trigger visible exclusively on screens under 1024px -->
 				@if (svc.isAuthenticated()) {
 					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative z-50">☰</button>
 				}
@@ -67,7 +69,7 @@
 			</div>
 			
 			<!-- i18n SWITCHER MATRIX -->
-			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-0.5 text-[9px] sm:text-[10px] font-mono font-bold items-center gap-0.5 shadow-inner shrink-0 relative z-50">
+			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[9px] sm:text-[10px] font-mono font-bold items-center gap-1 shadow-inner shrink-0 relative z-50">
 				@for (langCode of getAvailableLanguages(); track langCode) {
 					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-1.5 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-0.5 hover:text-slate-300">
 						<span>{{ langCode === 'en' ? '🇺🇸' : '🇧🇷' }}</span>
@@ -79,13 +81,13 @@
 
 		<!-- CONTENT MAIN AREA INJECTIONS -->
 		<div class="w-full flex-1 flex flex-col box-border min-w-0 max-w-full overflow-x-hidden">
-			<!-- ─── RE-ALIGNED BOX-PADDING: Minimized spacing on mobile (p-2) to expand information boundaries ─── -->
-			<main class="flex-1 p-2 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 box-border">
+			<!-- ─── RE-ALIGNED BOX-PADDING: Adjusted padding on mobile (p-3) to fit cards perfectly ─── -->
+			<main class="flex-1 p-3 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
 						<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
-						<form (submit)="handleLogin($event)" class="space-y-4">
+						<form (submit seasonality)="handleLogin($event)" class="space-y-4">
 							<div class="flex flex-col gap-1">
 								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
 								<input type="email" name="email" [(ngModel)]="credentials.email" required>
