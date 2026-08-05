@@ -143,15 +143,36 @@ aside nav button span.menu-icon-wrapper {
 .mx-auto { margin-left: auto; margin-right: auto; }
 .box-border { box-sizing: border-box; }
 
-/* ─── GRID RESPONSIVE MATRIX PIPELINES ─── */
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
-.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* ─── PRODUCTION RESPONSIVE BREAKPOINT EXTENSIONS FOR MONITOR SCANS ─── */
+
+.grid-cols-1 {
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+}
 
 @media (min-width: 640px) {
 	.sm\:grid-cols-2 {
 		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 	}
 }
+
+.hide-on-desktop {
+	display: block !important;
+}
+
+.show-on-desktop {
+	display: none !important;
+}
+
+@media (min-width: 640px) {
+	.hide-on-desktop {
+		display: none !important;
+	}
+	.show-on-desktop {
+		display: block !important;
+	}
+}
+
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 /* ─── BOX METRICS & SPACING SYSTEM ─── */
 .p-1 { padding: 0.25rem; }
