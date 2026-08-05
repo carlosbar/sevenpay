@@ -9,7 +9,8 @@
 
 				<nav class="space-y-1 text-xs font-bold uppercase tracking-wider font-mono">
 					@if (svc.currentScope() === 'MASTER') {
-						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">📊 {{ svc.t()['menuDashboard'] }}</button>
+						<!-- 📊 FIXED DUPLICATION: Removed hardcoded emoji since it propagates from the translation dictionary directly -->
+						<button (click)="switchSegment('DASHBOARD')" [class.bg-slate-800]="currentMenuSegment() === 'DASHBOARD'" [class.text-emerald-400]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">{{ svc.t()['menuDashboard'] }}</button>
 						<button (click)="switchSegment('PARTNERS')" [class.bg-slate-800]="currentMenuSegment() === 'PARTNERS'" [class.text-emerald-400]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🏢 Portfólios B2B</button>
 						<button (click)="switchSegment('SETTLEMENT')" [class.bg-slate-800]="currentMenuSegment() === 'SETTLEMENT'" [class.text-emerald-400]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition hover:bg-slate-800/60 cursor-pointer border-none bg-transparent text-slate-300">🧾 Liquidação</button>
 					}
@@ -34,8 +35,8 @@
 
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER LAYER -->
 	<div class="flex-1 flex flex-col min-w-0 box-border">
-		<!-- ─── HEADER BAR: COMPENSATED VIA STRICT INLINE PADDING TO ESCAPE DEEP FIXED OVERLAPS ─── -->
-		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border w-full" [style.padding-left]="svc.isAuthenticated() ? '17.5rem' : '1.5rem'">
+		<!-- ─── HEADER BAR: ALIGNED USING THE DYNAMIC EXTERNAL MARGIN SHIFT UTILITY ─── -->
+		<header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4 box-border" [class.header-shift]="svc.isAuthenticated()">
 			<div class="flex items-center gap-2">
 				<span class="text-sm font-mono text-slate-400 uppercase tracking-widest">{{ currentMenuSegment() }} SYSTEM</span>
 			</div>
@@ -52,9 +53,8 @@
 		</header>
 
 		<!-- CONTENT ELEMENT CONTAINER -->
-		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden">
-			<!-- ─── MAIN CONTAINER: COMPENSATED INDEPENDENTLY VIA INLINE PADDING TO ENSURE TOTAL CELL ALIGNMENT ─── -->
-			<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border" [style.padding-left]="svc.isAuthenticated() ? '17.5rem' : '1.5rem'">
+		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden" [class.main-shift]="svc.isAuthenticated()">
+			<main class="flex-1 p-6 lg:p-8 max-w-5xl w-full mx-auto space-y-6 box-border">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8">
