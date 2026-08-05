@@ -3,26 +3,38 @@
 	@if (currentSegment() === 'DASHBOARD') {
 		<div class="space-y-6 animate-fadeIn box-border w-full">
 			
-			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS (1 COLUMN ON MOBILE, 2 COLUMNS ON DESKTOP) -->
+			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS (PROXY EXTENSIONS CONVERTED VIA FORMATCENTS) -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
 				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
 				
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border">
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] }}</span>
-						<span class="text-lg font-black text-slate-200 font-mono truncate">{{ metrics().totalVolumeAdvancedCents || 0 }}</span>
+						<!-- 🔄 REAL-TIME COMPLIANCE: Formats raw 64-bit integer values safely into localized currencies -->
+						<span class="text-lg font-black text-slate-200 font-mono truncate">
+							{{ (metrics().totalVolumeAdvancedCents !== undefined) ? (metrics().totalVolumeAdvancedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] }}</span>
-						<span class="text-lg font-black text-emerald-400 font-mono truncate">{{ metrics().totalFeesCollectedCents || 0 }}</span>
+						<!-- 🔄 REAL-TIME COMPLIANCE: Formats raw 64-bit integer values safely into localized currencies -->
+						<span class="text-lg font-black text-emerald-400 font-mono truncate">
+							{{ (metrics().totalFeesCollectedCents !== undefined) ? (metrics().totalFeesCollectedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] }}</span>
-						<span class="text-lg font-black text-amber-500 font-mono truncate">{{ metrics().totalReceivablesCents || 0 }}</span>
+						<!-- 🔄 REAL-TIME COMPLIANCE: Formats raw 64-bit integer values safely into localized currencies -->
+						<span class="text-lg font-black text-amber-500 font-mono truncate">
+							{{ (metrics().totalReceivablesCents !== undefined) ? (metrics().totalReceivablesCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] }}</span>
-						<span class="text-lg font-black text-red-400 font-mono truncate">{{ metrics().totalOverdueCents || 0 }}</span>
+						<!-- 🔄 REAL-TIME COMPLIANCE: Formats raw 64-bit integer values safely into localized currencies -->
+						<span class="text-lg font-black text-red-400 font-mono truncate">
+							{{ (metrics().totalOverdueCents !== undefined) ? (metrics().totalOverdueCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+						</span>
 					</div>
 				</div>
 			</div>
@@ -34,7 +46,7 @@
 					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
 				</div>
 
-				<!-- 📱 MOBILE VIEW: RESPONSIVE MINI-CARDS (HIDDEN ON DESKTOP VIEWPORTS) -->
+				<!-- 📱 MOBILE VIEW: COMPACT TILES PREVENTING RIGHT-SIDE TEXT CUTS -->
 				<div class="block sm:hidden space-y-3 w-full box-border">
 					@for (partner of tenants(); track partner.id) {
 						<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 space-y-2 shadow-inner text-xs font-mono">
@@ -52,16 +64,20 @@
 							<div class="grid grid-cols-2 gap-2 pt-0.5">
 								<div>
 									<span class="block text-[9px] text-slate-500 font-bold uppercase">Resgates (Mês)</span>
-									<span class="text-slate-200 font-bold font-mono">{{ partner.totalMonthDisbursedCents || 'R$ 0,00' }}</span>
+									<span class="text-slate-200 font-bold font-mono">
+										{{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+									</span>
 								</div>
 								<div>
 									<span class="block text-[9px] text-slate-500 font-bold uppercase">Disponível</span>
-									<span class="text-emerald-400 font-bold font-mono">{{ partner.availableCreditMarginCents || 'R$ 0,00' }}</span>
+									<span class="text-emerald-400 font-bold font-mono">
+										{{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+									</span>
 								</div>
 							</div>
 							@if (partner.hasOverdueInstallments) {
 								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center">
-									Montante em Atraso: {{ partner.overdueAmountCents }}
+									Montante em Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 								</div>
 							}
 						</div>
@@ -69,7 +85,7 @@
 						<p class="text-xs text-slate-500 text-center italic py-4">Nenhum parceiro portando carteiras.</p>
 					}
 				</div>
-				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN ON PHONE VIEWPORTS) -->
+				<!-- 💻 DESKTOP VIEW: TRADITIONAL COMPONENT DATA GRID -->
 				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
 						<thead>
@@ -88,15 +104,15 @@
 										<span class="block text-[10px] text-slate-500">CNPJ: {{ partner.cnpj }}</span>
 									</td>
 									<td class="p-3 text-right font-bold text-slate-200">
-										{{ partner.totalMonthDisbursedCents || 'R$ 0,00' }}
+										{{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</td>
 									<td class="p-3 text-right font-bold text-emerald-400">
-										{{ partner.availableCreditMarginCents || 'R$ 0,00' }}
+										{{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</td>
 									<td class="p-3 text-center">
 										@if (partner.hasOverdueInstallments) {
 											<span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-[10px] font-bold text-red-400 uppercase tracking-wider">
-												🚨 Atraso: {{ partner.overdueAmountCents }}
+												🚨 Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 											</span>
 										} @else {
 											<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
@@ -114,7 +130,7 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION CONTROLS CONTROLLER -->
+				<!-- 📑 PAGINATION NAVIGATION CONTROLS MATRIX -->
 				<div class="flex items-center justify-between pt-2 text-xs font-mono w-full box-border">
 					<span class="text-slate-500 hidden sm:inline">Exibindo registros de parceiros ativos</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2">
@@ -131,7 +147,7 @@
 		</div>
 	}
 
-	<!-- SEGMENTO: PORTFÓLIOS B2B -->
+	<!-- 🏢 SEGMENT: PORTFOLIOS INFRASTRUCTURE -->
 	@if (currentSegment() === 'PARTNERS') {
 		<div class="space-y-6 animate-fadeIn w-full box-border">
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl">
