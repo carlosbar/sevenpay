@@ -55,14 +55,15 @@ body {
 	bottom: 0;
 	left: 0;
 	width: 16rem;
-	z-index: 50;
+	z-index: 9999 !important; /* Forces layout priority over content nodes */
 	transform: translateX(-100%);
 	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ─── TOGGLE SHIFT EMULATION MATRIX ─── */
-.sidebar-panel.active {
-	transform: translateX(0);
+/* ─── FIXED TRIGGER LINKING THE ANGULAR STATE TO NATIVE VIEWPORTS ─── */
+.sidebar-panel.active,
+aside.active {
+	transform: translateX(0) !important;
 }
 
 @media (min-width: 1024px) {
@@ -119,7 +120,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
-	max-width: 100vw; /* CRITICAL SHIELD: Forces inner contents to remain within device boundary */
+	max-width: 100vw;
 	box-sizing: border-box;
 	overflow-x: hidden;
 }
@@ -201,41 +202,6 @@ header {
 .border-emerald-500 { border-color: #10b981; }
 .border-emerald-500\/20 { border-color: rgba(16, 185, 129, 0.2); }
 .divide-y > * + * { border-top: 1px solid #1e293b; }
-
-/* ─── TYPOGRAPHY GRAPHICS PALETTE ─── */
-.text-xs { font-size: 0.75rem; }
-.text-sm { font-size: 0.875rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-\[9px\] { font-size: 9px; }
-.text-\[10px\] { font-size: 10px; }
-.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-.font-bold { font-weight: 700; }
-.font-black { font-weight: 900; }
-.uppercase { text-transform: uppercase; }
-.tracking-wider { letter-spacing: 0.05em; }
-.tracking-widest { letter-spacing: 0.1em; }
-.text-left { text-align: left; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.text-slate-100 { color: #f8fafc; }
-.text-slate-200 { color: #e2e8f0; }
-.text-slate-400 { color: #94a3b8; }
-.text-slate-500 { color: #64748b; }
-.text-emerald-400 { color: #34d399; }
-.text-amber-500 { color: #f59e0b; }
-.text-red-400 { color: #f87171; }
-
-/* ─── RESPONSIVE SYSTEM ADAPTERS ─── */
-.hide-on-desktop { display: block !important; }
-.show-on-desktop { display: none !important; }
-
-@media (min-width: 640px) {
-	.hide-on-desktop { display: none !important; }
-	.show-on-desktop { display: block !important; }
-}
 
 /* ─── FORM BASES AND LOGOUTS INTERFACES ─── */
 aside button.bg-red-500\/10 {
