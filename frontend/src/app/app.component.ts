@@ -139,7 +139,7 @@ export class AppComponent implements OnInit {
 
 	/* ─── UPDATED LOOKUP: CONSUMING LIMIT AND OFFSET SIGNALS FOR PAGINATION ─── */
 	public loadFintechControlTowerData(): void {
-		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset()).subscribe({
+		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
 			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); }
 		});
 		this.svc.getGlobalMetrics().subscribe({
