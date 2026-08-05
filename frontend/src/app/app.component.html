@@ -118,7 +118,8 @@
 						(onCreateTenant)="handleCreateTenant($event)"
 						(onClearCompetence)="handleClearCompetence($event)"
 						(onNextPage)="nextTenantsPage()"
-						(onPrevPage)="prevTenantsPage()">
+						(onPrevPage)="prevTenantsPage()"
+            (onFuzzySearch)="handleFuzzySearchTrigger($event)">
 					</app-master-dashboard>
 
 					<app-tenant-manager
