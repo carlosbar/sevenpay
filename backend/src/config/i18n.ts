@@ -2,6 +2,7 @@
 
 export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 	en: {
+		INTERNAL_SERVER_ERROR: 'Internal server error, please contact support.',
 		AUTH_TOKEN_MISSING: 'Security gateway violation. Authorization Bearer token header is missing or malformed.',
 		AUTH_TOKEN_INVALID: 'Security signature mismatch. The provided token is either expired or cryptographically corrupt.',
 		AUTH_CREDENTIALS_INVALID: 'Invalid e-mail or password credentials provided.',
@@ -28,9 +29,10 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_CONTRACT_VALUE_INVALID: 'Processing aborted. Contract numerical entries must be valid non-negative integer cents.',
 		TENANT_RECORD_NOT_FOUND: 'Target company tenant workspace record not found in the infrastructure database.',
 		QUERY_FILTRATION_VECTORS_REQUIRED: 'Validation failed. Both tenantId and endUserId query parameters are strictly required.',
-		RBAC_FORBIDDEN_MATRIX: 'Access denied. Insufficient administrative privileges to perform this operation over the targeted domain.'
+		: 'Access denied. Insufficient administrative privileges to perform this operation over the targeted domain.'
 	},
 	'pt-br': {
+		INTERNAL_SERVER_ERROR: 'Erro interno do servidor, solicite suporte.',
 		AUTH_TOKEN_MISSING: 'Violação de segurança. O cabeçalho Token Bearer de autorização está ausente ou mal-formatado.',
 		AUTH_TOKEN_INVALID: 'Incompatibilidade de assinatura. O token fornecido está expirado ou criptograficamente corrompido.',
 		AUTH_CREDENTIALS_INVALID: 'Endereço de e-mail ou senha de segurança inválidos.',
@@ -57,6 +59,6 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_CONTRACT_VALUE_INVALID: 'O valor de salário ou contrato base em centavos deve ser um número inteiro positivo.',
 		TENANT_RECORD_NOT_FOUND: 'Os metadados da empresa parceira alvo não foram localizados no banco de dados da infraestrutura.',
 		QUERY_FILTRATION_VECTORS_REQUIRED: 'Os parâmetros tenantId and endUserId são obrigatórios para isolar a busca do extrato.',
-		RBAC_FORBIDDEN_MATRIX: 'Acesso negado. Privilégios administrativos insuficientes para realizar esta operação no domínio alvo.'
+		: 'Acesso negado. Privilégios administrativos insuficientes para realizar esta operação no domínio alvo.'
 	}
 };
