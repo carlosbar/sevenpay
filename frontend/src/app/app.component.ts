@@ -74,7 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			this.loadFintechControlTowerData();
 		});
 
-		/* ─── HANDSHAKE DE INICIALIZAÇÃO BLINDADO CONTRA CONCORRÊNCIA DE REQUISIÇÃO ─── */
+		/* ─── HANDSHAKE INITIALIZATION PROTECTED AGAINST CONCURRENT PIPELINES ─── */
 		const localToken = localStorage.getItem('sp_token');
 		
 		if (localToken && this.svc.isAuthenticated()) {
@@ -138,7 +138,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	/* ─── LOOKUP INTEGRADO PROTEGIDO CONTRA ERROS 401 EM CASCATA ─── */
+	/* ─── INTEGRATED LOOKUP PROTECTED AGAINST CASCADING 401 ERRORS ─── */
 	public loadFintechControlTowerData(): void {
 		if (!localStorage.getItem('sp_token')) return;
 
@@ -223,7 +223,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	/* ─── HANDLERS DE EVENTOS INTEGRADOS E OPERACIONAIS ─── */
+	/* ─── INTEGRATED AND OPERATIONAL PIPELINE EVENT HANDLERS ─── */
 	public handleLogin(event: Event): void {
 		event.preventDefault();
 		if (!this.credentials.email || !this.credentials.password) return;
@@ -234,27 +234,30 @@ export class AppComponent implements OnInit, OnDestroy {
 					const token = res.token || res.data?.token;
 					if (token) {
 						localStorage.setItem('sp_token', token);
-						if (typeof this.svc.setToken === 'function') {
-							this.svc.setToken(token);
+						
+						// 🛡️ TS2339 RECTIFICATION HOOK: Safe typecasting to check dynamic token injection methods
+						const serviceProxy = this.svc as any;
+						if (typeof serviceProxy.setToken === 'function') {
+							serviceProxy.setToken(token);
 						}
 					}
 					this.evaluateWorkspaceQueryRouting();
 					this.credentials = { email: '', password: '' };
 				} else {
-					alert('Falha na autenticação. Verifique os dados.');
+					alert('Authentication failed. Please verify credentials.');
 				}
 			},
 			error: (err) => {
-				console.error('Erro de autenticação no Core Engine:', err);
-				alert('Erro ao conectar com o servidor. Credenciais inválidas.');
+				console.error('Core Engine login response pipeline exception:', err);
+				alert('Network error or invalid operator credentials.');
 			}
 		});
 	}
 
-	/* 🛡️ INTERCEPTOR ESTRITO DE REJEIÇÃO COCKPIT */
+	/* 🛡️ STRICT COCKPIT HTTP INTERCEPTOR MATRIX */
 	private handleHttpAuthErrors(err: any): void {
 		if (err.status === 401) {
-			console.warn('Sessão rejeitada pelo Core Engine. Redirecionando...');
+			console.warn('Session rejected by Core Engine network. Wiping localized tokens...');
 			localStorage.removeItem('sp_token');
 			this.svc.logout();
 		}
