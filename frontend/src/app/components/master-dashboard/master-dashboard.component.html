@@ -203,7 +203,6 @@
 						</div>
 						<div class="flex flex-col gap-1">
 							<label class="text-xs font-bold text-slate-400">{{ t()['globalLimit'] || '[globalLimit]' }}</label>
-							<!-- 📐 MASKED TEXT CONVERSION: Intercepts raw digits to display clean bilateral Brazilian thousands dots and decimal comma mask -->
 							<input type="text" name="globalCreditLimit" [ngModel]="tenantForm().globalCreditLimitMasked" (input)="formatInlineCurrency($event)" required placeholder="R$ 0,00">
 						</div>
 					</div>
@@ -217,23 +216,29 @@
 							</button>
 						</div>
 
-						<!-- Dynamic Table Grid Row Matrix Injection Mapping 'tenant_fee_matrices' Columns -->
+						<!-- Dynamic Table Grid Row Matrix Injection with High-Contrast Row Deletion Cross -->
 						<div class="space-y-2 max-h-40 overflow-y-auto pr-1">
 							@for (tier of activePricingMatrix(); track $index) {
-								<div class="grid grid-cols-3 gap-2 items-center bg-slate-950 p-2 rounded-lg border border-slate-850">
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['months'] || '[months]' }}</span>
-										<input type="number" [name]="'inst_' + $index" [(ngModel)]="tier.installmentsCount" required class="py-1 text-xs text-center font-mono">
+								<div class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-850">
+									<div class="grid grid-cols-3 gap-2 items-center flex-1">
+										<div class="flex flex-col gap-0.5">
+											<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['months'] || '[months]' }}</span>
+											<input type="number" [name]="'inst_' + $index" [(ngModel)]="tier.installmentsCount" required class="py-1 text-xs text-center font-mono">
+										</div>
+										<div class="flex flex-col gap-0.5">
+											<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['fee'] || '[fee]' }}</span>
+											<input type="number" [name]="'fee_' + $index" [(ngModel)]="tier.feePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-emerald-400">
+										</div>
+										<div class="flex flex-col gap-0.5">
+											<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['margin'] || '[margin]' }}</span>
+											<input type="number" [name]="'margin_' + $index" [(ngModel)]="tier.maxAdvancePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-amber-500">
+										</div>
 									</div>
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['fee'] || '[fee]' }}</span>
-										<input type="number" [name]="'fee_' + $index" [(ngModel)]="tier.feePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-emerald-400">
-									</div>
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['margin'] || '[margin]' }}</span>
-										<input type="number" [name]="'margin_' + $index" [(ngModel)]="tier.maxAdvancePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-amber-500">
-									</div>
+									<!-- ✕ Row Removal Button linked to core matrix deletion pipeline -->
+									<button type="button" (click)="activePricingMatrix().splice($index, 1)" class="mt-3 px-2 py-1 text-xs bg-red-500/10 border border-red-500/20 text-red-400 font-bold rounded hover:bg-red-500/20 transition cursor-pointer">✕</button>
 								</div>
+							} @empty {
+								<p class="text-[10px] text-slate-500 italic font-mono p-2 text-center">{{ t()['noRows'] || 'No portfolio rows returned.' }}</p>
 							}
 						</div>
 					</div>
@@ -244,6 +249,7 @@
 					</button>
 				</form>
 			</div>
+
 			<!-- 🏢 B2B CORPORATE DIRECTORY SYSTEM: REPLICATED DATA GRID WITH DECIMALS -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
