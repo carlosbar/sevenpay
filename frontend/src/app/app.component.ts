@@ -288,7 +288,7 @@ export class AppComponent implements OnInit, OnDestroy {
 					
 					console.log('[SevenPay-Core] Login cleared. Scheduling state propagation delay...');
 					
-					// 🛡️ CRITICAL HANDSHAKE DELAY: Gives interceptors 100ms to register the new bearer token before requests fire
+					/* 🛡️ CRITICAL HANDSHAKE DELAY: Gives interceptors 100ms to register the new bearer token before requests fire */
 					setTimeout(() => {
 						console.log('[SevenPay-Core] Delay expired. Evaluating workspace routing nodes with safe active token.');
 						this.evaluateWorkspaceQueryRouting();
