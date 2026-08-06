@@ -1,7 +1,6 @@
-// src/controllers/tenantInspectController.ts
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
-import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class TenantInspectController {
@@ -11,7 +10,7 @@ class TenantInspectController {
 	 * /api/v1/admin/tenants/inspect:
 	 *   get:
 	 *     summary: Deep 360 inspect of a specific B2B tenant corporate workspace
-	 *     description: Compiles complete tenant profile telemetry, including its full pricing fee matrix tier configuration, allocated credit ceilings, and linked end-user registries. Enforces strict horizontal multitenant encryption boundaries. Perimeter defense handles fraud detection automatically.
+	 *     description: Compiles complete tenant profile telemetry, including its full pricing fee matrix tier configuration, allocated credit ceilings, and linked end-user registries. Enforces strict horizontal multitenant encryption boundaries.
 	 *     tags:
 	 *       - Administration Lookup
 	 *     security:
@@ -63,20 +62,21 @@ class TenantInspectController {
 				FROM tenant_fee_matrices WHERE tenant_id = $1 ORDER BY installments_count ASC;
 			`;
 			const matrixRes = await db.query(matrixQuery, [targetTenantId]);
-
-			// 4. Fetch the linked credit consumers roster list for the grid panel layout
+			// 4. Fetch the linked credit consumers roster list matching real database columns
+			// FIXED HOOK: Removed the non-existent 'margin_available_cents' column to avoid database compiler crash
 			const usersQuery = `
-				SELECT id, external_id AS "externalId", name, monthly_contract_value_cents::text AS "monthlyContractValueCents", margin_available_cents::text AS "marginAvailableCents", status
+				SELECT id, external_id AS "externalId", name, monthly_contract_value_cents::text AS "monthlyContractValueCents", status
 				FROM end_users WHERE tenant_id = $1 ORDER BY name ASC LIMIT 50;
 			`;
 			const usersRes = await db.query(usersQuery, [targetTenantId]);
 
 			// 5. Dispatch standard unified success envelope payload data structure back to UI
+			// FIXED CONTRACT: Renamed 'feeMatrices' to 'pricingMatrix' to ensure bilateral symmetry with the UI data pipeline
 			res.status(200).json({
 				result: 'success',
 				data: {
 					tenant: tenantRes.rows[0],
-					feeMatrices: matrixRes.rows,
+					pricingMatrix: matrixRes.rows,
 					endUsersPreview: usersRes.rows
 				}
 			});
