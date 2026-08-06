@@ -63,15 +63,19 @@ export class AppComponent implements OnInit, OnDestroy {
 	]);
 
 	constructor(public svc: SevenPayService) {}
+
 	public ngOnInit(): void {
-		/* 🛡️ SECURITY DEBOUNCE BAR: Holds request pipeline for 2 seconds to avoid spamming the Core Engine */
+		/* 🛡️ SECURITY DEBOUNCE BAR: Only handles request pipeline if the user is physically authenticated */
 		this.searchSubscription = this.searchSubject.pipe(
 			debounceTime(2000), 
 			distinctUntilChanged()
 		).subscribe(query => {
-			this.currentSearchQuery.set(query);
-			this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
-			this.loadFintechControlTowerData();
+			// 🧠 SHIELD: Strictly block background network requests if session signal is dead
+			if (this.svc.isAuthenticated() && localStorage.getItem('sp_token')) {
+				this.currentSearchQuery.set(query);
+				this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
+				this.loadFintechControlTowerData();
+			}
 		});
 
 		/* ─── HANDSHAKE INITIALIZATION PROTECTED AGAINST CONCURRENT PIPELINES ─── */
@@ -80,8 +84,11 @@ export class AppComponent implements OnInit, OnDestroy {
 		if (localToken && this.svc.isAuthenticated()) {
 			this.evaluateWorkspaceQueryRouting();
 		} else {
+			// Clean memory cleanly without triggering recursive loop pipelines
 			localStorage.removeItem('sp_token');
-			this.svc.logout();
+			if (this.svc.isAuthenticated()) {
+				this.svc.logout();
+			}
 		}
 	}
 
@@ -138,21 +145,25 @@ export class AppComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	/* ─── INTEGRATED LOOKUP PROTECTED AGAINST CASCADING 401 ERRORS ─── */
+	/* ─── INTEGRATED LOOKUP BLINDED AGAINST ANONYMOUS REQUESTS ─── */
 	public loadFintechControlTowerData(): void {
-		if (!localStorage.getItem('sp_token')) return;
+		// 🛡️ DOUBLE-BARREL SHIELD: Strict check to guarantee zero background spam to core engine endpoints
+		if (!this.svc.isAuthenticated() || !localStorage.getItem('sp_token')) {
+			return;
+		}
 
 		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
 			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
 			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
+		
 		this.svc.getGlobalMetrics().subscribe({
 			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
 			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
-	/* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
+  /* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
 	public nextTenantsPage(): void {
 		if (this.tenants().length < this.tenantsLimit()) return;
 		this.tenantsOffset.update(current => current + this.tenantsLimit());
