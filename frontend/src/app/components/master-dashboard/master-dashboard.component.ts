@@ -19,6 +19,7 @@ export class MasterDashboardComponent {
 	public settlementBatches = input<any[]>([]);
 	public limit = input<number>(5);
 	public offset = input<number>(0);
+  public activePricingMatrix = input<any[]>([]);
 	
 	/* ─── FUZZY DEBOUNCING STATES AND DISPATCHERS ─── */
 	public searchTerm = signal<string>('');
