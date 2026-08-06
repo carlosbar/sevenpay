@@ -283,18 +283,18 @@ export class AppComponent implements OnInit, OnDestroy {
 		if (event) event.preventDefault();
 		console.log('[SevenPay-Core] handleCreateTenant intercepted.');
 
-		if (!this.tenantForm.cnpj || !this.tenantForm.name || !this.tenantForm.globalCreditLimit) {
+		// 🛡️ FIXED VALIDATION: Explicitly check for null/undefined so that 0 is accepted as a valid credit limit
+		if (!this.tenantForm.cnpj || !this.tenantForm.name || this.tenantForm.globalCreditLimit === null || this.tenantForm.globalCreditLimit === undefined) {
 			alert('Please fulfill all mandatory corporate partner attributes.');
 			return;
 		}
 
-		// 🛡️ ACCURATE ACCOUNTING CONVERSIONS: Float to 64-bit integer cents
 		const readyToDeployPayload = {
 			cnpj: this.tenantForm.cnpj,
 			name: this.tenantForm.name,
 			businessType: this.tenantForm.businessType,
 			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimit * 100),
-			feeMatrix: this.activePricingMatrix()
+			pricingMatrix: this.activePricingMatrix()
 		};
 
 		this.svc.provisionTenant(readyToDeployPayload).subscribe({
