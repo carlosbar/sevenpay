@@ -159,20 +159,29 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION CONTROLS -->
-				<div class="flex items-center justify-between pt-2 text-xs font-mono w-full box-border">
-					<span class="text-slate-500 hidden sm:inline truncate">
+				<!-- 📑 PAGINATION CONTROLS (RESTORED VIA INSTANT PAYLOAD CHECK) -->
+				<div class="flex items-center justify-between pt-4 text-xs font-mono w-full box-border">
+					<span class="text-slate-500 hidden sm:inline">
 						{{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
 					</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2 shrink-0">
-						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
+						<!-- Safe backward trigger hooked to limits directly -->
+						<button (click)="onPrevPage.emit()" 
+								[disabled]="limit() === 0" 
+								[class.opacity-50]="tenants().length === 0" 
+								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
 							◀ {{ t()['btnBack'] || '[btnBack]' }}
 						</button>
-						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
+						<!-- Safe forward trigger checking payload metrics -->
+						<button (click)="onNextPage.emit()" 
+								[disabled]="tenants().length < limit()" 
+								[class.opacity-50]="tenants().length < limit()" 
+								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
 							{{ t()['btnNext'] || '[btnNext]' }} ▶
 						</button>
 					</div>
 				</div>
+
 			</div>
 
 		</div>
