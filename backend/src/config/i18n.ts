@@ -29,7 +29,7 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_CONTRACT_VALUE_INVALID: 'Processing aborted. Contract numerical entries must be valid non-negative integer cents.',
 		TENANT_RECORD_NOT_FOUND: 'Target company tenant workspace record not found in the infrastructure database.',
 		QUERY_FILTRATION_VECTORS_REQUIRED: 'Validation failed. Both tenantId and endUserId query parameters are strictly required.',
-		: 'Access denied. Insufficient administrative privileges to perform this operation over the targeted domain.'
+		RBAC_FORBIDDEN_MATRIX: 'Access denied. Insufficient administrative privileges to perform this operation over the targeted domain.'
 	},
 	'pt-br': {
 		INTERNAL_SERVER_ERROR: 'Erro interno do servidor, solicite suporte.',
@@ -59,6 +59,6 @@ export const BACKEND_TRANSLATIONS: Record<string, Record<string, string>> = {
 		SYNC_CONTRACT_VALUE_INVALID: 'O valor de salário ou contrato base em centavos deve ser um número inteiro positivo.',
 		TENANT_RECORD_NOT_FOUND: 'Os metadados da empresa parceira alvo não foram localizados no banco de dados da infraestrutura.',
 		QUERY_FILTRATION_VECTORS_REQUIRED: 'Os parâmetros tenantId and endUserId são obrigatórios para isolar a busca do extrato.',
-		: 'Acesso negado. Privilégios administrativos insuficientes para realizar esta operação no domínio alvo.'
+		RBAC_FORBIDDEN_MATRIX: 'Acesso negado. Privilégios administrativos insuficientes para realizar esta operação no domínio alvo.'
 	}
 };
