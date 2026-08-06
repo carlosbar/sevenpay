@@ -36,7 +36,7 @@
 					</div>
 				</div>
 			</div>
-			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PARTNERS GRID -->
+			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PARTNERS GRID (MAIN DASHBOARD VIEW) -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
 					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -79,7 +79,6 @@
 								<span class="text-slate-400 font-bold">CNPJ:</span> {{ partner.cnpj }}
 							</div>
 
-							<!-- FIXED HORIZONTAL GRID METRICS -->
 							<div class="grid grid-cols-2 gap-2 text-left w-full box-border">
 								<div class="flex flex-col gap-0.5">
 									<span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">
@@ -165,91 +164,10 @@
 						{{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
 					</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2 shrink-0">
-						<button (click)="onPrevPage.emit()" 
-								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer text-emerald-400 whitespace-nowrap">
-							◀ {{ t()['btnBack'] || '[btnBack]' }}
-						</button>
-						<button (click)="onNextPage.emit()" 
-								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer text-emerald-400 whitespace-nowrap">
-							{{ t()['btnNext'] || '[btnNext]' }} ▶
-						</button>
+						<button (click)="onPrevPage.emit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer text-emerald-400 whitespace-nowrap">◀ {{ t()['btnBack'] || '[btnBack]' }}</button>
+						<button (click)="onNextPage.emit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer text-emerald-400 whitespace-nowrap">{{ t()['btnNext'] || '[btnNext]' }} ▶</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	}
-	@if (currentSegment() === 'PARTNERS') {
-		<div class="space-y-6 animate-fadeIn w-full box-border">
-			<!-- 🏢 HIGH-VOLUME EXPANDED PARTNER INGESTION MATRIX FORM -->
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl">
-				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider truncate">
-					{{ t()['provisionTenant'] || '[provisionTenant]' }}
-				</h2>
-				
-				<form (submit)="onCreateTenant.emit($event)" class="space-y-4 w-full box-border">
-					<!-- Dual Layout: CNPJ and Company Name -->
-					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold text-slate-400">{{ t()['cnpj'] || '[cnpj]' }}</label>
-							<input type="text" name="cnpj" [(ngModel)]="tenantForm().cnpj" required maxlength="14">
-						</div>
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold text-slate-400">{{ t()['companyName'] || '[companyName]' }}</label>
-							<input type="text" name="name" [(ngModel)]="tenantForm().name" required>
-						</div>
-					</div>
-
-					<!-- Dual Layout: Business Model Type and Global Credit Limit -->
-					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold text-slate-400">{{ t()['businessModel'] || '[businessModel]' }}</label>
-							<select name="businessType" [(ngModel)]="tenantForm().businessType" required class="bg-slate-950 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none w-full">
-								<option value="HR">HR (Recursos Humanos)</option>
-								<option value="REAL_ESTATE">REAL ESTATE (Imobiliário)</option>
-							</select>
-						</div>
-						<div class="flex flex-col gap-1">
-							<label class="text-xs font-bold text-slate-400">{{ t()['globalLimit'] || '[globalLimit]' }}</label>
-							<input type="number" name="globalCreditLimit" [(ngModel)]="tenantForm().globalCreditLimit" required step="0.01">
-						</div>
-					</div>
-
-					<!-- 📊 DYNAMIC MATRIX SUBLAYER: CONFIGURING TIERED INSTALLMENT FEES -->
-					<div class="pt-4 border-t border-slate-800/60 space-y-3">
-						<div class="flex items-center justify-between">
-							<span class="text-xs font-bold text-slate-300 font-mono tracking-wide uppercase">{{ t()['matrixConfig'] || '[matrixConfig]' }}</span>
-							<button type="button" (click)="activePricingMatrix().push({ installmentsCount: activePricingMatrix().length + 1, feePercentage: 0, maxAdvancePercentage: 0 })" class="px-2 py-1 text-[10px] bg-slate-950 border border-slate-800 text-emerald-400 font-mono font-bold rounded hover:bg-slate-800 transition cursor-pointer">
-								{{ t()['addRow'] || '[addRow]' }}
-							</button>
-						</div>
-
-						<!-- Dynamic Table Grid Row Matrix Injection Mapping 'tenant_fee_matrices' Columns -->
-						<div class="space-y-2 max-h-40 overflow-y-auto pr-1">
-							@for (tier of activePricingMatrix(); track $index) {
-								<div class="grid grid-cols-3 gap-2 items-center bg-slate-950 p-2 rounded-lg border border-slate-850">
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['months'] || '[months]' }}</span>
-										<input type="number" [name]="'inst_' + $index" [(ngModel)]="tier.installmentsCount" required class="py-1 text-xs text-center font-mono">
-									</div>
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['fee'] || '[fee]' }}</span>
-										<input type="number" [name]="'fee_' + $index" [(ngModel)]="tier.feePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-emerald-400">
-									</div>
-									<div class="flex flex-col gap-0.5">
-										<span class="text-[8px] text-slate-500 font-bold uppercase font-mono">{{ t()['margin'] || '[margin]' }}</span>
-										<input type="number" [name]="'margin_' + $index" [(ngModel)]="tier.maxAdvancePercentage" required step="0.01" class="py-1 text-xs text-center font-mono text-amber-500">
-									</div>
-								</div>
-							}
-						</div>
-					</div>
-
-					<!-- Execution Dispatch Vector Button -->
-					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg transition mt-2">
-						{{ t()['deployTenant'] || '[deployTenant]' }}
-					</button>
-				</form>
-			</div>
-		</div>
-	}
-}
