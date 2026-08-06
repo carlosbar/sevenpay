@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -25,7 +25,7 @@ export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' |
 	],
 	templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
 	private searchSubject = new Subject<string>();
 	private searchSubscription!: Subscription;
@@ -63,7 +63,6 @@ export class AppComponent implements OnInit {
 	]);
 
 	constructor(public svc: SevenPayService) {}
-
 	public ngOnInit(): void {
 		/* 🛡️ SECURITY DEBOUNCE BAR: Holds request pipeline for 2 seconds to avoid spamming the Core Engine */
 		this.searchSubscription = this.searchSubject.pipe(
@@ -75,14 +74,16 @@ export class AppComponent implements OnInit {
 			this.loadFintechControlTowerData();
 		});
 
-		/* ─── YOUR EXACT ORIGINAL SECURITY HANDSHAKE LOGIC PRESERVED UNTOUCHED ─── */
+		/* ─── HANDSHAKE DE INICIALIZAÇÃO CORRIGIDO CONTRA LOOPS ─── */
 		const localToken = localStorage.getItem('sp_token');
-		if (localToken && this.svc.isAuthenticated()) {
+		if (localToken) {
 			setTimeout(() => {
 				if (this.svc.isAuthenticated()) {
 					this.evaluateWorkspaceQueryRouting();
+				} else {
+					this.svc.logout();
 				}
-			}, 0);
+			}, 50);
 		} else {
 			this.svc.logout();
 		}
@@ -153,9 +154,7 @@ export class AppComponent implements OnInit {
 
 	/* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
 	public nextTenantsPage(): void {
-		/* 🛡️ SECURITY SHIELD: Block execution if the current payload array length indicates end of database */
 		if (this.tenants().length < this.tenantsLimit()) return;
-		
 		this.tenantsOffset.update(current => current + this.tenantsLimit());
 		this.loadFintechControlTowerData();
 	}
@@ -218,9 +217,42 @@ export class AppComponent implements OnInit {
 		});
 	}
 
-	public handleLogin(event: Event): void { event.preventDefault(); }
-	public handleCreateTenant(event: any): void { event.preventDefault(); }
-	public handleClearCompetence(event: any): void { event.preventDefault(); }
-	public handleBulkSync(event: any): void { event.preventDefault(); }
-	public handleRequestAdvance(event: any): void { event.preventDefault(); }
+	/* ─── HANDLERS DE EVENTOS INTEGRADOS E OPERACIONAIS ─── */
+	public handleLogin(event: Event): void {
+		event.preventDefault();
+		if (!this.credentials.email || !this.credentials.password) return;
+
+		this.svc.login(this.credentials.email, this.credentials.password).subscribe({
+			next: (res: any) => {
+				if (res && (res.result === 'success' || res.token)) {
+					const token = res.token || res.data?.token;
+					if (token) localStorage.setItem('sp_token', token);
+					this.evaluateWorkspaceQueryRouting();
+					this.credentials = { email: '', password: '' };
+				} else {
+					alert('Falha na autenticação. Verifique os dados.');
+				}
+			},
+			error: (err) => {
+				console.error('Erro de autenticação no Core Engine:', err);
+				alert('Erro ao conectar com o servidor.');
+			}
+		});
+	}
+
+	public handleCreateTenant(event: any): void { 
+		event.preventDefault(); 
+	}
+
+	public handleClearCompetence(event: any): void { 
+		event.preventDefault(); 
+	}
+
+	public handleBulkSync(event: any): void { 
+		event.preventDefault(); 
+	}
+
+	public handleRequestAdvance(event: any): void { 
+		event.preventDefault(); 
+	}
 }
