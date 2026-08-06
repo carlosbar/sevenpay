@@ -190,13 +190,42 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
 		this.loadFintechControlTowerData();
 	}
+  
 	public selectTenant(tenantId: string): void {
+		console.log(`[SevenPay-Core] selectTenant triggered for ID: ${tenantId}`);
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
+		
 		if (this.selectedTenantId()) {
+			// 1. Sync Linked EndUsers data vector
 			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
 				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
 				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
 			});
+
+			// 2. 🧠 FIXED ROW INJECTION: Mutate properties individually to force Angular Change Detection trigger
+			const matchedPartner = this.tenants().find(t => t.id === tenantId);
+			if (matchedPartner) {
+				console.log('[SevenPay-Core] Partner match found. Injecting attributes into form.', matchedPartner);
+				
+				this.tenantForm.cnpj = matchedPartner.cnpj || '';
+				this.tenantForm.name = matchedPartner.name || '';
+				this.tenantForm.businessType = matchedPartner.businessType || 'HR';
+				this.tenantForm.globalCreditLimit = matchedPartner.globalCreditLimitCents ? (Number(matchedPartner.globalCreditLimitCents) / 100) : 0;
+
+				// If backend already has pricing matrix attached, propagate to pricing matrix rows signal
+				if (matchedPartner.feeMatrix && matchedPartner.feeMatrix.length > 0) {
+					this.activePricingMatrix.set(matchedPartner.feeMatrix);
+				} else if (matchedPartner.pricingMatrix && matchedPartner.pricingMatrix.length > 0) {
+					this.activePricingMatrix.set(matchedPartner.pricingMatrix);
+				}
+			}
+		} else {
+			// Clean up form values safely if row is toggled off
+			this.tenantForm.cnpj = '';
+			this.tenantForm.name = '';
+			this.tenantForm.businessType = 'HR';
+			this.tenantForm.globalCreditLimit = 0;
+			this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 		}
 	}
 
