@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
