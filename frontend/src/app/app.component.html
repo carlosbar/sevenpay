@@ -13,39 +13,32 @@
 				<nav class="sidebar-navigation-links space-y-1">
 					@if (svc.currentScope() === 'MASTER') {
 						<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">📊</span> <span class="truncate">{{ svc.t()['menuDashboard'] || '[menuDashboard]' }}</span>
+							<span class="menu-icon-wrapper shrink-0">📊</span>
+							<span class="truncate">{{ svc.t()['menuDashboard'] || '[menuDashboard]' }}</span>
 						</button>
 						<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">🏢</span> <span class="truncate">{{ svc.t()['menuPartners'] || '[menuPartners]' }}</span>
+							<span class="menu-icon-wrapper shrink-0">🏢</span>
+							<span class="truncate">{{ svc.t()['menuPartners'] || '[menuPartners]' }}</span>
 						</button>
 						<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">🧾</span> <span class="truncate">{{ svc.t()['menuSettlement'] || '[menuSettlement]' }}</span>
+							<span class="menu-icon-wrapper shrink-0">🧾</span>
+							<span class="truncate">{{ svc.t()['menuSettlement'] || '[menuSettlement]' }}</span>
 						</button>
 					}
 					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
 						<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">👥</span> <span class="truncate">{{ svc.t()['menuConsumers'] || '[menuConsumers]' }}</span>
+							<span class="menu-icon-wrapper shrink-0">👥</span>
+							<span class="truncate">{{ svc.t()['menuConsumers'] || '[menuConsumers]' }}</span>
 						</button>
 						<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">🔄</span> <span class="truncate">{{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}</span>
+							<span class="menu-icon-wrapper shrink-0">🔄</span>
+							<span class="truncate">{{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}</span>
 						</button>
 					}
 					<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-						<span class="menu-icon-wrapper shrink-0">📜</span> <span class="truncate">{{ svc.t()['menuStatement'] || '[menuStatement]' }}</span>
+						<span class="menu-icon-wrapper shrink-0">📜</span>
+						<span class="truncate">{{ svc.t()['menuStatement'] || '[menuStatement]' }}</span>
 					</button>
-				</nav>
-
-					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-						<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'">
-							<span class="menu-icon-wrapper">👥</span> {{ svc.t()['menuConsumers'] || '[menuConsumers]' }}
-						</button>
-						<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'">
-							<span class="menu-icon-wrapper">🔄</span> {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}
-						</button>
-					}
-					<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'">
-						<span class="menu-icon-wrapper">📜</span> {{ svc.t()['menuStatement'] || '[menuStatement]' }}
-						</button>
 				</nav>
 			</div>
 
