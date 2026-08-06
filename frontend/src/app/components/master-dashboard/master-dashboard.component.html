@@ -36,7 +36,6 @@
 					</div>
 				</div>
 			</div>
-
 			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PORTFOLIO GRID -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
@@ -59,7 +58,7 @@
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner w-full block">
 				</div>
 
-				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES (RESTORED TO ORIGINAL FULL-GRID SNAPSHOT STANDARDS) -->
+				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES -->
 				<div class="block sm:hidden space-y-3 w-full box-border">
 					@for (partner of tenants(); track partner.id) {
 						<div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2 w-full box-border">
@@ -99,6 +98,7 @@
 									</span>
 								</div>
 							</div>
+							
 							@if (partner.hasOverdueInstallments) {
 								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center mt-1 block whitespace-normal">
 									{{ t()['overdueAmountLabel'] || '[overdueAmountLabel]' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
@@ -111,7 +111,6 @@
 						</p>
 					}
 				</div>
-
 				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (MUTED ON CELLPHONES) -->
 				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950 table-fixed">
@@ -159,21 +158,17 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION CONTROLS (RESTORED VIA INSTANT PAYLOAD CHECK) -->
+				<!-- 📑 PAGINATION CONTROLS (RESTORED VIA ATOMIC CONTRACTS) -->
 				<div class="flex items-center justify-between pt-4 text-xs font-mono w-full box-border">
-					<span class="text-slate-500 hidden sm:inline">
+					<span class="text-slate-500 hidden sm:inline truncate">
 						{{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
 					</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2 shrink-0">
-						<!-- Safe backward trigger hooked to limits directly -->
-						<button (click)="onPrevPage.emit()" 
-								[disabled]="limit() === 0" 
-								[class.opacity-50]="tenants().length === 0" 
+						<button (click)="onPrevPage.emit(); prevPage.emit()" 
 								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
 							◀ {{ t()['btnBack'] || '[btnBack]' }}
 						</button>
-						<!-- Safe forward trigger checking payload metrics -->
-						<button (click)="onNextPage.emit()" 
+						<button (click)="onNextPage.emit(); nextPage.emit()" 
 								[disabled]="tenants().length < limit()" 
 								[class.opacity-50]="tenants().length < limit()" 
 								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
@@ -181,7 +176,6 @@
 						</button>
 					</div>
 				</div>
-
 			</div>
 
 		</div>
