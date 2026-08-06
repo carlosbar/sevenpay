@@ -47,7 +47,9 @@ export class SevenPayService {
 		const currentToken = this.token();
 		return new HttpHeaders({
 			'Content-Type': 'application/json',
-			'Authorization': currentToken ? `Bearer ${currentToken}` : ''
+			'Authorization': currentToken ? `Bearer ${currentToken}` : '',
+			// 🟢 INTERCEPT VECTOR: Injects dynamic language selection into an immutable HTTP header
+			'X-Language': this.language()
 		});
 	}
 
