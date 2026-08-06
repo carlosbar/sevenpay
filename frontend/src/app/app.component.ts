@@ -63,30 +63,38 @@ export class AppComponent implements OnInit, OnDestroy {
 	]);
 
 	constructor(public svc: SevenPayService) {}
-
 	public ngOnInit(): void {
+		console.log('[SevenPay-Core] Entering ngOnInit lifecycle stage.');
+		
 		/* 🛡️ SECURITY DEBOUNCE BAR: Only handles request pipeline if the user is physically authenticated */
 		this.searchSubscription = this.searchSubject.pipe(
 			debounceTime(2000), 
 			distinctUntilChanged()
 		).subscribe(query => {
-			// 🧠 SHIELD: Strictly block background network requests if session signal is dead
+			console.log(`[SevenPay-Core] Search Subject triggered. Query term: "${query}"`);
 			if (this.svc.isAuthenticated() && localStorage.getItem('sp_token')) {
+				console.log('[SevenPay-Core] Debouncer verified active session. Dispatching lookup.');
 				this.currentSearchQuery.set(query);
-				this.tenantsOffset.set(0); /* Reset pagination index upon changing terms */
+				this.tenantsOffset.set(0);
 				this.loadFintechControlTowerData();
+			} else {
+				console.warn('[SevenPay-Core] Debouncer blocked: Operator is currently unauthenticated.');
 			}
 		});
 
 		/* ─── HANDSHAKE INITIALIZATION PROTECTED AGAINST CONCURRENT PIPELINES ─── */
 		const localToken = localStorage.getItem('sp_token');
+		const serviceAuth = this.svc.isAuthenticated();
+		console.log(`[SevenPay-Core] Token Matrix Inspection - Local Storage Token: ${localToken ? 'PRESENT' : 'ABSENT'}, Service Signal Authenticated: ${serviceAuth}`);
 		
-		if (localToken && this.svc.isAuthenticated()) {
+		if (localToken && serviceAuth) {
+			console.log('[SevenPay-Core] Security handshake cleared. Evaluating workspace layout routing.');
 			this.evaluateWorkspaceQueryRouting();
 		} else {
-			// Clean memory cleanly without triggering recursive loop pipelines
+			console.warn('[SevenPay-Core] Incomplete handshake credentials detected. Wiping local memory targets.');
 			localStorage.removeItem('sp_token');
 			if (this.svc.isAuthenticated()) {
+				console.log('[SevenPay-Core] Service signal was stateful. Resetting via logout activation.');
 				this.svc.logout();
 			}
 		}
@@ -94,6 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	/* ─── DESTRUCTION SHIELD: Clean up subscription to prevent memory leaks ─── */
 	public ngOnDestroy(): void {
+		console.log('[SevenPay-Core] Executing ngOnDestroy component termination pipeline.');
 		if (this.searchSubscription) {
 			this.searchSubscription.unsubscribe();
 		}
@@ -113,6 +122,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	}
 
 	public switchSegment(target: MenuSegment): void {
+		console.log(`[SevenPay-Core] Navigation command intercepted. Target segment: ${target}`);
 		this.currentMenuSegment.set(target);
 		this.isSidebarOpen.set(false);
 		this.syncSegmentContextData(target);
@@ -132,6 +142,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	public evaluateWorkspaceQueryRouting(): void {
 		const scope = this.svc.currentScope();
+		console.log(`[SevenPay-Core] Operational routing initialized. Current security scope: ${scope}`);
+		
 		if (scope === 'MASTER') {
 			this.loadFintechControlTowerData();
 			this.switchSegment('DASHBOARD');
@@ -147,23 +159,36 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	/* ─── INTEGRATED LOOKUP BLINDED AGAINST ANONYMOUS REQUESTS ─── */
 	public loadFintechControlTowerData(): void {
-		// 🛡️ DOUBLE-BARREL SHIELD: Strict check to guarantee zero background spam to core engine endpoints
-		if (!this.svc.isAuthenticated() || !localStorage.getItem('sp_token')) {
+		const localToken = localStorage.getItem('sp_token');
+		const serviceAuth = this.svc.isAuthenticated();
+		
+		console.log(`[SevenPay-Core] loadFintechControlTowerData called. Token check: ${localToken ? 'VALID' : 'NULL'}, Auth check: ${serviceAuth}`);
+
+		if (!serviceAuth || !localToken) {
+			console.error('[SevenPay-Core] Network Block: Prevented anonymous API query pipeline deployment.');
 			return;
 		}
 
+		console.log('[SevenPay-Core] Dispatching asynchronous HTTP calls to core endpoints.');
+		
 		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
-			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			next: (res) => { 
+				console.log('[SevenPay-Core] getTenants endpoint answered successfully.', res);
+				if (res.result === 'success') this.tenants.set(res.data?.tenants || []); 
+			},
+			error: (err) => { this.handleHttpAuthErrors(err, 'getTenants'); }
 		});
 		
 		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			next: (res) => { 
+				console.log('[SevenPay-Core] getGlobalMetrics endpoint answered successfully.', res);
+				if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); 
+			},
+			error: (err) => { this.handleHttpAuthErrors(err, 'getGlobalMetrics'); }
 		});
 	}
 
-  /* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
+	/* ─── CURSOR NAVIGATION TRIGGERS PROTECTED AGAINST OVERFLOWS ─── */
 	public nextTenantsPage(): void {
 		if (this.tenants().length < this.tenantsLimit()) return;
 		this.tenantsOffset.update(current => current + this.tenantsLimit());
@@ -180,7 +205,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		if (this.selectedTenantId()) {
 			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
 				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
-				error: (err) => { this.handleHttpAuthErrors(err); }
+				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
 			});
 		}
 	}
@@ -190,7 +215,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		if (tenantId) {
 			this.svc.getEndUsers(50, 0, tenantId).subscribe({
 				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
-				error: (err) => { this.handleHttpAuthErrors(err); }
+				error: (err) => { this.handleHttpAuthErrors(err, 'loadActiveWorkspaceUsers'); }
 			});
 		}
 	}
@@ -198,14 +223,14 @@ export class AppComponent implements OnInit, OnDestroy {
 	public loadLedgerStatementHistory(tenantId: string, endUserId: string): void {
 		this.svc.getHistory(tenantId, endUserId).subscribe({
 			next: (res) => { if (res.result === 'success') this.transactions.set(res.data?.transactions || []); },
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			error: (err) => { this.handleHttpAuthErrors(err, 'loadLedgerStatementHistory'); }
 		});
 	}
 
 	public loadTenantSettlementBatches(tenantId: string): void {
 		this.svc.getSettlementBatches(tenantId).subscribe({
 			next: (res) => { if (res.result === 'success') this.settlementBatches.set(res.data?.batches || []); },
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			error: (err) => { this.handleHttpAuthErrors(err, 'loadTenantSettlementBatches'); }
 		});
 	}
 
@@ -217,7 +242,7 @@ export class AppComponent implements OnInit, OnDestroy {
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
 			},
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			error: (err) => { this.handleHttpAuthErrors(err, 'loadConsumerSelfProfile'); }
 		});
 	}
 
@@ -230,45 +255,60 @@ export class AppComponent implements OnInit, OnDestroy {
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
 			},
-			error: (err) => { this.handleHttpAuthErrors(err); }
+			error: (err) => { this.handleHttpAuthErrors(err, 'loadInspectionLayer'); }
 		});
 	}
 
 	/* ─── INTEGRATED AND OPERATIONAL PIPELINE EVENT HANDLERS ─── */
 	public handleLogin(event: Event): void {
 		event.preventDefault();
-		if (!this.credentials.email || !this.credentials.password) return;
+		console.log('[SevenPay-Core] handleLogin button submit triggered.');
+		console.log(`[SevenPay-Core] Form payload check - Email: "${this.credentials.email}", Password Length: ${this.credentials.password?.length || 0}`);
+		
+		if (!this.credentials.email || !this.credentials.password) {
+			console.error('[SevenPay-Core] Submit blocked: Missing email or password targets.');
+			return;
+		}
 
+		console.log('[SevenPay-Core] Dispatching authentication payload to service login pipeline.');
 		this.svc.login(this.credentials).subscribe({
 			next: (res: any) => {
+				console.log('[SevenPay-Core] Authentication request answered by core network.', res);
 				if (res && (res.result === 'success' || res.token)) {
 					const token = res.token || res.data?.token;
+					console.log(`[SevenPay-Core] Extracted handshake token: ${token ? 'VALID_STRING' : 'MISSING'}`);
+					
 					if (token) {
 						localStorage.setItem('sp_token', token);
-						
-						// 🛡️ TS2339 RECTIFICATION HOOK: Safe typecasting to check dynamic token injection methods
 						const serviceProxy = this.svc as any;
 						if (typeof serviceProxy.setToken === 'function') {
+							console.log('[SevenPay-Core] Dynamic setToken detected inside service. Injecting.');
 							serviceProxy.setToken(token);
 						}
 					}
+					
+					console.log('[SevenPay-Core] Login cleared. Re-evaluating workspace routing nodes.');
 					this.evaluateWorkspaceQueryRouting();
 					this.credentials = { email: '', password: '' };
 				} else {
+					console.error('[SevenPay-Core] Login rejected: Server responded with non-success layout matrix.');
 					alert('Authentication failed. Please verify credentials.');
 				}
 			},
 			error: (err) => {
-				console.error('Core Engine login response pipeline exception:', err);
+				console.error('[SevenPay-Core] Critical network exception captured during login sequence:', err);
 				alert('Network error or invalid operator credentials.');
 			}
 		});
 	}
 
-	/* 🛡️ STRICT COCKPIT HTTP INTERCEPTOR MATRIX */
-	private handleHttpAuthErrors(err: any): void {
+	/* 🛡️ STRICT COCKPIT HTTP INTERCEPTOR MATRIX WITH TRACE LOOKUPS */
+	private handleHttpAuthErrors(err: any, originEndpoint: string): void {
+		console.error(`[SevenPay-Core] HTTP Exception intercepted from target endpoint: "${originEndpoint}"`);
+		console.error(`[SevenPay-Core] Status: ${err.status}, Message: ${err.message}`);
+		
 		if (err.status === 401) {
-			console.warn('Session rejected by Core Engine network. Wiping localized tokens...');
+			console.warn(`[SevenPay-Core] 401 Unauthorized captured from "${originEndpoint}". Wiping localized token structures to secure gateway.`);
 			localStorage.removeItem('sp_token');
 			this.svc.logout();
 		}
