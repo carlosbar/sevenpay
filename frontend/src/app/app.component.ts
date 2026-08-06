@@ -190,7 +190,6 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
 		this.loadFintechControlTowerData();
 	}
-
 	public selectTenant(tenantId: string): void {
 		console.log(`[SevenPay-Core] selectTenant triggered for ID: ${tenantId}`);
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
@@ -202,16 +201,14 @@ export class AppComponent implements OnInit, OnDestroy {
 				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
 			});
 
-			/* 2. 🧠 COMPLETE MEMORY OVERWRITE: Re-instantiate the object reference to update the UI fields instantly */
+			/* 2. 🧠 COMPLETE MEMORY OVERWRITE: Re-instantiate the object reference with full signature compliance */
 			const matchedPartner = this.tenants().find(t => t.id === tenantId);
 			if (matchedPartner) {
 				console.log('[SevenPay-Core] Partner match found. Re-instantiating tenantForm fields.', matchedPartner);
 				
-				// Calculate clean decimal value from raw cents
 				const rawCents = matchedPartner.globalCreditLimitCents ? Number(matchedPartner.globalCreditLimitCents) : 0;
 				const decimalValue = rawCents / 100;
 
-				// Generate the localized currency string mask with thousands separators and decimal comma
 				const formattedMask = decimalValue.toLocaleString('pt-BR', {
 					style: 'currency',
 					currency: 'BRL'
@@ -221,8 +218,8 @@ export class AppComponent implements OnInit, OnDestroy {
 					cnpj: matchedPartner.cnpj || '',
 					name: matchedPartner.name || '',
 					businessType: matchedPartner.businessType || 'HR',
-					globalCreditLimit: decimalValue, // Clean number for backend consumption (e.g. 12000)
-					globalCreditLimitMasked: formattedMask // Clean mask string for input box rendering (e.g. R$ 12.000,00)
+					globalCreditLimit: decimalValue,
+					globalCreditLimitMasked: formattedMask /* 🟢 SINCERELY BOUND FIELD SIGNATURE */
 				};
 
 				/* Propagate nested rules arrays dynamically into tiered signals grid layout */
@@ -239,7 +236,7 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: '', 
 				businessType: 'HR', 
 				globalCreditLimit: 0, 
-				globalCreditLimitMasked: '' 
+				globalCreditLimitMasked: '' /* 🟢 SINCERELY BOUND FIELD SIGNATURE */
 			};
 			this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 		}
@@ -268,7 +265,6 @@ export class AppComponent implements OnInit, OnDestroy {
 			error: (err) => { this.handleHttpAuthErrors(err, 'loadTenantSettlementBatches'); }
 		});
 	}
-
 	public loadConsumerSelfProfile(consumerId: string): void {
 		this.svc.inspectEndUser(consumerId, this.svc.userContext()?.tenantId || '').subscribe({
 			next: (res) => {
@@ -333,7 +329,6 @@ export class AppComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		// 🛡️ ACCURATE ACCOUNTING CONVERSIONS: Float to 64-bit integer cents matching backend naming rules
 		const readyToDeployPayload = {
 			cnpj: this.tenantForm.cnpj,
 			name: this.tenantForm.name,
@@ -348,7 +343,15 @@ export class AppComponent implements OnInit, OnDestroy {
 					alert('B2B Corporate Partner successfully deployed to Core Network.');
 					this.loadFintechControlTowerData();
 					this.switchSegment('DASHBOARD');
-					this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0 };
+					
+					/* 🛡️ TS2741 RECTIFICATION MATRIX: Injected the mandatory key layout on clean stage */
+					this.tenantForm = { 
+						cnpj: '', 
+						name: '', 
+						businessType: 'HR', 
+						globalCreditLimit: 0, 
+						globalCreditLimitMasked: '' /* 🟢 FIXED SIGNATURE MATCH */
+					};
 					this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 				} else {
 					alert(`Deployment rejected: ${res.reason || 'Database verification fault.'}`);
