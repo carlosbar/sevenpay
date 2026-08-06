@@ -115,15 +115,12 @@
 						[(tenantForm)]="tenantForm"
 						[(settlementForm)]="settlementForm"
 						[settlementBatches]="settlementBatches()"
+						[activePricingMatrix]="activePricingMatrix()"
 						(onSelectTenant)="selectTenant($event)"
 						(onCreateTenant)="handleCreateTenant($event)"
 						(onClearCompetence)="handleClearCompetence($event)"
-						
-						/* ─── DOUBLE-BARREL OUTPUT BINDINGS FOR PAGINATION SAFETY ─── */
 						(onNextPage)="nextTenantsPage()"
 						(onPrevPage)="prevTenantsPage()"
-						(nextPage)="nextTenantsPage()"
-						(prevPage)="prevTenantsPage()"
 						(onFuzzySearch)="handleFuzzySearchTrigger($event)">
 					</app-master-dashboard>
 
