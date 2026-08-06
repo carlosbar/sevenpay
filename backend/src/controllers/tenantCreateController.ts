@@ -141,19 +141,18 @@ class TenantCreateController {
 				VALUES ($1, $2, $3, $4);
 			`;
 
-			// Enforces typing safety over the custom pricing rows array inputs
 			for (const tier of (pricingMatrix as PricingTierInput[])) {
 				const { installmentsCount, feePercentage, maxAdvancePercentage } = tier;
 
-				const isZeroOrNegativeMonths = Math.sign(installmentsCount) === 0 || Math.sign(installmentsCount) === -1;
-				const isNegativeFee = Math.sign(feePercentage) === -1;
-				const isNegativeMargin = Math.sign(maxAdvancePercentage) === -1;
+				// 🛡️ RECALIBRATED MATRIX VALIDATION: Allows 0 for fees or margins, blocks strictly negative targets
+				const isZeroOrNegativeMonths = Number(installmentsCount) <= 0;
+				const isNegativeFee = Number(feePercentage) < 0;
+				const isNegativeMargin = Number(maxAdvancePercentage) < 0;
 
 				if (isZeroOrNegativeMonths || isNegativeFee || isNegativeMargin) {
 					throw { statusCode: 422, errorToken: 'TENANT_MATRIX_VALUES_INVALID' };
 				}
 
-				// String parsing prevents decimal point anomalies over NUMERIC database fields
 				await client.query(insertMatrixQuery, [
 					newTenant.id, 
 					installmentsCount, 
