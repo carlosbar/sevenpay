@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
 class TenantInspectController {
