@@ -13,26 +13,26 @@
 				<nav class="sidebar-navigation-links space-y-1">
 					@if (svc.currentScope() === 'MASTER') {
 						<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
-							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || 'Dashboard' }}
+							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || '[menuDashboard]' }}
 						</button>
 						<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'">
-							<span class="menu-icon-wrapper">🏢</span> Portfólios B2B
+							<span class="menu-icon-wrapper">🏢</span> {{ svc.t()['menuPartners'] || '[menuPartners]' }}
 						</button>
 						<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'">
-							<span class="menu-icon-wrapper">🧾</span> Liquidação
+							<span class="menu-icon-wrapper">🧾</span> {{ svc.t()['menuSettlement'] || '[menuSettlement]' }}
 						</button>
 					}
 					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
 						<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'">
-							<span class="menu-icon-wrapper">👥</span> Consumidores
+							<span class="menu-icon-wrapper">👥</span> {{ svc.t()['menuConsumers'] || '[menuConsumers]' }}
 						</button>
 						<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'">
-							<span class="menu-icon-wrapper">🔄</span> Sincronização
+							<span class="menu-icon-wrapper">🔄</span> {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}
 						</button>
 					}
 					<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'">
-						<span class="menu-icon-wrapper">📜</span> Extrato
-					</button>
+						<span class="menu-icon-wrapper">📜</span> {{ svc.t()['menuStatement'] || '[menuStatement]' }}
+						</button>
 				</nav>
 			</div>
 
@@ -42,12 +42,11 @@
 					SCOPE: {{ svc.currentScope() }}
 				</div>
 				<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg">
-					Sair
+					{{ svc.t()['logout'] || '[logout]' }}
 				</button>
 			</div>
 		</aside>
 	}
-
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER AREA -->
 	<div class="cockpit-area flex-1 flex flex-col min-w-0">
 		<!-- GLOBAL TOP HEADER BAR -->
@@ -58,12 +57,12 @@
 					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative z-50">☰</button>
 				}
 				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block font-bold relative z-10">
-					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || 'Dashboard' }} }
-					@if (currentMenuSegment() === 'PARTNERS') { Portfólios B2B }
-					@if (currentMenuSegment() === 'SETTLEMENT') { Liquidação }
-					@if (currentMenuSegment() === 'CONSUMERS') { Consumidores }
-					@if (currentMenuSegment() === 'BATCH_SYNC') { Sincronização }
-					@if (currentMenuSegment() === 'STATEMENT') { Extrato }
+					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || '[menuDashboard]' }} }
+					@if (currentMenuSegment() === 'PARTNERS') { {{ svc.t()['menuPartners'] || '[menuPartners]' }} }
+					@if (currentMenuSegment() === 'SETTLEMENT') { {{ svc.t()['menuSettlement'] || '[menuSettlement]' }} }
+					@if (currentMenuSegment() === 'CONSUMERS') { {{ svc.t()['menuConsumers'] || '[menuConsumers]' }} }
+					@if (currentMenuSegment() === 'BATCH_SYNC') { {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }} }
+					@if (currentMenuSegment() === 'STATEMENT') { {{ svc.t()['menuStatement'] || '[menuStatement]' }} }
 				</span>
 			</div>
 			
@@ -85,18 +84,19 @@
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
 					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
-						<h1 class="text-xl font-black text-slate-100 mb-1">Acesso do Operador</h1>
+						<h1 class="text-xl font-black text-slate-100 mb-1">{{ svc.t()['operatorAccess'] || '[operatorAccess]' }}</h1>
+						<p class="text-slate-400 text-xs mb-4 font-mono">{{ svc.t()['gatewayDesc'] || '[gatewayDesc]' }}</p>
 						<form (submit)="handleLogin($event)" class="space-y-4">
 							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">E-mail</label>
-								<input type="email" name="email" [(ngModel)]="credentials.email" required>
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['email'] || '[email]' }}</label>
+								<input type="email" name="email" [(ngModel)]="credentials.email" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 							</div>
 							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">Senha</label>
-								<input type="password" name="password" [(ngModel)]="credentials.password" required>
+								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['password'] || '[password]' }}</label>
+								<input type="password" name="password" [(ngModel)]="credentials.password" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 							</div>
-							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
-								Autenticar
+							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg transition">
+								{{ svc.t()['requestToken'] || '[requestToken]' }}
 							</button>
 						</form>
 					</div>
