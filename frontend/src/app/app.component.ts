@@ -190,6 +190,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
 		this.loadFintechControlTowerData();
 	}
+
 	public selectTenant(tenantId: string): void {
 		console.log(`[SevenPay-Core] selectTenant triggered for ID: ${tenantId}`);
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
@@ -201,7 +202,7 @@ export class AppComponent implements OnInit, OnDestroy {
 				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
 			});
 
-			/* 2. 🧠 COMPLETE MEMORY OVERWRITE: Re-instantiate the object reference with full signature compliance */
+			/* 2. 🧠 FIXED OBJECT REFERENCE & MATRIX MAP: Remap backend fields safely to force immediate UI rendering */
 			const matchedPartner = this.tenants().find(t => t.id === tenantId);
 			if (matchedPartner) {
 				console.log('[SevenPay-Core] Partner match found. Re-instantiating tenantForm fields.', matchedPartner);
@@ -219,14 +220,20 @@ export class AppComponent implements OnInit, OnDestroy {
 					name: matchedPartner.name || '',
 					businessType: matchedPartner.businessType || 'HR',
 					globalCreditLimit: decimalValue,
-					globalCreditLimitMasked: formattedMask /* 🟢 SINCERELY BOUND FIELD SIGNATURE */
+					globalCreditLimitMasked: formattedMask
 				};
 
-				/* Propagate nested rules arrays dynamically into tiered signals grid layout */
-				if (matchedPartner.feeMatrix && matchedPartner.feeMatrix.length > 0) {
-					this.activePricingMatrix.set(matchedPartner.feeMatrix);
-				} else if (matchedPartner.pricingMatrix && matchedPartner.pricingMatrix.length > 0) {
-					this.activePricingMatrix.set(matchedPartner.pricingMatrix);
+				/* Extract and explicit remap the pricing arrays back into the active template state */
+				const rawMatrix = matchedPartner.pricingMatrix || matchedPartner.feeMatrix || [];
+				if (rawMatrix.length > 0) {
+					const remappedMatrix: PricingTierInput[] = rawMatrix.map((row: any) => ({
+						installmentsCount: Number(row.installmentsCount || row.installments_count || 1),
+						feePercentage: Number(row.feePercentage || row.fee_percentage || 0),
+						maxAdvancePercentage: Number(row.maxAdvancePercentage || row.max_advance_percentage || 0)
+					}));
+					this.activePricingMatrix.set(remappedMatrix);
+				} else {
+					this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 				}
 			}
 		} else {
@@ -236,7 +243,7 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: '', 
 				businessType: 'HR', 
 				globalCreditLimit: 0, 
-				globalCreditLimitMasked: '' /* 🟢 SINCERELY BOUND FIELD SIGNATURE */
+				globalCreditLimitMasked: '' 
 			};
 			this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 		}
