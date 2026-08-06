@@ -222,7 +222,8 @@ export class AppComponent implements OnInit, OnDestroy {
 		event.preventDefault();
 		if (!this.credentials.email || !this.credentials.password) return;
 
-		this.svc.login(this.credentials.email, this.credentials.password).subscribe({
+		// Envia as credenciais como um único objeto agrupado {}
+		this.svc.login(this.credentials).subscribe({
 			next: (res: any) => {
 				if (res && (res.result === 'success' || res.token)) {
 					const token = res.token || res.data?.token;
