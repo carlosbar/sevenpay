@@ -93,21 +93,29 @@ export class SevenPayService {
 		this.token.set(null);
 		this.userContext.set(null);
 	}
-
+  
 	public getEndUsers(limit = 20, offset = 0, tenantId: string): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/end-users?limit=${limit}&offset=${offset}&tenantId=${tenantId}`);
+		return this.http.get<any>(`${this.BASE_URL}/end-users?limit=${limit}&offset=${offset}&tenantId=${tenantId}`, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public provisionTenant(tenantData: any): Observable<any> {
-		return this.http.post<any>(`${this.BASE_URL}/admin/tenants`, tenantData);
+		return this.http.post<any>(`${this.BASE_URL}/admin/tenants`, tenantData, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public inspectEndUser(endUserId: string, tenantId: string): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}&tenantId=${tenantId}`);
+		return this.http.get<any>(`${this.BASE_URL}/admin/end-users/inspect?endUserId=${endUserId}&tenantId=${tenantId}`, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public createAdvanceRequest(payload: any): Observable<any> {
-		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload);
+		return this.http.post<any>(`${this.BASE_URL}/advances/request`, payload, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public getTenants(limit?: number, offset?: number, search?: string): Observable<any> {
@@ -124,22 +132,32 @@ export class SevenPayService {
 	}
 
 	public getGlobalMetrics(): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/admin/dashboard/metrics`);
+		return this.http.get<any>(`${this.BASE_URL}/admin/dashboard/metrics`, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public getSettlementBatches(tenantId: string): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/tenants/settlements?tenantId=${tenantId}`);
+		return this.http.get<any>(`${this.BASE_URL}/tenants/settlements?tenantId=${tenantId}`, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public clearCompetence(payload: any): Observable<any> {
-		return this.http.post<any>(`${this.BASE_URL}/settlements/clear-competence`, payload);
+		return this.http.post<any>(`${this.BASE_URL}/settlements/clear-competence`, payload, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public getHistory(tenantId: string, endUserId: string): Observable<any> {
-		return this.http.get<any>(`${this.BASE_URL}/statements/history?tenantId=${tenantId}&endUserId=${endUserId}`);
+		return this.http.get<any>(`${this.BASE_URL}/statements/history?tenantId=${tenantId}&endUserId=${endUserId}`, {
+			headers: this.getHeaders()
+		});
 	}
 
 	public tenantSyncUsers(tenantId: string, payload: any): Observable<any> {
-		return this.http.post<any>(`${this.BASE_URL}/tenants/sync-users?tenantId=${tenantId}`, payload);
+		return this.http.post<any>(`${this.BASE_URL}/tenants/sync-users?tenantId=${tenantId}`, payload, {
+			headers: this.getHeaders()
+		});
 	}
 }
