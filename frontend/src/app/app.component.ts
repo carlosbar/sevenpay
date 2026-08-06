@@ -259,11 +259,10 @@ export class AppComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	/* ─── INTEGRATED AND OPERATIONAL PIPELINE EVENT HANDLERS ─── */
+	/* ─── INTEGRATED AND OPERATIONAL PIPELINE EVENT HANDLERS WITH ASYNC BREAKS ─── */
 	public handleLogin(event: Event): void {
 		event.preventDefault();
 		console.log('[SevenPay-Core] handleLogin button submit triggered.');
-		console.log(`[SevenPay-Core] Form payload check - Email: "${this.credentials.email}", Password Length: ${this.credentials.password?.length || 0}`);
 		
 		if (!this.credentials.email || !this.credentials.password) {
 			console.error('[SevenPay-Core] Submit blocked: Missing email or password targets.');
@@ -287,9 +286,15 @@ export class AppComponent implements OnInit, OnDestroy {
 						}
 					}
 					
-					console.log('[SevenPay-Core] Login cleared. Re-evaluating workspace routing nodes.');
-					this.evaluateWorkspaceQueryRouting();
-					this.credentials = { email: '', password: '' };
+					console.log('[SevenPay-Core] Login cleared. Scheduling state propagation delay...');
+					
+					// 🛡️ CRITICAL HANDSHAKE DELAY: Gives interceptors 100ms to register the new bearer token before requests fire
+					setTimeout(() => {
+						console.log('[SevenPay-Core] Delay expired. Evaluating workspace routing nodes with safe active token.');
+						this.evaluateWorkspaceQueryRouting();
+						this.credentials = { email: '', password: '' };
+					}, 100);
+
 				} else {
 					console.error('[SevenPay-Core] Login rejected: Server responded with non-success layout matrix.');
 					alert('Authentication failed. Please verify credentials.');
