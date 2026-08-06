@@ -42,24 +42,23 @@ export function errorHandler(
 	// 2. Determine if the error is handled by a custom controller status rule
 	const isControlledError = err && typeof err.statusCode === 'number' && err.statusCode > 0;
 	
-	// 3. 🧠 SERVER TERMINAL LOG ENGINE: Track original messages securely in infrastructure bounds
+	// 3. SERVER TERMINAL LOG ENGINE: Track original messages securely in infrastructure bounds
 	if (isControlledError) {
 		console.warn(`[SevenPay-App-Warning] Handled application exception [${err.errorToken}]:`, err.message || err.reason || err);
 	} else {
-		// This logs the RAW original string (e.g., ECONNREFUSED 127.0.0.1:5432) strictly inside your secure server terminal
 		console.error('[SevenPay-Infrastructure-Crash] Raw crash message intercepted:', err.message || err);
 		if (err.stack) {
 			console.error('[SevenPay-Infrastructure-Crash] Stack Trace:', err.stack);
 		}
 	}
 
-	// 4. 🛡️ CRITICAL PUBLIC LAYER MASKING
+	// 4. 🛡️ CRITICAL PUBLIC LAYER MASKING LINKED TO I18N ENTRIES
 	const statusCode = isControlledError ? err.statusCode : 500;
 	const token = isControlledError ? (err.errorToken || 'INTERNAL_SERVER_ERROR') : 'INTERNAL_SERVER_ERROR';
 	
-	// Dynamic default fallback masking string decoupled from client eyes
-	const safeGenericFallback = 'An unexpected internal ledger or processing error occurred. Please verify database connection.';
-	const reasonMessage = localeDictionary[token] || (isControlledError ? (err.reason || err.message) : safeGenericFallback);
+	// 📐 DYNAMIC INTERCEPTION: Safe generic fallback bound directly to the translated localized dictionary matrix entry
+	const safeGenericFallback = localeDictionary['INTERNAL_SERVER_ERROR'] || 'Erro interno do servidor, solicite suporte.';
+	const reasonMessage = isControlledError ? (localeDictionary[token] || err.reason || err.message) : safeGenericFallback;
 
 	res.status(statusCode).json({
 		result: 'error',
