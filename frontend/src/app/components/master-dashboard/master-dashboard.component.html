@@ -1,7 +1,7 @@
 @if (scope() === 'MASTER') {
 	<!-- ─── SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD ─── -->
 	@if (currentSegment() === 'DASHBOARD') {
-		<div class="w-full flex flex-col gap-6 animate-fadeIn box-border">
+		<div class="w-full flex flex-col gap-6 animate-fadeIn box-border pb-12">
 			
 			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
@@ -112,7 +112,7 @@
 					}
 				</div>
 				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (MUTED ON CELLPHONES) -->
-				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
+				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border mb-4">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950 table-fixed">
 						<thead>
 							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
@@ -158,8 +158,8 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION CONTROLS CLEANED FROM TS2551 CONFLICTS -->
-				<div class="flex items-center justify-between pt-4 text-xs font-mono w-full box-border">
+				<!-- 📑 PAGINATION CONTROLS (ENFORCED HIGHER CONTRAST & PADDING WITH NATIVE EMITTERS) -->
+				<div class="flex items-center justify-between pt-4 pb-2 text-xs font-mono w-full box-border relative z-50 bg-slate-900 border-t border-slate-800/40">
 					<span class="text-slate-500 hidden sm:inline truncate">
 						{{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
 					</span>
@@ -169,8 +169,6 @@
 							◀ {{ t()['btnBack'] || '[btnBack]' }}
 						</button>
 						<button (click)="onNextPage.emit()" 
-								[disabled]="tenants().length < limit()" 
-								[class.opacity-50]="tenants().length < limit()" 
 								class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300 whitespace-nowrap">
 							{{ t()['btnNext'] || '[btnNext]' }} ▶
 						</button>
