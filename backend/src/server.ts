@@ -19,7 +19,7 @@ if(process.env.ALLOW_CORS == "true") {
 		res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 		
 		// Explicitly expose standard authorization headers needed for our JWT Guards
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Language, x-language');
 	
 		// Handle browser preflight checks immediately before routing pipeline evaluates it
 		if (req.method === 'OPTIONS') {
