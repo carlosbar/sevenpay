@@ -13,16 +13,23 @@ export function errorHandler(
 ): void {
 	// 1. Dynamically extract valid language keys configured in the backend i18n matrix file
 	const validLanguages = Object.keys(BACKEND_TRANSLATIONS); // e.g., ['pt-br', 'en']
-	
-	// Enforce 'pt-br' as the primary server default fallback anchor instead of 'en'
-	const fallbackLang = validLanguages.includes('pt-br') ? 'pt-br' : (validLanguages[0] || 'en');
+	const serverFallback = validLanguages.includes('pt-br') ? 'pt-br' : (validLanguages[0] || 'en');
 
-	// 2. Intercept cookie value vector to determine active browser localization preference
-	let clientLang = fallbackLang;
-	if (req.headers.cookie) {
+	// 2. Determine active browser localization preference utilizing a multi-layered extraction fallback strategy
+	let clientLang = serverFallback;
+
+	// A. Check for custom immutable X-Language custom header vector (Ideal for localhost cross-origin ports)
+	const headerLang = req.headers['x-language'] || req.headers['X-Language'];
+	if (headerLang) {
+		const parsedHeaderLang = String(headerLang).toLowerCase();
+		if (validLanguages.includes(parsedHeaderLang)) {
+			clientLang = parsedHeaderLang;
+		}
+	} 
+	// B. Fallback to standard cookie array inspection layers if headers are absent
+	else if (req.headers.cookie) {
 		const match = req.headers.cookie.match(new RegExp('(^| )sp_lang=([^;]+)'));
 		if (match && match[2]) {
-			// 🟢 FIX: Extract position index [2] from the regex match array before applying lowercase
 			const extractedLang = String(match[2]).toLowerCase();
 			if (validLanguages.includes(extractedLang)) {
 				clientLang = extractedLang;
@@ -30,7 +37,7 @@ export function errorHandler(
 		}
 	}
 	
-	const localeDictionary = BACKEND_TRANSLATIONS[clientLang] || BACKEND_TRANSLATIONS[fallbackLang];
+	const localeDictionary = BACKEND_TRANSLATIONS[clientLang] || BACKEND_TRANSLATIONS[serverFallback];
 
 	// 1. PostgreSQL specific unique constraint violation handling mapped to dynamic token metrics
 	if (err && err.code === '23505') {
