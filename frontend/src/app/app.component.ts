@@ -55,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	/* ─── CREDENTIALS & EXPANDED B2B DATA STRUCTURES ─── */
 	public credentials = { email: '', password: '' };
-	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0 };
+	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0, globalCreditLimitMasked: '' };
 	public advanceForm = { requestedAmount: null as number | null, installmentsTotal: 1 };
 	public settlementForm = { tenantId: '', billingCompetence: '' };
 	public syncRawText = signal<string>('');
@@ -190,27 +190,39 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.tenantsOffset.update(current => Math.max(0, current - this.tenantsLimit()));
 		this.loadFintechControlTowerData();
 	}
+
 	public selectTenant(tenantId: string): void {
 		console.log(`[SevenPay-Core] selectTenant triggered for ID: ${tenantId}`);
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
 		
 		if (this.selectedTenantId()) {
-			/* 1. Sync Linked EndUsers data vector */
+			/* 1. Sync Linked EndUsers data vector for the active workspace */
 			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
 				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
 				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
 			});
 
-			/* 2. 🧠 FIXED OBJECT REFERENCE: Overwrite the complete object memory target to force Angular immediate UI rendering */
+			/* 2. 🧠 COMPLETE MEMORY OVERWRITE: Re-instantiate the object reference to update the UI fields instantly */
 			const matchedPartner = this.tenants().find(t => t.id === tenantId);
 			if (matchedPartner) {
-				console.log('[SevenPay-Core] Partner match found. Re-instantiating tenantForm memory reference.', matchedPartner);
+				console.log('[SevenPay-Core] Partner match found. Re-instantiating tenantForm fields.', matchedPartner);
 				
+				// Calculate clean decimal value from raw cents
+				const rawCents = matchedPartner.globalCreditLimitCents ? Number(matchedPartner.globalCreditLimitCents) : 0;
+				const decimalValue = rawCents / 100;
+
+				// Generate the localized currency string mask with thousands separators and decimal comma
+				const formattedMask = decimalValue.toLocaleString('pt-BR', {
+					style: 'currency',
+					currency: 'BRL'
+				});
+
 				this.tenantForm = {
 					cnpj: matchedPartner.cnpj || '',
 					name: matchedPartner.name || '',
 					businessType: matchedPartner.businessType || 'HR',
-					globalCreditLimit: matchedPartner.globalCreditLimitCents ? (Number(matchedPartner.globalCreditLimitCents) / 100) : 0
+					globalCreditLimit: decimalValue, // Clean number for backend consumption (e.g. 12000)
+					globalCreditLimitMasked: formattedMask // Clean mask string for input box rendering (e.g. R$ 12.000,00)
 				};
 
 				/* Propagate nested rules arrays dynamically into tiered signals grid layout */
@@ -221,8 +233,14 @@ export class AppComponent implements OnInit, OnDestroy {
 				}
 			}
 		} else {
-			/* Reset object structures cleanly if row selection is uncoupled */
-			this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0 };
+			/* Reset object structures cleanly back to baseline empty states if row selection is toggled off */
+			this.tenantForm = { 
+				cnpj: '', 
+				name: '', 
+				businessType: 'HR', 
+				globalCreditLimit: 0, 
+				globalCreditLimitMasked: '' 
+			};
 			this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
 		}
 	}
