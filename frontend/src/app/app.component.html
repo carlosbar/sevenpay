@@ -1,68 +1,61 @@
-<div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()" class="w-full min-h-screen flex bg-slate-950 text-slate-100 overflow-x-hidden box-border">
+<div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
 	<!-- 🗂️ SIDEBAR NAVIGATION MODULE (SLIDES CORRECTLY VIA ISSIDEBAROPEN) -->
 	@if (svc.isAuthenticated()) {
-		<aside [class.active]="isSidebarOpen()" class="sidebar-panel shrink-0 z-40 transition-all duration-300">
-			<div class="space-y-6 flex flex-col h-full justify-between p-4">
-				<div class="space-y-6">
-					<div class="flex items-center justify-between pb-4 border-b border-slate-800">
-						<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
-						<!-- Mobile close button cross -->
-						<button (click)="isSidebarOpen.set(false)" class="lg:hidden text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono text-lg">✕</button>
-					</div>
+		<aside [class.active]="isSidebarOpen()" class="sidebar-panel">
+			<div class="space-y-6">
+				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
+					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+					<!-- Mobile close button cross -->
+					<button (click)="isSidebarOpen.set(false)" class="text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
+				</div>
 
-					<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH AUTOMATIC CLOSE HANDSHAKES ─── -->
-					<nav class="sidebar-navigation-links space-y-1">
-						@if (svc.currentScope() === 'MASTER') {
-							<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-								<span class="menu-icon-wrapper shrink-0">📊</span>
-								<span class="truncate">{{ svc.t()['menuDashboard'] || '[menuDashboard]' }}</span>
-							</button>
-							<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-								<span class="menu-icon-wrapper shrink-0">🏢</span>
-								<span class="truncate">{{ svc.t()['menuPartners'] || '[menuPartners]' }}</span>
-							</button>
-							<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-								<span class="menu-icon-wrapper shrink-0">🧾</span>
-								<span class="truncate">{{ svc.t()['menuSettlement'] || '[menuSettlement]' }}</span>
-							</button>
-						}
-						@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-							<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-								<span class="menu-icon-wrapper shrink-0">👥</span>
-								<span class="truncate">{{ svc.t()['menuConsumers'] || '[menuConsumers]' }}</span>
-							</button>
-							<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-								<span class="menu-icon-wrapper shrink-0">🔄</span>
-								<span class="truncate">{{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}</span>
-							</button>
-						}
-						<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'" class="w-full flex items-center gap-2 px-3 py-2.5 text-left whitespace-nowrap text-xs font-bold font-mono tracking-wider">
-							<span class="menu-icon-wrapper shrink-0">📜</span>
-							<span class="truncate">{{ svc.t()['menuStatement'] || '[menuStatement]' }}</span>
+				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH AUTOMATIC CLOSE HANDSHAKES ─── -->
+				<nav class="sidebar-navigation-links space-y-1">
+					@if (svc.currentScope() === 'MASTER') {
+						<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
+							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || '[menuDashboard]' }}
 						</button>
-					</nav>
-				</div>
-
-				<!-- ⚙️ SCOPE MATRIX CONTROL TERMINAL LAYER -->
-				<div class="pt-4 border-t border-slate-800 flex flex-col gap-2 w-full mt-auto">
-					<div class="rounded-lg bg-slate-950 px-2 py-2.5 font-mono text-[10px] text-center border border-slate-800 text-slate-400 font-bold uppercase tracking-wider block w-full box-border">
-						SCOPE: {{ svc.currentScope() }}
-					</div>
-					<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg block box-border">
-						{{ svc.t()['logout'] || '[logout]' }}
+						<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'">
+							<span class="menu-icon-wrapper">🏢</span> {{ svc.t()['menuPartners'] || '[menuPartners]' }}
+						</button>
+						<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'">
+							<span class="menu-icon-wrapper">🧾</span> {{ svc.t()['menuSettlement'] || '[menuSettlement]' }}
+						</button>
+					}
+					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
+						<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'">
+							<span class="menu-icon-wrapper">👥</span> {{ svc.t()['menuConsumers'] || '[menuConsumers]' }}
+						</button>
+						<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'">
+							<span class="menu-icon-wrapper">🔄</span> {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}
+						</button>
+					}
+					<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'">
+						<span class="menu-icon-wrapper">📜</span> {{ svc.t()['menuStatement'] || '[menuStatement]' }}
 					</button>
+				</nav>
+			</div>
+
+			<!-- ⚙️ SCOPE MATRIX CONTROL TERMINAL LAYER -->
+			<div class="pt-4 border-t border-slate-800 flex flex-col gap-2">
+				<div class="rounded-lg bg-slate-950 px-2 py-2.5 font-mono text-[10px] text-center border border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+					SCOPE: {{ svc.currentScope() }}
 				</div>
+				<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg">
+					{{ svc.t()['logout'] || '[logout]' }}
+				</button>
 			</div>
 		</aside>
 	}
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER AREA -->
-	<div class="cockpit-area flex-1 flex flex-col min-w-0 w-full h-screen overflow-y-auto">
+	<div class="cockpit-area flex-1 flex flex-col min-w-0">
 		<!-- GLOBAL TOP HEADER BAR -->
-		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border w-full shrink-0">
+		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border">
 			<div class="flex items-center gap-2.5 min-w-0">
-				<!-- High-contrast mobile menu trigger visible exclusively on screens under 1024px -->
-				<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="lg:hidden text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative z-50">☰</button>
-				
+				<!-- High-contrast mobile menu trigger synced directly with CSS breakpoints -->
+				@if (svc.isAuthenticated()) {
+					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative z-50 block lg:hidden">☰</button>
+				}
 				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block font-bold relative z-10">
 					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || '[menuDashboard]' }} }
 					@if (currentMenuSegment() === 'PARTNERS') { {{ svc.t()['menuPartners'] || '[menuPartners]' }} }
@@ -85,24 +78,24 @@
 		</header>
 
 		<!-- CONTENT MAIN AREA INJECTIONS -->
-		<div class="w-full flex-1 flex flex-col box-border min-w-0 overflow-x-hidden overflow-y-auto bg-slate-950/20">
+		<div class="w-full flex-1 flex flex-col box-border min-w-0">
 			<!-- ─── RE-ALIGNED LAYER: FORCES ABSOLUTE BILATERAL SYMMETRY FOR ALL ELEMENT BLOCKS ─── -->
-			<main class="fluid-main-viewport max-w-5xl w-full mx-auto space-y-6 p-3 sm:p-6 md:p-8 box-border min-w-0">
+			<main class="fluid-main-viewport max-w-5xl mx-auto space-y-6">
 				<!-- AUTENTICAÇÃO GATEWAY -->
 				@if (!svc.isAuthenticated()) {
-					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl w-full box-border">
+					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
 						<h1 class="text-xl font-black text-slate-100 mb-1">{{ svc.t()['operatorAccess'] || '[operatorAccess]' }}</h1>
 						<p class="text-slate-400 text-xs mb-4 font-mono">{{ svc.t()['gatewayDesc'] || '[gatewayDesc]' }}</p>
-						<form (submit)="handleLogin($event)" class="space-y-4 w-full box-border">
-							<div class="flex flex-col gap-1 w-full">
+						<form (submit)="handleLogin($event)" class="space-y-4">
+							<div class="flex flex-col gap-1">
 								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['email'] || '[email]' }}</label>
-								<input type="email" name="email" [(ngModel)]="credentials.email" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none box-border">
+								<input type="email" name="email" [(ngModel)]="credentials.email" required>
 							</div>
-							<div class="flex flex-col gap-1 w-full">
+							<div class="flex flex-col gap-1">
 								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['password'] || '[password]' }}</label>
-								<input type="password" name="password" [(ngModel)]="credentials.password" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none box-border">
+								<input type="password" name="password" [(ngModel)]="credentials.password" required>
 							</div>
-							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg transition">
+							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
 								{{ svc.t()['requestToken'] || '[requestToken]' }}
 							</button>
 						</form>
