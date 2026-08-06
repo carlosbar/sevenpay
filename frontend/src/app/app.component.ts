@@ -313,13 +313,6 @@ export class AppComponent implements OnInit, OnDestroy {
 		console.error(`[SevenPay-Core] Status: ${err.status}, Message: ${err.message}`);
 		
 		if (err.status === 401) {
-			// 🧠 BYPASS SHIELD: If the error comes from metrics, don't kick the user out. 
-			// This isolates the backend permission bug and lets the dashboard load.
-			if (originEndpoint === 'getGlobalMetrics') {
-				console.warn('[SevenPay-Core] 401 isolated for getGlobalMetrics. Bypassing forced logout to allow dashboard rendering.');
-				return;
-			}
-
 			console.warn(`[SevenPay-Core] 401 Unauthorized captured from "${originEndpoint}". Wiping localized token structures to secure gateway.`);
 			localStorage.removeItem('sp_token');
 			this.svc.logout();
