@@ -203,7 +203,8 @@
 						</div>
 						<div class="flex flex-col gap-1">
 							<label class="text-xs font-bold text-slate-400">{{ t()['globalLimit'] || '[globalLimit]' }}</label>
-							<input type="number" name="globalCreditLimit" [(ngModel)]="tenantForm().globalCreditLimit" required step="0.01">
+							<!-- 📐 MASKED TEXT CONVERSION: Intercepts raw digits to display clean bilateral Brazilian thousands dots and decimal comma mask -->
+							<input type="text" name="globalCreditLimit" [ngModel]="tenantForm().globalCreditLimitMasked" (input)="formatInlineCurrency($event)" required placeholder="R$ 0,00">
 						</div>
 					</div>
 
@@ -243,7 +244,7 @@
 					</button>
 				</form>
 			</div>
-			<!-- 🏢 B2B CORPORATE DIRECTORY SYSTEM: REPLICATED DATA GRID WITH DECIMAL FORMATTING -->
+			<!-- 🏢 B2B CORPORATE DIRECTORY SYSTEM: REPLICATED DATA GRID WITH DECIMALS -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
 					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
@@ -290,7 +291,7 @@
 					}
 				</div>
 
-				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID -->
+				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID WITH ROW CLICKS LINKED TO EDIT PIPELINE -->
 				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border mb-4">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950 table-fixed">
 						<thead>
