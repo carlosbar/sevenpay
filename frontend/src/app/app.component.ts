@@ -53,8 +53,9 @@ export class AppComponent implements OnInit, OnDestroy {
 		return this.endUsers().filter(user => user.tenantId === tenantId);
 	});
 
+	/* ─── CREDENTIALS & EXPANDED B2B DATA STRUCTURES ─── */
 	public credentials = { email: '', password: '' };
-	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimitCents: 0 };
+	public tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0 };
 	public advanceForm = { requestedAmount: null as number | null, installmentsTotal: 1 };
 	public settlementForm = { tenantId: '', billingCompetence: '' };
 	public syncRawText = signal<string>('');
@@ -162,28 +163,17 @@ export class AppComponent implements OnInit, OnDestroy {
 		const localToken = localStorage.getItem('sp_token');
 		const serviceAuth = this.svc.isAuthenticated();
 		
-		console.log(`[SevenPay-Core] loadFintechControlTowerData called. Token check: ${localToken ? 'VALID' : 'NULL'}, Auth check: ${serviceAuth}`);
-
 		if (!serviceAuth || !localToken) {
-			console.error('[SevenPay-Core] Network Block: Prevented anonymous API query pipeline deployment.');
 			return;
 		}
 
-		console.log('[SevenPay-Core] Dispatching asynchronous HTTP calls to core endpoints.');
-		
 		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
-			next: (res) => { 
-				console.log('[SevenPay-Core] getTenants endpoint answered successfully.', res);
-				if (res.result === 'success') this.tenants.set(res.data?.tenants || []); 
-			},
+			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
 			error: (err) => { this.handleHttpAuthErrors(err, 'getTenants'); }
 		});
 		
 		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { 
-				console.log('[SevenPay-Core] getGlobalMetrics endpoint answered successfully.', res);
-				if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); 
-			},
+			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
 			error: (err) => { this.handleHttpAuthErrors(err, 'getGlobalMetrics'); }
 		});
 	}
@@ -259,79 +249,82 @@ export class AppComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	/* ─── INTEGRATED AND OPERATIONAL PIPELINE EVENT HANDLERS WITH ASYNC BREAKS ─── */
 	public handleLogin(event: Event): void {
 		event.preventDefault();
-		console.log('[SevenPay-Core] handleLogin button submit triggered.');
-		
-		if (!this.credentials.email || !this.credentials.password) {
-			console.error('[SevenPay-Core] Submit blocked: Missing email or password targets.');
-			return;
-		}
+		if (!this.credentials.email || !this.credentials.password) return;
 
-		console.log('[SevenPay-Core] Dispatching authentication payload to service login pipeline.');
 		this.svc.login(this.credentials).subscribe({
 			next: (res: any) => {
-				console.log('[SevenPay-Core] Authentication request answered by core network.', res);
 				if (res && (res.result === 'success' || res.token)) {
 					const token = res.token || res.data?.token;
-					console.log(`[SevenPay-Core] Extracted handshake token: ${token ? 'VALID_STRING' : 'MISSING'}`);
-					
 					if (token) {
 						localStorage.setItem('sp_token', token);
 						const serviceProxy = this.svc as any;
 						if (typeof serviceProxy.setToken === 'function') {
-							console.log('[SevenPay-Core] Dynamic setToken detected inside service. Injecting.');
 							serviceProxy.setToken(token);
 						}
 					}
-					
-					console.log('[SevenPay-Core] Login cleared. Scheduling state propagation delay...');
-					
-					/* 🛡️ CRITICAL HANDSHAKE DELAY: Gives interceptors 100ms to register the new bearer token before requests fire */
 					setTimeout(() => {
-						console.log('[SevenPay-Core] Delay expired. Evaluating workspace routing nodes with safe active token.');
 						this.evaluateWorkspaceQueryRouting();
 						this.credentials = { email: '', password: '' };
 					}, 100);
-
 				} else {
-					console.error('[SevenPay-Core] Login rejected: Server responded with non-success layout matrix.');
 					alert('Authentication failed. Please verify credentials.');
 				}
 			},
 			error: (err) => {
-				console.error('[SevenPay-Core] Critical network exception captured during login sequence:', err);
 				alert('Network error or invalid operator credentials.');
 			}
 		});
 	}
 
-	/* 🛡️ STRICT COCKPIT HTTP INTERCEPTOR MATRIX WITH TRACE LOOKUPS */
+	/* ─── ATOMIC INGESTION HANDLER MATRICES: B2B EXPANDED PARTNER PROVISIONING ─── */
+	public handleCreateTenant(event: Event): void {
+		if (event) event.preventDefault();
+		console.log('[SevenPay-Core] handleCreateTenant intercepted.');
+
+		if (!this.tenantForm.cnpj || !this.tenantForm.name || !this.tenantForm.globalCreditLimit) {
+			alert('Please fulfill all mandatory corporate partner attributes.');
+			return;
+		}
+
+		// 🛡️ ACCURATE ACCOUNTING CONVERSIONS: Float to 64-bit integer cents
+		const readyToDeployPayload = {
+			cnpj: this.tenantForm.cnpj,
+			name: this.tenantForm.name,
+			businessType: this.tenantForm.businessType,
+			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimit * 100),
+			feeMatrix: this.activePricingMatrix()
+		};
+
+		this.svc.provisionTenant(readyToDeployPayload).subscribe({
+			next: (res) => {
+				if (res.result === 'success') {
+					alert('B2B Corporate Partner successfully deployed to Core Network.');
+					this.loadFintechControlTowerData();
+					this.switchSegment('DASHBOARD');
+					this.tenantForm = { cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0 };
+					this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
+				} else {
+					alert(`Deployment rejected: ${res.reason || 'Database verification fault.'}`);
+				}
+			},
+			error: (err) => {
+				this.handleHttpAuthErrors(err, 'provisionTenant');
+				alert('Network error encountered while deploying partner vector.');
+			}
+		});
+	}
+
 	private handleHttpAuthErrors(err: any, originEndpoint: string): void {
-		console.error(`[SevenPay-Core] HTTP Exception intercepted from target endpoint: "${originEndpoint}"`);
-		console.error(`[SevenPay-Core] Status: ${err.status}, Message: ${err.message}`);
-		
+		console.error(`[SevenPay-Core] HTTP Exception from: "${originEndpoint}". Status: ${err.status}`);
 		if (err.status === 401) {
-			console.warn(`[SevenPay-Core] 401 Unauthorized captured from "${originEndpoint}". Wiping localized token structures to secure gateway.`);
 			localStorage.removeItem('sp_token');
 			this.svc.logout();
 		}
 	}
 
-	public handleCreateTenant(event: any): void { 
-		event.preventDefault(); 
-	}
-
-	public handleClearCompetence(event: any): void { 
-		event.preventDefault(); 
-	}
-
-	public handleBulkSync(event: any): void { 
-		event.preventDefault(); 
-	}
-
-	public handleRequestAdvance(event: any): void { 
-		event.preventDefault(); 
-	}
+	public handleClearCompetence(event: any): void { event.preventDefault(); }
+	public handleBulkSync(event: any): void { event.preventDefault(); }
+	public handleRequestAdvance(event: any): void { event.preventDefault(); }
 }
