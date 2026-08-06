@@ -5,7 +5,9 @@
 			
 			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS (CONVERTED VIA FORMATCENTS) -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
-				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">Fintech Global Liquidity Ledger</h2>
+				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">
+					{{ t()['globalLiquidityLedger'] || 'Fintech Global Liquidity Ledger' }}
+				</h2>
 				
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border">
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
@@ -38,8 +40,12 @@
 			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PORTFOLIO GRID -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
-					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Monitoramento de Carteiras B2B</h3>
-					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">Active Partner Scans</span>
+					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
+						{{ t()['b2bPortfolioMonitoring'] || 'Monitoramento de Carteiras B2B' }}
+					</h3>
+					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+						{{ t()['activePartnerScans'] || 'Active Partner Scans' }}
+					</span>
 				</div>
 
 				<!-- 🔍 FUZZY LEVENSHTEIN FILTER TERMINAL INTERFACE -->
@@ -48,7 +54,7 @@
 						type="text" 
 						[value]="searchTerm()" 
 						(input)="onSearchChange($event)"
-						placeholder="🔍 Nome do parceiro... (Ex: Carta/Certa)" 
+						[placeholder]="t()['searchPartnerPlaceholder'] || '🔍 Nome do parceiro... (Ex: Carta/Certa)'" 
 						style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
 				</div>
@@ -62,7 +68,9 @@
 								<span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[75%]">{{ partner.name }}</span>
 								<div class="shrink-0 flex items-center">
 									@if (partner.hasOverdueInstallments) {
-										<span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">🚨 Atraso</span>
+										<span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">
+											🚨 {{ t()['statusOverdue'] || 'Atraso' }}
+										</span>
 									} @else {
 										<!-- 📱 MOBILE ADAPTER: Writes a compact OK text map layout strictly for smartphones -->
 										<span class="rounded bg-emerald-950 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">✓ OK</span>
@@ -78,13 +86,17 @@
 							<!-- FIXED HORIZONTAL GRID METRICS: Utilizes the entire clear space side-by-side -->
 							<div class="grid grid-cols-2 gap-2 text-left">
 								<div class="flex flex-col gap-0.5">
-									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Resgates (Mês)</span>
+									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+										{{ t()['disbursementsMonth'] || 'Resgates (Mês)' }}
+									</span>
 									<span class="text-slate-200 font-bold font-mono text-[11px]">
 										{{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</span>
 								</div>
 								<div class="flex flex-col gap-0.5 border-l border-slate-900 pl-2">
-									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">Disponível</span>
+									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
+										{{ t()['availableMargin'] || 'Disponível' }}
+									</span>
 									<span class="text-emerald-400 font-bold font-mono text-[11px]">
 										{{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</span>
@@ -94,23 +106,25 @@
 							<!-- Inadimplência Details overlay block if active -->
 							@if (partner.hasOverdueInstallments) {
 								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center mt-1">
-									Montante em Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+									{{ t()['overdueAmountLabel'] || 'Montante em Atraso' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 								</div>
 							}
 						</div>
 					} @empty {
-						<p class="text-xs text-slate-500 text-center italic py-4">Nenhum parceiro portando carteiras.</p>
+						<p class="text-xs text-slate-500 text-center italic py-4">
+							{{ t()['emptyTenantsList'] || 'Nenhum parceiro portando carteiras.' }}
+						</p>
 					}
 				</div>
-				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN NATIVELY ON CELLPHONES VIA CLASS) -->
+	<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN NATIVELY ON CELLPHONES VIA CLASS) -->
 				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
 						<thead>
 							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
-								<th class="p-3">Parceiro / CNPJ</th>
-								<th class="p-3 text-right">Resgates (Mês)</th>
-								<th class="p-3 text-right">Margem Disponível</th>
-								<th class="p-3 text-center">Status / Atrasos</th>
+								<th class="p-3">{{ t()['tableHeaderPartner'] || 'Parceiro / CNPJ' }}</th>
+								<th class="p-3 text-right">{{ t()['tableHeaderDisbursements'] || 'Resgates (Mês)' }}</th>
+								<th class="p-3 text-right">{{ t()['tableHeaderAvailableMargin'] || 'Margem Disponível' }}</th>
+								<th class="p-3 text-center">{{ t()['tableHeaderStatus'] || 'Status / Atrasos' }}</th>
 							</tr>
 						</thead>
 						<tbody class="divide-y divide-slate-800/60">
@@ -129,19 +143,21 @@
 									<td class="p-3 text-center">
 										@if (partner.hasOverdueInstallments) {
 											<span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-[10px] font-bold text-red-400 uppercase tracking-wider">
-												🚨 Atraso: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+												🚨 {{ t()['statusOverdueLabel'] || 'Atraso' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 											</span>
 										} @else {
 											<!-- 💻 DESKTOP ADAPTER: Retains the original structural padding format for large screens -->
 											<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
-												✓ Regular
+												✓ {{ t()['statusRegular'] || 'Regular' }}
 											</span>
 										}
 									</td>
 								</tr>
 							} @empty {
 								<tr>
-									<td colspan="4" class="p-6 text-center text-slate-500 italic">Nenhum parceiro portando portfólios no momento.</td>
+									<td colspan="4" class="p-6 text-center text-slate-500 italic">
+										{{ t()['emptyTenantsList'] || 'Nenhum parceiro portando portfólios no momento.' }}
+									</td>
 								</tr>
 							}
 						</tbody>
@@ -150,13 +166,15 @@
 
 				<!-- 📑 PAGINATION NAVIGATION CONTROLS MATRIX -->
 				<div class="flex items-center justify-between pt-2 text-xs font-mono w-full box-border">
-					<span class="text-slate-500 hidden sm:inline">Exibindo registros de parceiros ativos</span>
+					<span class="text-slate-500 hidden sm:inline">
+						{{ t()['viewingActivePartners'] || 'Exibindo registros de parceiros ativos' }}
+					</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2">
 						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							◀ {{ t()['menuDashboard'] === 'Dashboard' || t()['menuDashboard'] === '📊 Dashboard' ? 'Voltar' : 'Back' }}
+							◀ {{ t()['btnBack'] || 'Voltar' }}
 						</button>
 						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							{{ t()['menuDashboard'] === 'Dashboard' || t()['menuDashboard'] === '📊 Dashboard' ? 'Avançar' : 'Next' }} ▶
+							{{ t()['btnNext'] || 'Avançar' }} ▶
 						</button>
 					</div>
 				</div>
@@ -172,13 +190,13 @@
 				<form (submit)="onCreateTenant.emit($event)" class="space-y-4">
 					<div class="flex flex-col gap-1">
 						<label class="text-xs font-bold text-slate-400">{{ t()['cnpj'] }}</label>
-						<input type="text" name="cnpj" [(ngModel)]="tenantForm().cnpj" (ngModelChange)="updateTenantPayload()" required class="w-full">
+						<input type="text" name="cnpj" [(ngModel)]="tenantForm().cnpj" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 					</div>
 					<div class="flex flex-col gap-1">
 						<label class="text-xs font-bold text-slate-400">{{ t()['companyName'] }}</label>
-						<input type="text" name="name" [(ngModel)]="tenantForm().name" (ngModelChange)="updateTenantPayload()" required class="w-full">
+						<input type="text" name="name" [(ngModel)]="tenantForm().name" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 					</div>
-					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none">
+					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg transition">
 						{{ t()['deployTenant'] }}
 					</button>
 				</form>
