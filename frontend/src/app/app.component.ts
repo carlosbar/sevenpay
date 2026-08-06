@@ -74,17 +74,13 @@ export class AppComponent implements OnInit, OnDestroy {
 			this.loadFintechControlTowerData();
 		});
 
-		/* ─── HANDSHAKE DE INICIALIZAÇÃO CORRIGIDO CONTRA LOOPS ─── */
+		/* ─── HANDSHAKE DE INICIALIZAÇÃO BLINDADO CONTRA CONCORRÊNCIA DE REQUISIÇÃO ─── */
 		const localToken = localStorage.getItem('sp_token');
-		if (localToken) {
-			setTimeout(() => {
-				if (this.svc.isAuthenticated()) {
-					this.evaluateWorkspaceQueryRouting();
-				} else {
-					this.svc.logout();
-				}
-			}, 50);
+		
+		if (localToken && this.svc.isAuthenticated()) {
+			this.evaluateWorkspaceQueryRouting();
 		} else {
+			localStorage.removeItem('sp_token');
 			this.svc.logout();
 		}
 	}
@@ -142,32 +138,17 @@ export class AppComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	/* ─── UPDATED LOOKUP: CONSUMING LIMIT AND OFFSET SIGNALS WITH SECURITY INTERCEPT ─── */
+	/* ─── LOOKUP INTEGRADO PROTEGIDO CONTRA ERROS 401 EM CASCATA ─── */
 	public loadFintechControlTowerData(): void {
-		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
-			next: (res) => { 
-				if (res.result === 'success') this.tenants.set(res.data?.tenants || []); 
-			},
-			error: (err) => {
-				// 🛡️ CAPTURA AUTOMÁTICA DE EXPIRAÇÃO DE SESSÃO (ERRO 401)
-				if (err.status === 401) {
-					console.warn('Sessão expirada ou token inválido. Redirecionando...');
-					localStorage.removeItem('sp_token'); // Limpa o lixo da memória
-					this.svc.logout(); // Força o sinal isAuthenticated() a virar falso (volta pro login)
-				}
-			}
-		});
+		if (!localStorage.getItem('sp_token')) return;
 
+		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
+			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); },
+			error: (err) => { this.handleHttpAuthErrors(err); }
+		});
 		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { 
-				if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); 
-			},
-			error: (err) => {
-				if (err.status === 401) {
-					localStorage.removeItem('sp_token');
-					this.svc.logout();
-				}
-			}
+			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
+			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
@@ -187,7 +168,8 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
 		if (this.selectedTenantId()) {
 			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
-				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
+				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
+				error: (err) => { this.handleHttpAuthErrors(err); }
 			});
 		}
 	}
@@ -196,20 +178,23 @@ export class AppComponent implements OnInit, OnDestroy {
 		const tenantId = this.svc.userContext()?.tenantId;
 		if (tenantId) {
 			this.svc.getEndUsers(50, 0, tenantId).subscribe({
-				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); }
+				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
+				error: (err) => { this.handleHttpAuthErrors(err); }
 			});
 		}
 	}
 
 	public loadLedgerStatementHistory(tenantId: string, endUserId: string): void {
 		this.svc.getHistory(tenantId, endUserId).subscribe({
-			next: (res) => { if (res.result === 'success') this.transactions.set(res.data?.transactions || []); }
+			next: (res) => { if (res.result === 'success') this.transactions.set(res.data?.transactions || []); },
+			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
 	public loadTenantSettlementBatches(tenantId: string): void {
 		this.svc.getSettlementBatches(tenantId).subscribe({
-			next: (res) => { if (res.result === 'success') this.settlementBatches.set(res.data?.batches || []); }
+			next: (res) => { if (res.result === 'success') this.settlementBatches.set(res.data?.batches || []); },
+			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
@@ -220,7 +205,8 @@ export class AppComponent implements OnInit, OnDestroy {
 					this.activeProfile.set(res.data.profile);
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
-			}
+			},
+			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
@@ -232,7 +218,8 @@ export class AppComponent implements OnInit, OnDestroy {
 					this.activeProfile.set(res.data.profile);
 					this.installments.set(res.data.amortizationInstallments || []);
 				}
-			}
+			},
+			error: (err) => { this.handleHttpAuthErrors(err); }
 		});
 	}
 
@@ -241,12 +228,16 @@ export class AppComponent implements OnInit, OnDestroy {
 		event.preventDefault();
 		if (!this.credentials.email || !this.credentials.password) return;
 
-		// Envia as credenciais como um único objeto agrupado {}
 		this.svc.login(this.credentials).subscribe({
 			next: (res: any) => {
 				if (res && (res.result === 'success' || res.token)) {
 					const token = res.token || res.data?.token;
-					if (token) localStorage.setItem('sp_token', token);
+					if (token) {
+						localStorage.setItem('sp_token', token);
+						if (typeof this.svc.setToken === 'function') {
+							this.svc.setToken(token);
+						}
+					}
 					this.evaluateWorkspaceQueryRouting();
 					this.credentials = { email: '', password: '' };
 				} else {
@@ -255,9 +246,18 @@ export class AppComponent implements OnInit, OnDestroy {
 			},
 			error: (err) => {
 				console.error('Erro de autenticação no Core Engine:', err);
-				alert('Erro ao conectar com o servidor.');
+				alert('Erro ao conectar com o servidor. Credenciais inválidas.');
 			}
 		});
+	}
+
+	/* 🛡️ INTERCEPTOR ESTRITO DE REJEIÇÃO COCKPIT */
+	private handleHttpAuthErrors(err: any): void {
+		if (err.status === 401) {
+			console.warn('Sessão rejeitada pelo Core Engine. Redirecionando...');
+			localStorage.removeItem('sp_token');
+			this.svc.logout();
+		}
 	}
 
 	public handleCreateTenant(event: any): void { 
