@@ -142,13 +142,32 @@ export class AppComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	/* ─── UPDATED LOOKUP: CONSUMING LIMIT AND OFFSET SIGNALS FOR PAGINATION ─── */
+	/* ─── UPDATED LOOKUP: CONSUMING LIMIT AND OFFSET SIGNALS WITH SECURITY INTERCEPT ─── */
 	public loadFintechControlTowerData(): void {
 		this.svc.getTenants(this.tenantsLimit(), this.tenantsOffset(), this.currentSearchQuery()).subscribe({
-			next: (res) => { if (res.result === 'success') this.tenants.set(res.data?.tenants || []); }
+			next: (res) => { 
+				if (res.result === 'success') this.tenants.set(res.data?.tenants || []); 
+			},
+			error: (err) => {
+				// 🛡️ CAPTURA AUTOMÁTICA DE EXPIRAÇÃO DE SESSÃO (ERRO 401)
+				if (err.status === 401) {
+					console.warn('Sessão expirada ou token inválido. Redirecionando...');
+					localStorage.removeItem('sp_token'); // Limpa o lixo da memória
+					this.svc.logout(); // Força o sinal isAuthenticated() a virar falso (volta pro login)
+				}
+			}
 		});
+
 		this.svc.getGlobalMetrics().subscribe({
-			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); }
+			next: (res) => { 
+				if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); 
+			},
+			error: (err) => {
+				if (err.status === 401) {
+					localStorage.removeItem('sp_token');
+					this.svc.logout();
+				}
+			}
 		});
 	}
 
