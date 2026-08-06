@@ -51,4 +51,28 @@ export class MasterDashboardComponent {
 	public updateSettlementPayload(): void {
 		this.settlementFormChange.emit(this.settlementForm());
 	}
+
+	// 🛡️ REACTIVE INLINE CURRENCY MASK PIPELINE
+	public formatInlineCurrency(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		// 1. Extract purely numeric digits from the input field string
+		let value = input.value.replace(/\D/g, '');
+		
+		// 2. Prevent NaN errors by fallback assignment
+		if (!value) value = '0';
+		
+		// 3. Translate raw digits layout into localized decimal float values
+		const numericValue = parseFloat(value) / 100;
+		
+		// 4. Update the visual template mask with clean dots and commas
+		const formatted = numericValue.toLocaleString('pt-BR', {
+			style: 'currency',
+			currency: 'BRL'
+		});
+		
+		// 5. Update BOTH visual value and data-model states simultaneously
+		this.tenantForm().globalCreditLimitMasked = formatted;
+		this.tenantForm().globalCreditLimit = numericValue; // Safe decimal value sent directly to the core API
+	}
+  
 }
