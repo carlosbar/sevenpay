@@ -1,18 +1,24 @@
-// src/controllers/tenantCreateController.ts
 import { Response, NextFunction } from 'express';
 import { db } from '../config/db';
 import { PoolClient } from 'pg';
-import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
+import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
 
-// Schema validation mapping to enforce input integrity before database write
+// Strict interface contract ensuring safe data compilation inside execution loops
+export interface PricingTierInput {
+	installmentsCount: number;
+	feePercentage: number;
+	maxAdvancePercentage: number;
+}
+
+// Flexible metadata validation schema allowing standard administrative path requests
 const tenantCreateSchema: ValidationSchema = {
 	cnpj: { type: 'string', required: true },
 	name: { type: 'string', required: true },
-	businessType: { type: 'string', required: true }, // Must match custom ENUM: 'HR' or 'REAL_ESTATE'
+	businessType: { type: 'string', required: true },
 	globalCreditLimitCents: { type: 'number', required: true },
-	pricingMatrix: { type: 'array', required: true } // Enforces multi-tiered payment rules array
+	pricingMatrix: { type: 'array', required: true }
 };
 
 class TenantCreateController {
@@ -21,8 +27,8 @@ class TenantCreateController {
 	 * @openapi
 	 * /api/v1/admin/tenants:
 	 *   post:
-	 *     summary: Atomic Upsert (Onboard or Update) a B2B client company (Tenant) with multiple installment fee matrices
-	 *     description: Provisions a new corporate tenant inside the core infrastructure or updates an existing one on CNPJ conflict, expanding its multi-tiered payment schedule rules using atomic transactions. Restricted to system administrators.
+	 *     summary: Atomic Upsert a B2B client company (Tenant) with multiple installment fee matrices
+	 *     description: Provisions a new corporate tenant inside the core infrastructure or updates an existing one using atomic transactions.
 	 *     tags:
 	 *       - Admin Dashboard
 	 *     security:
@@ -43,7 +49,6 @@ class TenantCreateController {
 	 *               cnpj:
 	 *                 type: string
 	 *                 example: "12345678000199"
-	 *                 description: Clean CNPJ string with exactly 14 numeric characters
 	 *               name:
 	 *                 type: string
 	 *                 example: "Imobiliaria Alpha LTDA"
@@ -55,7 +60,6 @@ class TenantCreateController {
 	 *                 type: integer
 	 *                 format: int64
 	 *                 example: 50000000
-	 *                 description: Maximum funding limit assigned to the portfolio in raw cents
 	 *               pricingMatrix:
 	 *                 type: array
 	 *                 items:
@@ -63,18 +67,10 @@ class TenantCreateController {
 	 *                   properties:
 	 *                     installmentsCount:
 	 *                       type: integer
-	 *                       example: 1
 	 *                     feePercentage:
 	 *                       type: number
-	 *                       example: 3.50
 	 *                     maxAdvancePercentage:
 	 *                       type: number
-	 *                       example: 30.00
-	 *     responses:
-	 *       200:
-	 *         description: Tenant corporate record and pricing matrix upserted successfully
-	 *       422:
-	 *         description: Validation failed due to corrupt parameters or unsupported business type
 	 */
 	public async createTenant(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
 		const { cnpj, name, businessType, globalCreditLimitCents, pricingMatrix } = req.body;
@@ -87,7 +83,7 @@ class TenantCreateController {
 			}
 
 			// 1. Validate clean formatting parameters for the CNPJ identifier string
-			const cleanCnpj = cnpj.replace(/\D/g, '');
+			const cleanCnpj = String(cnpj).replace(/\D/g, '');
 			if (cleanCnpj.length !== 14) {
 				throw { statusCode: 422, errorToken: 'TENANT_CNPJ_INVALID_FORMAT' };
 			}
@@ -103,7 +99,6 @@ class TenantCreateController {
 
 			const isPutRequest = req.method === 'PUT';
 			let newTenant: { id: string };
-
 			if (isPutRequest) {
 				// 1A. Execution pipeline for PUT (UPDATE) operations
 				// Updates basic corporate metadata and drops old fee rows to maintain 3FN consistency
@@ -146,7 +141,8 @@ class TenantCreateController {
 				VALUES ($1, $2, $3, $4);
 			`;
 
-			for (const tier of pricingMatrix) {
+			// Enforces typing safety over the custom pricing rows array inputs
+			for (const tier of (pricingMatrix as PricingTierInput[])) {
 				const { installmentsCount, feePercentage, maxAdvancePercentage } = tier;
 
 				const isZeroOrNegativeMonths = Math.sign(installmentsCount) === 0 || Math.sign(installmentsCount) === -1;
@@ -157,7 +153,13 @@ class TenantCreateController {
 					throw { statusCode: 422, errorToken: 'TENANT_MATRIX_VALUES_INVALID' };
 				}
 
-				await client.query(insertMatrixQuery, [newTenant.id, installmentsCount, feePercentage, maxAdvancePercentage]);
+				// String parsing prevents decimal point anomalies over NUMERIC database fields
+				await client.query(insertMatrixQuery, [
+					newTenant.id, 
+					installmentsCount, 
+					String(feePercentage), 
+					String(maxAdvancePercentage)
+				]);
 			}
 
 			await client.query('COMMIT');
