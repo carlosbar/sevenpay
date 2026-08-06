@@ -6,30 +6,30 @@
 			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS (CONVERTED VIA FORMATCENTS) -->
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
 				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">
-					{{ t()['globalLiquidityLedger'] || 'Fintech Global Liquidity Ledger' }}
+					{{ t()['globalLiquidityLedger'] || '[globalLiquidityLedger]' }}
 				</h2>
 				
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border">
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
-						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] }}</span>
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['totalDisbursed'] || '[totalDisbursed]' }}</span>
 						<span class="text-lg font-black text-slate-200 font-mono truncate">
 							{{ (metrics().totalVolumeAdvancedCents !== undefined) ? (metrics().totalVolumeAdvancedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
-						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] }}</span>
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['feesCollected'] || '[feesCollected]' }}</span>
 						<span class="text-lg font-black text-emerald-400 font-mono truncate">
 							{{ (metrics().totalFeesCollectedCents !== undefined) ? (metrics().totalFeesCollectedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
-						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] }}</span>
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['receivablesFuture'] || '[receivablesFuture]' }}</span>
 						<span class="text-lg font-black text-amber-500 font-mono truncate">
 							{{ (metrics().totalReceivablesCents !== undefined) ? (metrics().totalReceivablesCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 						</span>
 					</div>
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
-						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] }}</span>
+						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ t()['overdueDefault'] || '[overdueDefault]' }}</span>
 						<span class="text-lg font-black text-red-400 font-mono truncate">
 							{{ (metrics().totalOverdueCents !== undefined) ? (metrics().totalOverdueCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 						</span>
@@ -41,10 +41,10 @@
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
 					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
-						{{ t()['b2bPortfolioMonitoring'] || 'Monitoramento de Carteiras B2B' }}
+						{{ t()['b2bPortfolioMonitoring'] || '[b2bPortfolioMonitoring]' }}
 					</h3>
 					<span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
-						{{ t()['activePartnerScans'] || 'Active Partner Scans' }}
+						{{ t()['activePartnerScans'] || '[activePartnerScans]' }}
 					</span>
 				</div>
 
@@ -54,40 +54,36 @@
 						type="text" 
 						[value]="searchTerm()" 
 						(input)="onSearchChange($event)"
-						[placeholder]="t()['searchPartnerPlaceholder'] || '🔍 Nome do parceiro... (Ex: Carta/Certa)'" 
+						[placeholder]="t()['searchPartnerPlaceholder'] || '[searchPartnerPlaceholder]'" 
 						style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner">
 				</div>
 
-				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES UTILIZING THE ENTIRE VISUAL AREA -->
+				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES -->
 				<div class="block sm:hidden space-y-3 w-full box-border">
 					@for (partner of tenants(); track partner.id) {
 						<div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2">
-							<!-- Top Row: Corporate Name and Status Badge Aligned -->
 							<div class="flex justify-between items-center gap-2 border-b border-slate-800 pb-1.5">
 								<span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[75%]">{{ partner.name }}</span>
 								<div class="shrink-0 flex items-center">
 									@if (partner.hasOverdueInstallments) {
 										<span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">
-											🚨 {{ t()['statusOverdue'] || 'Atraso' }}
+											🚨 {{ t()['statusOverdue'] || '[statusOverdue]' }}
 										</span>
 									} @else {
-										<!-- 📱 MOBILE ADAPTER: Writes a compact OK text map layout strictly for smartphones -->
 										<span class="rounded bg-emerald-950 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">✓ OK</span>
 									}
 								</div>
 							</div>
 							
-							<!-- Isolated Middle Subtitle: CNPJ Line -->
 							<div class="text-[10px] text-slate-500 font-sans border-b border-slate-900/60 pb-1.5">
 								<span class="text-slate-400 font-bold">CNPJ:</span> {{ partner.cnpj }}
 							</div>
 
-							<!-- FIXED HORIZONTAL GRID METRICS: Utilizes the entire clear space side-by-side -->
 							<div class="grid grid-cols-2 gap-2 text-left">
 								<div class="flex flex-col gap-0.5">
 									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
-										{{ t()['disbursementsMonth'] || 'Resgates (Mês)' }}
+										{{ t()['disbursementsMonth'] || '[disbursementsMonth]' }}
 									</span>
 									<span class="text-slate-200 font-bold font-mono text-[11px]">
 										{{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
@@ -95,36 +91,35 @@
 								</div>
 								<div class="flex flex-col gap-0.5 border-l border-slate-900 pl-2">
 									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider">
-										{{ t()['availableMargin'] || 'Disponível' }}
+										{{ t()['availableMargin'] || '[availableMargin]' }}
 									</span>
 									<span class="text-emerald-400 font-bold font-mono text-[11px]">
 										{{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 									</span>
 								</div>
 							</div>
-							
-							<!-- Inadimplência Details overlay block if active -->
 							@if (partner.hasOverdueInstallments) {
 								<div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center mt-1">
-									{{ t()['overdueAmountLabel'] || 'Montante em Atraso' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+									{{ t()['overdueAmountLabel'] || '[overdueAmountLabel]' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 								</div>
 							}
 						</div>
 					} @empty {
 						<p class="text-xs text-slate-500 text-center italic py-4">
-							{{ t()['emptyTenantsList'] || 'Nenhum parceiro portando carteiras.' }}
+							{{ t()['emptyTenantsList'] || '[emptyTenantsList]' }}
 						</p>
 					}
 				</div>
-	<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID (HIDDEN NATIVELY ON CELLPHONES VIA CLASS) -->
+
+				<!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID -->
 				<div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border">
 					<table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950">
 						<thead>
 							<tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
-								<th class="p-3">{{ t()['tableHeaderPartner'] || 'Parceiro / CNPJ' }}</th>
-								<th class="p-3 text-right">{{ t()['tableHeaderDisbursements'] || 'Resgates (Mês)' }}</th>
-								<th class="p-3 text-right">{{ t()['tableHeaderAvailableMargin'] || 'Margem Disponível' }}</th>
-								<th class="p-3 text-center">{{ t()['tableHeaderStatus'] || 'Status / Atrasos' }}</th>
+								<th class="p-3">{{ t()['tableHeaderPartner'] || '[tableHeaderPartner]' }}</th>
+								<th class="p-3 text-right">{{ t()['tableHeaderDisbursements'] || '[tableHeaderDisbursements]' }}</th>
+								<th class="p-3 text-right">{{ t()['tableHeaderAvailableMargin'] || '[tableHeaderAvailableMargin]' }}</th>
+								<th class="p-3 text-center">{{ t()['tableHeaderStatus'] || '[tableHeaderStatus]' }}</th>
 							</tr>
 						</thead>
 						<tbody class="divide-y divide-slate-800/60">
@@ -143,12 +138,11 @@
 									<td class="p-3 text-center">
 										@if (partner.hasOverdueInstallments) {
 											<span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-[10px] font-bold text-red-400 uppercase tracking-wider">
-												🚨 {{ t()['statusOverdueLabel'] || 'Atraso' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+												🚨 {{ t()['statusOverdueLabel'] || '[statusOverdueLabel]' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
 											</span>
 										} @else {
-											<!-- 💻 DESKTOP ADAPTER: Retains the original structural padding format for large screens -->
 											<span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
-												✓ {{ t()['statusRegular'] || 'Regular' }}
+												✓ {{ t()['statusRegular'] || '[statusRegular]' }}
 											</span>
 										}
 									</td>
@@ -156,7 +150,7 @@
 							} @empty {
 								<tr>
 									<td colspan="4" class="p-6 text-center text-slate-500 italic">
-										{{ t()['emptyTenantsList'] || 'Nenhum parceiro portando portfólios no momento.' }}
+										{{ t()['emptyTenantsList'] || '[emptyTenantsList]' }}
 									</td>
 								</tr>
 							}
@@ -164,17 +158,17 @@
 					</table>
 				</div>
 
-				<!-- 📑 PAGINATION NAVIGATION CONTROLS MATRIX -->
+				<!-- 📑 PAGINATION CONTROLS -->
 				<div class="flex items-center justify-between pt-2 text-xs font-mono w-full box-border">
 					<span class="text-slate-500 hidden sm:inline">
-						{{ t()['viewingActivePartners'] || 'Exibindo registros de parceiros ativos' }}
+						{{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
 					</span>
 					<div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2">
 						<button (click)="onPrevPage.emit()" [disabled]="offset() === 0" [class.opacity-50]="offset() === 0" [class.cursor-not-allowed]="offset() === 0" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							◀ {{ t()['btnBack'] || 'Voltar' }}
+							◀ {{ t()['btnBack'] || '[btnBack]' }}
 						</button>
 						<button (click)="onNextPage.emit()" [disabled]="tenants().length < limit()" [class.opacity-50]="tenants().length < limit()" [class.cursor-not-allowed]="tenants().length < limit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-950 font-bold hover:bg-slate-800 transition cursor-pointer text-slate-300">
-							{{ t()['btnNext'] || 'Avançar' }} ▶
+							{{ t()['btnNext'] || '[btnNext]' }} ▶
 						</button>
 					</div>
 				</div>
@@ -186,18 +180,20 @@
 	@if (currentSegment() === 'PARTNERS') {
 		<div class="space-y-6 animate-fadeIn w-full box-border">
 			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl">
-				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">{{ t()['provisionTenant'] }}</h2>
+				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider">
+					{{ t()['provisionTenant'] || '[provisionTenant]' }}
+				</h2>
 				<form (submit)="onCreateTenant.emit($event)" class="space-y-4">
 					<div class="flex flex-col gap-1">
-						<label class="text-xs font-bold text-slate-400">{{ t()['cnpj'] }}</label>
+						<label class="text-xs font-bold text-slate-400">{{ t()['cnpj'] || '[cnpj]' }}</label>
 						<input type="text" name="cnpj" [(ngModel)]="tenantForm().cnpj" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 					</div>
 					<div class="flex flex-col gap-1">
-						<label class="text-xs font-bold text-slate-400">{{ t()['companyName'] }}</label>
+						<label class="text-xs font-bold text-slate-400">{{ t()['companyName'] || '[companyName]' }}</label>
 						<input type="text" name="name" [(ngModel)]="tenantForm().name" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
 					</div>
 					<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-xs font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg transition">
-						{{ t()['deployTenant'] }}
+						{{ t()['deployTenant'] || '[deployTenant]' }}
 					</button>
 				</form>
 			</div>
