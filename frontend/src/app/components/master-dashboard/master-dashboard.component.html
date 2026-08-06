@@ -1,15 +1,15 @@
 @if (scope() === 'MASTER') {
 	<!-- ─── SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD ─── -->
 	@if (currentSegment() === 'DASHBOARD') {
-		<div class="space-y-6 animate-fadeIn box-border w-full min-w-0">
+		<div class="space-y-6 animate-fadeIn box-border w-full min-w-0 max-w-full overflow-hidden">
 			
 			<!-- 📊 MOBILE-FIRST LIQUIDITY CARDS -->
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border min-w-0 overflow-hidden">
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border min-w-0 max-w-full overflow-hidden">
 				<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2 truncate">
 					{{ t()['globalLiquidityLedger'] || '[globalLiquidityLedger]' }}
 				</h2>
 				
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border min-w-0">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border min-w-0 max-w-full">
 					<div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner min-w-0 overflow-hidden">
 						<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block text-ellipsis overflow-hidden whitespace-normal break-words">{{ t()['totalDisbursed'] || '[totalDisbursed]' }}</span>
 						<span class="text-lg font-black text-slate-200 font-mono truncate block">
@@ -38,7 +38,7 @@
 			</div>
 
 			<!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PORTFOLIO GRID -->
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border min-w-0 overflow-hidden">
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border min-w-0 max-w-full overflow-hidden">
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2 min-w-0">
 					<h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider truncate">
 						{{ t()['b2bPortfolioMonitoring'] || '[b2bPortfolioMonitoring]' }}
@@ -49,7 +49,7 @@
 				</div>
 
 				<!-- 🔍 FUZZY LEVENSHTEIN FILTER TERMINAL INTERFACE -->
-				<div class="w-full flex box-border relative min-w-0">
+				<div class="w-full flex box-border relative min-w-0 max-w-full">
 					<input 
 						type="text" 
 						[value]="searchTerm()" 
@@ -59,10 +59,10 @@
 						class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner block w-full min-w-0">
 				</div>
 
-				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES (PROTECTED FROM HORIZONTAL OVERFLOW) -->
-				<div class="block sm:hidden space-y-3 w-full box-border min-w-0 overflow-hidden">
+				<!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES PROTECTED FROM HORIZONTAL OVERFLOW -->
+				<div class="block sm:hidden space-y-3 w-full box-border min-w-0 max-w-full overflow-hidden px-1">
 					@for (partner of tenants(); track partner.id) {
-						<div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2 w-full box-border min-w-0 overflow-hidden">
+						<div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2 w-full box-border min-w-0 max-w-full overflow-hidden mx-auto">
 							<div class="flex justify-between items-center gap-2 border-b border-slate-800 pb-1.5 min-w-0">
 								<span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[70%] shrink">{{ partner.name }}</span>
 								<div class="shrink-0 flex items-center">
@@ -80,10 +80,10 @@
 								<span class="text-slate-400 font-bold">CNPJ:</span> {{ partner.cnpj }}
 							</div>
 
-							<!-- FIXED HORIZONTAL GRID METRICS: Enforced safe text wrap and absolute dimension boundaries -->
-							<div class="grid grid-cols-2 gap-2 text-left w-full box-border min-w-0">
+							<!-- FIXED HORIZONTAL GRID METRICS: Enforced absolute dimension boundaries and padding alignment -->
+							<div class="grid grid-cols-2 gap-2 text-left w-full box-border min-w-0 max-w-full">
 								<div class="flex flex-col gap-0.5 min-w-0 overflow-hidden">
-									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider block text-ellipsis overflow-hidden whitespace-normal break-words">
+									<span class="text-slate-500 font-bold uppercase text-[8px] tracking-wider block text-ellipsis overflow-hidden whitespace-normal break-words">
 										{{ t()['disbursementsMonth'] || '[disbursementsMonth]' }}
 									</span>
 									<span class="text-slate-200 font-bold font-mono text-[11px] block truncate">
@@ -91,7 +91,7 @@
 									</span>
 								</div>
 								<div class="flex flex-col gap-0.5 border-l border-slate-900 pl-2 min-w-0 overflow-hidden">
-									<span class="text-slate-500 font-bold uppercase text-[9px] tracking-wider block text-ellipsis overflow-hidden whitespace-normal break-words">
+									<span class="text-slate-500 font-bold uppercase text-[8px] tracking-wider block text-ellipsis overflow-hidden whitespace-normal break-words">
 										{{ t()['availableMargin'] || '[availableMargin]' }}
 									</span>
 									<span class="text-emerald-400 font-bold font-mono text-[11px] block truncate">
@@ -179,17 +179,17 @@
 	}
 
 	@if (currentSegment() === 'PARTNERS') {
-		<div class="space-y-6 animate-fadeIn w-full box-border min-w-0">
-			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl min-w-0 overflow-hidden">
+		<div class="space-y-6 animate-fadeIn w-full box-border min-w-0 max-w-full overflow-hidden">
+			<div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl min-w-0 overflow-hidden max-w-full">
 				<h2 class="text-sm font-black text-emerald-400 mb-4 uppercase tracking-wider truncate">
 					{{ t()['provisionTenant'] || '[provisionTenant]' }}
 				</h2>
-				<form (submit)="onCreateTenant.emit($event)" class="space-y-4 w-full box-border min-w-0">
-					<div class="flex flex-col gap-1 min-w-0">
+				<form (submit)="onCreateTenant.emit($event)" class="space-y-4 w-full box-border min-w-0 max-w-full">
+					<div class="flex flex-col gap-1 min-w-0 balance-mobile-inputs">
 						<label class="text-xs font-bold text-slate-400 truncate">{{ t()['cnpj'] || '[cnpj]' }}</label>
 						<input type="text" name="cnpj" [(ngModel)]="tenantForm().cnpj" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none box-border">
 					</div>
-					<div class="flex flex-col gap-1 min-w-0">
+					<div class="flex flex-col gap-1 min-w-0 balance-mobile-inputs">
 						<label class="text-xs font-bold text-slate-400 truncate">{{ t()['companyName'] || '[companyName]' }}</label>
 						<input type="text" name="name" [(ngModel)]="tenantForm().name" (ngModelChange)="updateTenantPayload()" required class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none box-border">
 					</div>
