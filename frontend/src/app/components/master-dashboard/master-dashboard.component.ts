@@ -23,7 +23,8 @@ export class MasterDashboardComponent {
 	public limit = input<number>(5);
 	public offset = input<number>(0);
   public activePricingMatrix = input<PricingTierInput[]>([]);
-	
+  public activePricingMatrixChange = output<PricingTierInput[]>();
+
 	/* ─── FUZZY DEBOUNCING STATES AND DISPATCHERS ─── */
 	public searchTerm = signal<string>('');
 	public onFuzzySearch = output<string>();

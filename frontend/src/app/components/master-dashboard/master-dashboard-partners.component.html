@@ -45,7 +45,7 @@
 
                 <!-- Dynamic Table Grid Row Matrix Injection with High-Contrast Row Deletion Cross -->
                 <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                    <ng-container *ngIf="activePricingMatrix && activePricingMatrix().length; else noRows">
+                    <ng-container *ngIf="activePricingMatrix().length; else noRows">
                         <div *ngFor="let tier of activePricingMatrix(); let i = index" class="flex items-center gap-2 bg-slate-950 p-2 rounded-lg border border-slate-850">
                             <div class="grid grid-cols-3 gap-2 items-center flex-1">
                                 <div class="flex flex-col gap-0.5">
