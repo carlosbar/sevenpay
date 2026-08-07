@@ -162,4 +162,10 @@ export class SevenPayService {
 			headers: this.getHeaders()
 		});
 	}
+
+	public inspectTenant(tenantId: string): Observable<any> {
+		return this.http.get<any>(`${this.BASE_URL}/admin/tenants/inspect?tenantId=${tenantId}`, {
+			headers: this.getHeaders()
+		});
+	}  
 }
