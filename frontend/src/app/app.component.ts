@@ -328,50 +328,55 @@ export class AppComponent implements OnInit, OnDestroy {
 	}
 
 	/* ─── ATOMIC INGESTION HANDLER MATRICES: B2B EXPANDED PARTNER PROVISIONING ─── */
-	public handleCreateTenant(event: Event): void {
-		if (event) event.preventDefault();
-		console.log('[SevenPay-Core] handleCreateTenant intercepted.');
-
-		if (!this.tenantForm.cnpj || !this.tenantForm.name || this.tenantForm.globalCreditLimit === null || this.tenantForm.globalCreditLimit === undefined) {
-			alert('Please fulfill all mandatory corporate partner attributes.');
-			return;
-		}
-
-		const readyToDeployPayload = {
-			cnpj: this.tenantForm.cnpj,
-			name: this.tenantForm.name,
-			businessType: this.tenantForm.businessType,
-			globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimit * 100),
-			pricingMatrix: this.activePricingMatrix()
-		};
-
-		this.svc.provisionTenant(readyToDeployPayload).subscribe({
-			next: (res) => {
-				if (res.result === 'success') {
-					alert('B2B Corporate Partner successfully deployed to Core Network.');
-					this.loadFintechControlTowerData();
-					this.switchSegment('DASHBOARD');
-					
-					/* 🛡️ TS2741 RECTIFICATION MATRIX: Injected the mandatory key layout on clean stage */
-					this.tenantForm = { 
-						cnpj: '', 
-						name: '', 
-						businessType: 'HR', 
-						globalCreditLimit: 0, 
-						globalCreditLimitMasked: '' /* 🟢 FIXED SIGNATURE MATCH */
-					};
-					this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
-				} else {
-					alert(`Deployment rejected: ${res.reason || 'Database verification fault.'}`);
-				}
-			},
-			error: (err) => {
-				this.handleHttpAuthErrors(err, 'provisionTenant');
-				alert('Network error encountered while deploying partner vector.');
-			}
-		});
-	}
-
+  public handleCreateTenant(event: Event): void {
+  	if (event) event.preventDefault();
+  
+  	if (!this.tenantForm.cnpj || !this.tenantForm.name || this.tenantForm.globalCreditLimit === null || this.tenantForm.globalCreditLimit === undefined) {
+  		alert('Please fulfill all mandatory corporate partner attributes.');
+  		return;
+  	}
+  
+  	const readyToDeployPayload = {
+  		cnpj: this.tenantForm.cnpj,
+  		name: this.tenantForm.name,
+  		businessType: this.tenantForm.businessType,
+  		globalCreditLimitCents: Math.round(this.tenantForm.globalCreditLimit * 100),
+  		pricingMatrix: this.activePricingMatrix()
+  	};
+  
+  	// 🛡️ FIX: se há um tenant selecionado, é edição (PUT); senão, criação (POST)
+  	const isEditing = !!this.selectedTenantId();
+  	const request$ = isEditing
+  		? this.svc.updateTenant(readyToDeployPayload)
+  		: this.svc.provisionTenant(readyToDeployPayload);
+  
+  	request$.subscribe({
+  		next: (res) => {
+  			if (res.result === 'success') {
+  				alert(isEditing ? 'B2B Corporate Partner successfully updated.' : 'B2B Corporate Partner successfully deployed to Core Network.');
+  				this.loadFintechControlTowerData();
+  				this.switchSegment('DASHBOARD');
+  				this.selectedTenantId.set(null);
+  
+  				this.tenantForm = {
+  					cnpj: '',
+  					name: '',
+  					businessType: 'HR',
+  					globalCreditLimit: 0,
+  					globalCreditLimitMasked: ''
+  				};
+  				this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
+  			} else {
+  				alert(`Deployment rejected: ${res.reason || 'Database verification fault.'}`);
+  			}
+  		},
+  		error: (err) => {
+  			this.handleHttpAuthErrors(err, isEditing ? 'updateTenant' : 'provisionTenant');
+  			alert('Network error encountered while deploying partner vector.');
+  		}
+  	});
+  }
+  
 	private handleHttpAuthErrors(err: any, originEndpoint: string): void {
 		console.error(`[SevenPay-Core] HTTP Exception from: "${originEndpoint}". Status: ${err.status}`);
 		if (err.status === 401) {
