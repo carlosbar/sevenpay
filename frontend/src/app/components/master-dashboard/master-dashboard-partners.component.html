@@ -24,8 +24,7 @@
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-bold text-slate-400">{{ t()['businessModel'] || '[businessModel]' }}</label>
                     <select name="businessType" [(ngModel)]="tenantForm().businessType" required class="bg-slate-950 text-slate-100 rounded px-3 py-2 text-xs font-mono focus:border-emerald-500 focus:outline-none">
-                        <option value="HR">HR (Recursos Humanos)</option>
-                        <option value="REAL_ESTATE">REAL ESTATE (Imobiliário)</option>
+                        <option *ngFor="let bt of businessTypes()" [value]="bt.code">{{ bt.name }}</option>
                     </select>
                 </div>
                 <div class="flex flex-col gap-1">

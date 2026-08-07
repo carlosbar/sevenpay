@@ -4,6 +4,7 @@ import { PoolClient } from 'pg';
 import { AuthenticatedRequest, authorize } from '../middlewares/authMiddleware';
 import { validateBody, ValidationSchema } from '../middlewares/validationMiddleware';
 import { ScopeTarget, ActionTarget } from '../config/security.enums';
+import { isValidCnpj } from '../utils/cnpjValidator';
 
 // Strict interface contract ensuring safe data compilation inside execution loops
 export interface PricingTierInput {
@@ -87,15 +88,19 @@ class TenantCreateController {
 			if (cleanCnpj.length !== 14) {
 				throw { statusCode: 422, errorToken: 'TENANT_CNPJ_INVALID_FORMAT' };
 			}
-
-			// 2. Assert input strings match the strict PostgreSQL native ENUM constraints
-			if (businessType !== 'HR' && businessType !== 'REAL_ESTATE') {
-				throw { statusCode: 422, errorToken: 'TENANT_BUSINESS_TYPE_UNSUPPORTED' };
+			if (!isValidCnpj(cleanCnpj)) {
+				throw { statusCode: 422, errorToken: 'TENANT_CNPJ_INVALID_CHECKSUM' };
 			}
 
 			const globalLimit = BigInt(globalCreditLimitCents);
 
 			await client.query('BEGIN');
+
+			// 2. Assert the business type maps to a registered lookup row (business_types.code)
+			const businessTypeRes = await client.query(`SELECT code FROM business_types WHERE code = $1;`, [businessType]);
+			if (businessTypeRes.rows.length === 0) {
+				throw { statusCode: 422, errorToken: 'TENANT_BUSINESS_TYPE_UNSUPPORTED' };
+			}
 
 			const isPutRequest = req.method === 'PUT';
 			let newTenant: { id: string };

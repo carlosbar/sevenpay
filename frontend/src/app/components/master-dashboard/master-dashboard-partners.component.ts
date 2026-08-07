@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Tenant, PricingTierInput, TenantForm } from '../../core/models';
+import { Tenant, PricingTierInput, TenantForm, BusinessType } from '../../core/models';
 
 @Component({
 	selector: 'app-master-dashboard-partners',
@@ -12,6 +12,7 @@ import { Tenant, PricingTierInput, TenantForm } from '../../core/models';
 export class MasterDashboardPartnersComponent {
 	public t = input.required<Record<string, string>>();
 	public tenants = input<Tenant[]>([]);
+	public businessTypes = input<BusinessType[]>([]);
 	public searchTerm = input<string>('');
 	public tenantForm = input<TenantForm>({ cnpj: '', name: '', businessType: 'HR', globalCreditLimit: 0, globalCreditLimitMasked: '' });
 	public tenantFormChange = output<TenantForm>();

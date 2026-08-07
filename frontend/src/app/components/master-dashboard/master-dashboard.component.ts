@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MasterDashboardDashboardComponent } from './master-dashboard-dashboard.component';
 import { MasterDashboardPartnersComponent } from './master-dashboard-partners.component';
-import { Tenant, GlobalMetrics, PricingTierInput, TenantForm, SettlementForm, Tenant as ITenant } from '../../core/models';
+import { Tenant, GlobalMetrics, PricingTierInput, TenantForm, SettlementForm, BusinessType, Tenant as ITenant } from '../../core/models';
 
 @Component({
 	selector: 'app-master-dashboard',
@@ -19,6 +19,7 @@ export class MasterDashboardComponent {
 	public metrics = input<GlobalMetrics>({});
 	public tenants = input<ITenant[]>([]);
 	public selectedTenantId = input<string | null>(null);
+	public businessTypes = input<BusinessType[]>([]);
 	public settlementBatches = input<any[]>([]);
 	public limit = input<number>(5);
 	public offset = input<number>(0);

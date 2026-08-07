@@ -5,7 +5,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SevenPayService } from './core/services/sevenpay.service';
 import { ToastService } from './core/services/toast.service';
+import { isValidCnpj } from './core/utils/cnpj-validator';
 import { PricingTierInput } from './components/pricing-manager/pricing-manager.component';
+import { BusinessType } from './core/models';
 import { TRANSLATIONS } from './core/constants/i18n';
 
 import { MasterDashboardComponent } from './components/master-dashboard/master-dashboard.component';
@@ -62,6 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	public advanceForm = { requestedAmount: null as number | null, installmentsTotal: 1 };
 	public settlementForm = { tenantId: '', billingCompetence: '' };
 	public syncRawText = signal<string>('');
+	public businessTypes = signal<BusinessType[]>([]);
 	public activePricingMatrix = signal<PricingTierInput[]>([
 		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
 	]);
@@ -150,6 +153,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		
 		if (scope === 'MASTER') {
 			this.loadFintechControlTowerData();
+			this.loadBusinessTypes();
 			this.switchSegment('DASHBOARD');
 		} else if (scope === 'TENANT') {
 			this.loadActiveWorkspaceUsers();
@@ -178,6 +182,13 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.svc.getGlobalMetrics().subscribe({
 			next: (res) => { if (res.result === 'success') this.globalMetrics.set(res.data?.metrics || {}); },
 			error: (err) => { this.handleHttpAuthErrors(err, 'getGlobalMetrics'); }
+		});
+	}
+
+	public loadBusinessTypes(): void {
+		this.svc.getBusinessTypes().subscribe({
+			next: (res) => { if (res.result === 'success') this.businessTypes.set(res.data?.businessTypes || []); },
+			error: (err) => { this.handleHttpAuthErrors(err, 'getBusinessTypes'); }
 		});
 	}
 
@@ -338,7 +349,12 @@ export class AppComponent implements OnInit, OnDestroy {
   		this.toastSvc.error(this.svc.t()['toastMandatoryFields']);
   		return;
   	}
-  
+
+  	if (!isValidCnpj(this.tenantForm.cnpj)) {
+  		this.toastSvc.error(this.svc.t()['toastCnpjInvalid']);
+  		return;
+  	}
+
   	const readyToDeployPayload = {
   		cnpj: this.tenantForm.cnpj,
   		name: this.tenantForm.name,

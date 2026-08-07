@@ -11,9 +11,9 @@ DROP TABLE IF EXISTS pix_accounts CASCADE;
 DROP TABLE IF EXISTS end_users CASCADE;
 DROP TABLE IF EXISTS tenant_fee_matrices CASCADE;
 DROP TABLE IF EXISTS tenants CASCADE;
+DROP TABLE IF EXISTS business_types CASCADE;
 DROP TABLE IF EXISTS system_roles CASCADE;
 
-DROP TYPE IF EXISTS tenant_type CASCADE;
 DROP TYPE IF EXISTS global_status CASCADE;
 DROP TYPE IF EXISTS role_scope CASCADE;
 DROP TYPE IF EXISTS transaction_type CASCADE;
@@ -27,7 +27,6 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- ============================================================================
 -- 2. CUSTOM DATA TYPES (ENUMS)
 -- ============================================================================
-CREATE TYPE tenant_type AS ENUM ('HR', 'REAL_ESTATE');
 CREATE TYPE global_status AS ENUM ('ACTIVE', 'INACTIVE');
 CREATE TYPE role_scope AS ENUM ('MASTER', 'TENANT', 'END_USER');
 CREATE TYPE transaction_type AS ENUM ('DEBIT', 'CREDIT');
@@ -49,12 +48,19 @@ CREATE TABLE system_roles (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Business Type Lookup (Tenant Industry/Vertical Classification Matrix)
+CREATE TABLE business_types (
+	code VARCHAR(30) PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- B2B Client Companies (e.g., HR departments, Real Estate agencies)
 CREATE TABLE tenants (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	cnpj VARCHAR(14) UNIQUE NOT NULL,
 	name VARCHAR(100) NOT NULL,
-	business_type tenant_type NOT NULL,
+	business_type VARCHAR(30) NOT NULL REFERENCES business_types(code) ON DELETE RESTRICT,
 	global_credit_limit_cents BIGINT NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

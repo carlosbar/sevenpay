@@ -174,5 +174,11 @@ export class SevenPayService {
   		headers: this.getHeaders()
   	});
   }
-  
+
+  public getBusinessTypes(): Observable<any> {
+  	return this.http.get<any>(`${this.BASE_URL}/business-types`, {
+  		headers: this.getHeaders()
+  	});
+  }
+
 }

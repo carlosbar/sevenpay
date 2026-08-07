@@ -19,6 +19,7 @@
     *ngIf="currentSegment() === 'PARTNERS'"
     [t]="t()"
     [tenants]="tenants()"
+    [businessTypes]="businessTypes()"
     [tenantForm]="tenantForm()"
     (tenantFormChange)="tenantFormChange.emit($event)"
     [activePricingMatrix]="activePricingMatrix()"

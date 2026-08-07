@@ -4,6 +4,11 @@ export interface PricingTierInput {
   maxAdvancePercentage: number;
 }
 
+export interface BusinessType {
+  code: string;
+  name: string;
+}
+
 export interface Tenant {
   id: string;
   cnpj?: string;
