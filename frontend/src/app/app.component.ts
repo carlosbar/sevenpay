@@ -191,64 +191,65 @@ export class AppComponent implements OnInit, OnDestroy {
 		this.loadFintechControlTowerData();
 	}
 
-	public selectTenant(tenantId: string): void {
-		console.log(`[SevenPay-Core] selectTenant triggered for ID: ${tenantId}`);
-		this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
-		
-		if (this.selectedTenantId()) {
-			/* 1. Sync Linked EndUsers data vector for the active workspace */
-			this.svc.getEndUsers(100, 0, this.selectedTenantId()!).subscribe({
-				next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
-				error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
-			});
-
-			/* 2. 🧠 FIXED OBJECT REFERENCE & MATRIX MAP: Remap backend fields safely to force immediate UI rendering */
-			const matchedPartner = this.tenants().find(t => t.id === tenantId);
-			if (matchedPartner) {
-				console.log('[SevenPay-Core] Partner match found. Re-instantiating tenantForm fields.', matchedPartner);
-				
-				const rawCents = matchedPartner.globalCreditLimitCents ? Number(matchedPartner.globalCreditLimitCents) : 0;
-				const decimalValue = rawCents / 100;
-
-				const formattedMask = decimalValue.toLocaleString('pt-BR', {
-					style: 'currency',
-					currency: 'BRL'
-				});
-
-				this.tenantForm = {
-					cnpj: matchedPartner.cnpj || '',
-					name: matchedPartner.name || '',
-					businessType: matchedPartner.businessType || 'HR',
-					globalCreditLimit: decimalValue,
-					globalCreditLimitMasked: formattedMask
-				};
-
-				/* Extract and explicit remap the pricing arrays back into the active template state */
-				const rawMatrix = matchedPartner.pricingMatrix || matchedPartner.feeMatrix || [];
-				if (rawMatrix.length > 0) {
-					const remappedMatrix: PricingTierInput[] = rawMatrix.map((row: any) => ({
-						installmentsCount: Number(row.installmentsCount || row.installments_count || 1),
-						feePercentage: Number(row.feePercentage || row.fee_percentage || 0),
-						maxAdvancePercentage: Number(row.maxAdvancePercentage || row.max_advance_percentage || 0)
-					}));
-					this.activePricingMatrix.set(remappedMatrix);
-				} else {
-					this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
-				}
-			}
-		} else {
-			/* Reset object structures cleanly back to baseline empty states if row selection is toggled off */
-			this.tenantForm = { 
-				cnpj: '', 
-				name: '', 
-				businessType: 'HR', 
-				globalCreditLimit: 0, 
-				globalCreditLimitMasked: '' 
-			};
-			this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
-		}
-	}
-
+  public selectTenant(tenantId: string): void {
+  	this.selectedTenantId.set(this.selectedTenantId() === tenantId ? null : tenantId);
+  
+  	if (this.selectedTenantId()) {
+  		const targetId = this.selectedTenantId()!;
+  
+  		/* 1. Sync Linked EndUsers data vector for the active workspace */
+  		this.svc.getEndUsers(100, 0, targetId).subscribe({
+  			next: (res) => { if (res.result === 'success') this.endUsers.set(res.data?.endUsers || []); },
+  			error: (err) => { this.handleHttpAuthErrors(err, 'selectTenant'); }
+  		});
+  
+  		/* 2. 🛡️ FIX: busca o tenant completo via /inspect, que é o único endpoint
+  		      que retorna a pricingMatrix de verdade (a listagem não retorna) */
+  		this.svc.inspectTenant(targetId).subscribe({
+  			next: (res) => {
+  				if (res.result !== 'success') return;
+  
+  				const tenant = res.data.tenant;
+  				const rawMatrix = res.data.pricingMatrix || [];
+  
+  				const rawCents = tenant.globalCreditLimitCents ? Number(tenant.globalCreditLimitCents) : 0;
+  				const decimalValue = rawCents / 100;
+  				const formattedMask = decimalValue.toLocaleString('pt-BR', {
+  					style: 'currency',
+  					currency: 'BRL'
+  				});
+  
+  				this.tenantForm = {
+  					cnpj: tenant.cnpj || '',
+  					name: tenant.name || '',
+  					businessType: tenant.businessType || 'HR',
+  					globalCreditLimit: decimalValue,
+  					globalCreditLimitMasked: formattedMask
+  				};
+  
+  				// 🛡️ Agora reflete o estado REAL do tenant — inclusive quando é [] (vazio de verdade)
+  				const remappedMatrix: PricingTierInput[] = rawMatrix.map((row: any) => ({
+  					installmentsCount: Number(row.installmentsCount ?? 1),
+  					feePercentage: Number(row.feePercentage ?? 0),
+  					maxAdvancePercentage: Number(row.maxAdvancePercentage ?? 0)
+  				}));
+  				this.activePricingMatrix.set(remappedMatrix);
+  			},
+  			error: (err) => { this.handleHttpAuthErrors(err, 'inspectTenant'); }
+  		});
+  	} else {
+  		/* Reset limpo ao desselecionar (voltar ao modo "novo parceiro") */
+  		this.tenantForm = {
+  			cnpj: '',
+  			name: '',
+  			businessType: 'HR',
+  			globalCreditLimit: 0,
+  			globalCreditLimitMasked: ''
+  		};
+  		this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
+  	}
+  }
+  
 	public loadActiveWorkspaceUsers(): void {
 		const tenantId = this.svc.userContext()?.tenantId;
 		if (tenantId) {
