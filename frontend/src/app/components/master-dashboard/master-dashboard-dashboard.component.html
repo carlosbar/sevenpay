@@ -59,7 +59,7 @@
 
         <!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES -->
         <div class="block sm:hidden space-y-3 w-full box-border">
-            <ng-container *ngIf="tenants && tenants.length; else emptyTenants">
+            <ng-container *ngIf="tenants().length; else emptyTenants">
                 <div *ngFor="let partner of tenants()" class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2 w-full box-border">
                     <div class="flex justify-between items-center gap-2 border-b border-slate-800 pb-1.5">
                         <span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[75%]">{{ partner.name }}</span>
@@ -124,7 +124,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
-                    <ng-container *ngIf="tenants && tenants.length; else emptyTable">
+                    <ng-container *ngIf="tenants().length; else emptyTable">
                         <tr *ngFor="let partner of tenants()" class="hover:bg-slate-900/40 transition">
                             <td class="p-3 overflow-hidden">
                                 <span class="block font-bold text-slate-100 text-sm truncate">{{ partner.name }}</span>
