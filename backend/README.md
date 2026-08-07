@@ -123,20 +123,20 @@ PORT=3000
 
 # Strict CORS global override switch for Test Drive Cockpit / MiniUI connectivity
 # Set to "true" to append dynamic HTTP headers and bypass browser preflight blocks
-CORS_ALLOWED=true
+# CRITICAL - this env var should not be used in production, only for debug mode
+ALLOW_CORS=true
 
 # ==============================================================================
 # 🗄️ INFRASTRUCTURE DATABASE ENGINE (POSTGRESQL 18 CORE)
 # ==============================================================================
 DB_HOST=localhost
 DB_PORT=5432
-DB_DATABASE=sevenpay_db
+DB_NAME=sevenpay_db
 DB_USER=sevenpay_user
 DB_PASSWORD=SuaSenhaSeguraAqui
 
-# Connection pool sizing directives
-DB_POOL_MIN=2
-DB_POOL_MAX=10
+# Connection pool sizing directive (defaults to 20 when unset)
+DB_POOL_MAX=20
 
 # ==============================================================================
 # 🔐 CRYPTOGRAPHIC MATRIX SETTINGS (JWT SECURITY SUBSYSTEM)
@@ -145,21 +145,21 @@ DB_POOL_MAX=10
 # CAUTION: Never share this token across production nodes
 JWT_SECRET=sevenpay_secure_cryptographic_secret_matrix_key_v1
 
-# Token life span availability window (matches the strict 8h duration gate)
-JWT_EXPIRES_IN=8h
+# Note: token lifespan is currently hardcoded to 8h in authController.ts
+# (there is no JWT_EXPIRES_IN env var read by the application)
 ```
 
-### 🛠️ Implementing the `CORS_ALLOWED` flag in `server.ts`
+### 🛠️ The `ALLOW_CORS` flag in `server.ts`
 
-To ensure the engine honors the new environment variable configuration inside the node subsystem pipeline, inject this validation layer immediately before parsing routes:
+The engine honors the `ALLOW_CORS` environment variable inside the node subsystem pipeline, evaluated immediately before parsing routes:
 
 ```typescript
 // Strict operational evaluation of the network permission vector flag
-if (process.env.CORS_ALLOWED === 'true') {
+if (process.env.ALLOW_CORS === 'true') {
 	app.use((req, res, next) => {
 		res.header('Access-Control-Allow-Origin', '*');
 		res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Language, x-language');
 		
 		if (req.method === 'OPTIONS') {
 			res.sendStatus(200);
