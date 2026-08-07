@@ -1,3 +1,4 @@
+<app-toast></app-toast>
 <div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
 	<!-- 🗂️ SIDEBAR NAVIGATION MODULE (SLIDES CORRECTLY VIA ISSIDEBAROPEN) -->
 	<aside *ngIf="svc.isAuthenticated()" [class.active]="isSidebarOpen()" class="sidebar-panel">

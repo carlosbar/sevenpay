@@ -4,12 +4,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SevenPayService } from './core/services/sevenpay.service';
+import { ToastService } from './core/services/toast.service';
 import { PricingTierInput } from './components/pricing-manager/pricing-manager.component';
 import { TRANSLATIONS } from './core/constants/i18n';
 
 import { MasterDashboardComponent } from './components/master-dashboard/master-dashboard.component';
 import { TenantManagerComponent } from './components/tenant-manager/tenant-manager.component';
 import { TelemetryDrawerComponent } from './components/telemetry-drawer/telemetry-drawer.component';
+import { ToastComponent } from './components/toast/toast.component';
 
 export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' | 'BATCH_SYNC' | 'SETTLEMENT';
 
@@ -19,9 +21,10 @@ export type MenuSegment = 'DASHBOARD' | 'PARTNERS' | 'CONSUMERS' | 'STATEMENT' |
 	imports: [
 		CommonModule, 
 		FormsModule, 
-		MasterDashboardComponent, 
-		TenantManagerComponent,    
-		TelemetryDrawerComponent   
+		MasterDashboardComponent,
+		TenantManagerComponent,
+		TelemetryDrawerComponent,
+		ToastComponent
 	],
 	templateUrl: './app.component.html'
 })
@@ -63,7 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
 		{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }
 	]);
 
-	constructor(public svc: SevenPayService) {}
+	constructor(public svc: SevenPayService, public toastSvc: ToastService) {}
 	public ngOnInit(): void {
 		console.log('[SevenPay-Core] Entering ngOnInit lifecycle stage.');
 		
@@ -318,11 +321,11 @@ export class AppComponent implements OnInit, OnDestroy {
 						this.credentials = { email: '', password: '' };
 					}, 100);
 				} else {
-					alert('Authentication failed. Please verify credentials.');
+					this.toastSvc.error(this.svc.t()['toastAuthFailed']);
 				}
 			},
 			error: (err) => {
-				alert('Network error or invalid operator credentials.');
+				this.toastSvc.error(this.svc.t()['toastNetworkAuthError']);
 			}
 		});
 	}
@@ -332,7 +335,7 @@ export class AppComponent implements OnInit, OnDestroy {
   	if (event) event.preventDefault();
   
   	if (!this.tenantForm.cnpj || !this.tenantForm.name || this.tenantForm.globalCreditLimit === null || this.tenantForm.globalCreditLimit === undefined) {
-  		alert('Please fulfill all mandatory corporate partner attributes.');
+  		this.toastSvc.error(this.svc.t()['toastMandatoryFields']);
   		return;
   	}
   
@@ -353,9 +356,8 @@ export class AppComponent implements OnInit, OnDestroy {
   	request$.subscribe({
   		next: (res) => {
   			if (res.result === 'success') {
-  				alert(isEditing ? 'B2B Corporate Partner successfully updated.' : 'B2B Corporate Partner successfully deployed to Core Network.');
+  				this.toastSvc.success(isEditing ? this.svc.t()['toastPartnerUpdated'] : this.svc.t()['toastPartnerDeployed']);
   				this.loadFintechControlTowerData();
-  				this.switchSegment('DASHBOARD');
   				this.selectedTenantId.set(null);
   
   				this.tenantForm = {
@@ -367,12 +369,12 @@ export class AppComponent implements OnInit, OnDestroy {
   				};
   				this.activePricingMatrix.set([{ installmentsCount: 1, feePercentage: 3.50, maxAdvancePercentage: 30.00 }]);
   			} else {
-  				alert(`Deployment rejected: ${res.reason || 'Database verification fault.'}`);
+  				this.toastSvc.error(`${this.svc.t()['toastDeploymentRejectedPrefix']}${res.reason || this.svc.t()['toastGenericDeployFault']}`);
   			}
   		},
   		error: (err) => {
   			this.handleHttpAuthErrors(err, isEditing ? 'updateTenant' : 'provisionTenant');
-  			alert('Network error encountered while deploying partner vector.');
+  			this.toastSvc.error(this.svc.t()['toastNetworkDeployError']);
   		}
   	});
   }

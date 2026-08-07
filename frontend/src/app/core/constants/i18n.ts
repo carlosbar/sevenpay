@@ -75,7 +75,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 		settlementTitle: 'Monthly B2B Balance Reconciliation',
 		settlementButton: 'Settle Consolidated B2B Invoice',
 		settlementHistoryTitle: 'Historical Reconciled Batches Log',
-		settlementEmptyHistory: 'No consolidation batches processed for this partner company registry.'
+		settlementEmptyHistory: 'No consolidation batches processed for this partner company registry.',
+		toastAuthFailed: 'Authentication failed. Please verify credentials.',
+		toastNetworkAuthError: 'Network error or invalid operator credentials.',
+		toastMandatoryFields: 'Please fulfill all mandatory corporate partner attributes.',
+		toastPartnerUpdated: 'B2B Corporate Partner successfully updated.',
+		toastPartnerDeployed: 'B2B Corporate Partner successfully deployed to Core Network.',
+		toastDeploymentRejectedPrefix: 'Deployment rejected: ',
+		toastGenericDeployFault: 'Database verification fault.',
+		toastNetworkDeployError: 'Network error encountered while deploying partner vector.'
 	},
 	'pt-br': {
 		operatorAccess: 'Matriz de Acesso do Operador',
@@ -152,6 +160,14 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
 		settlementTitle: 'Liquidação Contábil Mensal B2B',
 		settlementButton: 'Quitar Fatura Consolidada B2B',
 		settlementHistoryTitle: 'Histórico de Lotes Conciliados',
-		settlementEmptyHistory: 'Nenhum lote de conciliação processado nesta organização parceira.'
+		settlementEmptyHistory: 'Nenhum lote de conciliação processado nesta organização parceira.',
+		toastAuthFailed: 'Falha na autenticação. Verifique suas credenciais.',
+		toastNetworkAuthError: 'Erro de rede ou credenciais de operador inválidas.',
+		toastMandatoryFields: 'Preencha todos os atributos obrigatórios do parceiro corporativo.',
+		toastPartnerUpdated: 'Parceiro corporativo B2B atualizado com sucesso.',
+		toastPartnerDeployed: 'Parceiro corporativo B2B implantado com sucesso na Rede Principal.',
+		toastDeploymentRejectedPrefix: 'Implantação rejeitada: ',
+		toastGenericDeployFault: 'Falha na verificação do banco de dados.',
+		toastNetworkDeployError: 'Erro de rede ao implantar o vetor de parceiro.'
 	}
 };
