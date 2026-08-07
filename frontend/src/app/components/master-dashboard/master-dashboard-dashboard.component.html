@@ -1,0 +1,179 @@
+<!-- ─── SEGMENT: GLOBAL FINANCIAL LEDGER DASHBOARD ─── -->
+<div class="w-full flex flex-col gap-6 animate-fadeIn box-border pb-12">
+    
+    <!-- 📊 MOBILE-FIRST LIQUIDITY CARDS -->
+    <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 space-y-4 shadow-2xl w-full box-border">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800 pb-2">
+            {{ t()['globalLiquidityLedger'] || '[globalLiquidityLedger]' }}
+        </h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full box-border">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">{{ t()['totalDisbursed'] || '[totalDisbursed]' }}</span>
+                <span class="text-lg font-black text-slate-200 font-mono truncate">
+                    {{ (metrics().totalVolumeAdvancedCents !== undefined) ? (metrics().totalVolumeAdvancedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                </span>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">{{ t()['feesCollected'] || '[feesCollected]' }}</span>
+                <span class="text-lg font-black text-emerald-400 font-mono truncate">
+                    {{ (metrics().totalFeesCollectedCents !== undefined) ? (metrics().totalFeesCollectedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                </span>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">{{ t()['receivablesFuture'] || '[receivablesFuture]' }}</span>
+                <span class="text-lg font-black text-amber-500 font-mono truncate">
+                    {{ (metrics().totalReceivablesCents !== undefined) ? (metrics().totalReceivablesCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                </span>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-1 shadow-inner">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">{{ t()['overdueDefault'] || '[overdueDefault]' }}</span>
+                <span class="text-lg font-black text-red-400 font-mono truncate">
+                    {{ (metrics().totalOverdueCents !== undefined) ? (metrics().totalOverdueCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- 🏢 MONITORING ECOSYSTEM: ADAPTIVE MOBILE-FIRST PARTNERS GRID -->
+    <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 w-full box-border">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800 pb-2">
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                {{ t()['b2bPortfolioMonitoring'] || '[b2bPortfolioMonitoring]' }}
+            </h3>
+            <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                {{ t()['activePartnerScans'] || '[activePartnerScans]' }}
+            </span>
+        </div>
+
+        <!-- 🔍 FUZZY LEVENSHTEIN FILTER TERMINAL INTERFACE -->
+        <div class="w-full flex box-border relative">
+            <input 
+                type="text" 
+                [value]="searchTerm"
+                (input)="onSearchChange($event)"
+                [placeholder]="t()['searchPartnerPlaceholder'] || '[searchPartnerPlaceholder]'" 
+                style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
+                class="px-3 py-2 bg-slate-950 border border-slate-800 text-slate-100 rounded-lg text-xs font-mono focus:border-emerald-500 focus:outline-none placeholder-slate-600 shadow-inner w-full block"
+            />
+        </div>
+
+        <!-- 📱 MOBILE VIEW: EXTRA PREMIUM TILES -->
+        <div class="block sm:hidden space-y-3 w-full box-border">
+            <ng-container *ngIf="tenants && tenants.length; else emptyTenants">
+                <div *ngFor="let partner of tenants()" class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-inner text-xs font-mono flex flex-col gap-2 w-full box-border">
+                    <div class="flex justify-between items-center gap-2 border-b border-slate-800 pb-1.5">
+                        <span class="font-bold text-slate-100 text-xs font-sans block truncate max-w-[75%]">{{ partner.name }}</span>
+                        <div class="shrink-0 flex items-center">
+                            <ng-container *ngIf="partner.hasOverdueInstallments; else okBadge">
+                                <span class="rounded bg-red-500/10 border border-red-500/20 px-1.5 py-0.5 text-[9px] font-bold text-red-400 uppercase tracking-wider">
+                                    🚨 {{ t()['statusOverdue'] || '[statusOverdue]' }}
+                                </span>
+                            </ng-container>
+                            <ng-template #okBadge>
+                                <span class="rounded bg-emerald-950 border border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">✓ OK</span>
+                            </ng-template>
+                        </div>
+                    </div>
+                    
+                    <div class="text-[10px] text-slate-500 font-sans border-b border-slate-900/60 pb-1.5 block">
+                        <span class="text-slate-400 font-bold">CNPJ:</span> {{ partner.cnpj }}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-left w-full box-border">
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">
+                                {{ t()['disbursementsMonth'] || '[disbursementsMonth]' }}
+                            </span>
+                            <span class="text-slate-200 font-bold font-mono text-[11px] block truncate">
+                                {{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                            </span>
+                        </div>
+                        <div class="flex flex-col gap-0.5 border-l border-slate-900 pl-2">
+                            <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider block whitespace-normal">
+                                {{ t()['availableMargin'] || '[availableMargin]' }}
+                            </span>
+                            <span class="text-emerald-400 font-bold font-mono text-[11px] block truncate">
+                                {{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <ng-container *ngIf="partner.hasOverdueInstallments">
+                        <div class="bg-red-500/5 border border-red-500/10 rounded p-1.5 text-[10px] text-red-400 font-bold text-center mt-1 block whitespace-normal">
+                            {{ t()['overdueAmountLabel'] || '[overdueAmountLabel]' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                        </div>
+                    </ng-container>
+                </div>
+            </ng-container>
+            <ng-template #emptyTenants>
+                <p class="text-xs text-slate-500 text-center italic py-4 block w-full">
+                    {{ t()['emptyTenantsList'] || '[emptyTenantsList]' }}
+                </p>
+            </ng-template>
+        </div>
+
+        <!-- 💻 DESKTOP VIEW: TRADITIONAL DATA GRID -->
+        <div class="hidden sm:block overflow-x-auto rounded-xl border border-slate-800 w-full box-border mb-4">
+            <table class="w-full border-collapse text-left font-mono text-xs text-slate-300 bg-slate-950 table-fixed">
+                <thead>
+                    <tr class="border-b border-slate-800 bg-slate-900/60 font-bold text-slate-400">
+                        <th class="p-3 w-[40%]">{{ t()['tableHeaderPartner'] || '[tableHeaderPartner]' }}</th>
+                        <th class="p-3 text-right w-[20%]">{{ t()['tableHeaderDisbursements'] || '[tableHeaderDisbursements]' }}</th>
+                        <th class="p-3 text-right w-[20%]">{{ t()['tableHeaderAvailableMargin'] || '[tableHeaderAvailableMargin]' }}</th>
+                        <th class="p-3 text-center w-[20%]">{{ t()['tableHeaderStatus'] || '[tableHeaderStatus]' }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    <ng-container *ngIf="tenants && tenants.length; else emptyTable">
+                        <tr *ngFor="let partner of tenants()" class="hover:bg-slate-900/40 transition">
+                            <td class="p-3 overflow-hidden">
+                                <span class="block font-bold text-slate-100 text-sm truncate">{{ partner.name }}</span>
+                                <span class="block text-[10px] text-slate-500 truncate">CNPJ: {{ partner.cnpj }}</span>
+                            </td>
+                            <td class="p-3 text-right font-bold text-slate-200 truncate">
+                                {{ (partner.totalMonthDisbursedCents !== undefined) ? (partner.totalMonthDisbursedCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                            </td>
+                            <td class="p-3 text-right font-bold text-emerald-400 truncate">
+                                {{ (partner.availableCreditMarginCents !== undefined) ? (partner.availableCreditMarginCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                            </td>
+                            <td class="p-3 text-center overflow-hidden">
+                                <ng-container *ngIf="partner.hasOverdueInstallments; else regular">
+                                    <span class="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-[10px] font-bold text-red-400 uppercase tracking-wider block truncate">
+                                        🚨 {{ t()['statusOverdueLabel'] || '[statusOverdueLabel]' }}: {{ (partner.overdueAmountCents !== undefined) ? (partner.overdueAmountCents / 100 | currency:'BRL':'symbol':'1.2-2') : 'R$ 0,00' }}
+                                    </span>
+                                </ng-container>
+                                <ng-template #regular>
+                                    <span class="rounded bg-emerald-950 border border-emerald-500/20 px-2 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider block truncate">
+                                        ✓ {{ t()['statusRegular'] || '[statusRegular]' }}
+                                    </span>
+                                </ng-template>
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <ng-template #emptyTable>
+                        <tr>
+                            <td colspan="4" class="p-6 text-center text-slate-500 italic">
+                                {{ t()['emptyTenantsList'] || '[emptyTenantsList]' }}
+                            </td>
+                        </tr>
+                    </ng-template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 📑 PAGINATION CONTROLS -->
+        <div class="flex items-center justify-between pt-4 pb-2 text-xs font-mono w-full box-border">
+            <span class="text-slate-500 hidden sm:inline truncate">
+                {{ t()['viewingActivePartners'] || '[viewingActivePartners]' }}
+            </span>
+            <div class="flex justify-between sm:justify-end w-full sm:w-auto gap-2 shrink-0">
+                <button (click)="onPrevPage.emit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer">
+                    {{ t()['btnBack'] || '[btnBack]' }}
+                </button>
+                <button (click)="onNextPage.emit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer">
+                    {{ t()['btnNext'] || '[btnNext]' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
