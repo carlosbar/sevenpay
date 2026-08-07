@@ -167,5 +167,12 @@ export class SevenPayService {
 		return this.http.get<any>(`${this.BASE_URL}/admin/tenants/inspect?tenantId=${tenantId}`, {
 			headers: this.getHeaders()
 		});
-	}  
+	}
+
+  public updateTenant(tenantData: any): Observable<any> {
+  	return this.http.put<any>(`${this.BASE_URL}/admin/tenants`, tenantData, {
+  		headers: this.getHeaders()
+  	});
+  }
+  
 }
