@@ -1,79 +1,81 @@
 <div [class.workspace-wrapper]="svc.isAuthenticated()" [class.workspace-unauthenticated]="!svc.isAuthenticated()">
 	<!-- 🗂️ SIDEBAR NAVIGATION MODULE (SLIDES CORRECTLY VIA ISSIDEBAROPEN) -->
-	@if (svc.isAuthenticated()) {
-		<aside [class.active]="isSidebarOpen()" class="sidebar-panel">
-			<div class="space-y-6">
-				<div class="flex items-center justify-between pb-4 border-b border-slate-800">
-					<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
-					<!-- Mobile close button cross -->
-					<button (click)="isSidebarOpen.set(false)" class="text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
-				</div>
+	<aside *ngIf="svc.isAuthenticated()" [class.active]="isSidebarOpen()" class="sidebar-panel">
+		<div class="space-y-6">
+			<div class="flex items-center justify-between pb-4 border-b border-slate-800">
+				<span class="text-lg font-black tracking-wider text-emerald-400">SEVEN<span class="text-slate-100">PAY</span></span>
+				<!-- Mobile close button cross -->
+				<button (click)="isSidebarOpen.set(false)" class="text-slate-400 hover:text-slate-200 border-none bg-transparent cursor-pointer font-bold font-mono">✕</button>
+			</div>
 
-				<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH AUTOMATIC CLOSE HANDSHAKES ─── -->
-				<nav class="sidebar-navigation-links space-y-1">
-					@if (svc.currentScope() === 'MASTER') {
-						<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
-							<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || '[menuDashboard]' }}
-						</button>
-						<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'">
-							<span class="menu-icon-wrapper">🏢</span> {{ svc.t()['menuPartners'] || '[menuPartners]' }}
-						</button>
-						<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'">
-							<span class="menu-icon-wrapper">🧾</span> {{ svc.t()['menuSettlement'] || '[menuSettlement]' }}
-						</button>
-					}
-					@if (svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT') {
-						<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'">
-							<span class="menu-icon-wrapper">👥</span> {{ svc.t()['menuConsumers'] || '[menuConsumers]' }}
-						</button>
-						<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'">
-							<span class="menu-icon-wrapper">🔄</span> {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}
-						</button>
-					}
-					<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'">
-						<span class="menu-icon-wrapper">📜</span> {{ svc.t()['menuStatement'] || '[menuStatement]' }}
+			<!-- ─── RE-ALIGNED NAVIGATION MATRIX WITH AUTOMATIC CLOSE HANDSHAKES ─── -->
+			<nav class="sidebar-navigation-links space-y-1">
+				<ng-container *ngIf="svc.currentScope() === 'MASTER'">
+					<button (click)="switchSegment('DASHBOARD'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'DASHBOARD'">
+						<span class="menu-icon-wrapper">📊</span> {{ svc.t()['menuDashboard'] || '[menuDashboard]' }}
 					</button>
-				</nav>
-			</div>
+					<button (click)="switchSegment('PARTNERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'PARTNERS'">
+						<span class="menu-icon-wrapper">🏢</span> {{ svc.t()['menuPartners'] || '[menuPartners]' }}
+					</button>
+					<button (click)="switchSegment('SETTLEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'SETTLEMENT'">
+						<span class="menu-icon-wrapper">🧾</span> {{ svc.t()['menuSettlement'] || '[menuSettlement]' }}
+					</button>
+				</ng-container>
 
-			<!-- ⚙️ SCOPE MATRIX CONTROL TERMINAL LAYER -->
-			<div class="pt-4 border-t border-slate-800 flex flex-col gap-2">
-				<div class="rounded-lg bg-slate-950 px-2 py-2.5 font-mono text-[10px] text-center border border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
-					SCOPE: {{ svc.currentScope() }}
-				</div>
-				<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg">
-					{{ svc.t()['logout'] || '[logout]' }}
+				<ng-container *ngIf="svc.currentScope() === 'MASTER' || svc.currentScope() === 'TENANT'">
+					<button (click)="switchSegment('CONSUMERS'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'CONSUMERS'">
+						<span class="menu-icon-wrapper">👥</span> {{ svc.t()['menuConsumers'] || '[menuConsumers]' }}
+					</button>
+					<button (click)="switchSegment('BATCH_SYNC'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'BATCH_SYNC'">
+						<span class="menu-icon-wrapper">🔄</span> {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}
+					</button>
+				</ng-container>
+
+				<button (click)="switchSegment('STATEMENT'); isSidebarOpen.set(false)" [class.active-route]="currentMenuSegment() === 'STATEMENT'">
+					<span class="menu-icon-wrapper">📜</span> {{ svc.t()['menuStatement'] || '[menuStatement]' }}
 				</button>
+			</nav>
+		</div>
+
+		<!-- ⚙️ SCOPE MATRIX CONTROL TERMINAL LAYER -->
+		<div class="pt-4 border-t border-slate-800 flex flex-col gap-2">
+			<div class="rounded-lg bg-slate-950 px-2 py-2.5 font-mono text-[10px] text-center border border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+				SCOPE: {{ svc.currentScope() }}
 			</div>
-		</aside>
-	}
+			<button (click)="svc.logout()" class="w-full logout-btn-matrix p-3 text-xs font-bold transition cursor-pointer uppercase font-mono tracking-widest rounded-lg">
+				{{ svc.t()['logout'] || '[logout]' }}
+			</button>
+		</div>
+	</aside>
+
 	<!-- 🎛️ COCKPIT WORKSPACE CONTAINER AREA -->
 	<div class="cockpit-area flex-1 flex flex-col min-w-0">
 		<!-- GLOBAL TOP HEADER BAR -->
 		<header class="flex items-center justify-between border-b border-slate-800 bg-slate-900 p-3 sm:px-6 sm:py-4 box-border">
 			<div class="flex items-center gap-2.5 min-w-0">
 				<!-- High-contrast mobile menu trigger visible exclusively on screens under 1024px -->
-				@if (svc.isAuthenticated()) {
-					<button (click)="isSidebarOpen.set(!isSidebarOpen())" class="text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative z-50 block lg:hidden">☰</button>
-				}
+				<button *ngIf="svc.isAuthenticated()" (click)="isSidebarOpen.set(!isSidebarOpen())" class="text-emerald-400 hover:text-emerald-300 border-none bg-transparent cursor-pointer text-xl font-black p-0 m-0 leading-none relative">
+					<!-- icon -->
+					☰
+				</button>
 				<span class="text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-wider truncate block font-bold relative z-10">
-					@if (currentMenuSegment() === 'DASHBOARD') { {{ svc.t()['menuDashboard'] || '[menuDashboard]' }} }
-					@if (currentMenuSegment() === 'PARTNERS') { {{ svc.t()['menuPartners'] || '[menuPartners]' }} }
-					@if (currentMenuSegment() === 'SETTLEMENT') { {{ svc.t()['menuSettlement'] || '[menuSettlement]' }} }
-					@if (currentMenuSegment() === 'CONSUMERS') { {{ svc.t()['menuConsumers'] || '[menuConsumers]' }} }
-					@if (currentMenuSegment() === 'BATCH_SYNC') { {{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }} }
-					@if (currentMenuSegment() === 'STATEMENT') { {{ svc.t()['menuStatement'] || '[menuStatement]' }} }
+					<ng-container *ngIf="currentMenuSegment() === 'DASHBOARD'">{{ svc.t()['menuDashboard'] || '[menuDashboard]' }}</ng-container>
+					<ng-container *ngIf="currentMenuSegment() === 'PARTNERS'">{{ svc.t()['menuPartners'] || '[menuPartners]' }}</ng-container>
+					<ng-container *ngIf="currentMenuSegment() === 'SETTLEMENT'">{{ svc.t()['menuSettlement'] || '[menuSettlement]' }}</ng-container>
+					<ng-container *ngIf="currentMenuSegment() === 'CONSUMERS'">{{ svc.t()['menuConsumers'] || '[menuConsumers]' }}</ng-container>
+					<ng-container *ngIf="currentMenuSegment() === 'BATCH_SYNC'">{{ svc.t()['menuBatchSync'] || '[menuBatchSync]' }}</ng-container>
+					<ng-container *ngIf="currentMenuSegment() === 'STATEMENT'">{{ svc.t()['menuStatement'] || '[menuStatement]' }}</ng-container>
 				</span>
 			</div>
 			
 			<!-- i18n SWITCHER MATRIX -->
 			<div class="flex rounded-lg border border-slate-800 bg-slate-950 p-1 text-[9px] sm:text-[10px] font-mono font-bold items-center gap-1 shadow-inner shrink-0 relative z-50">
-				@for (langCode of getAvailableLanguages(); track langCode) {
-					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-1.5 py-1 transition border-none bg-transparent cursor-pointer font-bold flex items-center gap-0.5 hover:text-slate-300">
+				<ng-container *ngFor="let langCode of getAvailableLanguages()">
+					<button (click)="svc.setLanguageCookie(langCode)" [class.text-emerald-400]="svc.language() === langCode" class="px-1.5 py-1 transition border-none bg-transparent cursor-pointer font-bold">
 						<span>{{ langCode === 'en' ? '🇺🇸' : '🇧🇷' }}</span>
 						<span class="uppercase">{{ langCode }}</span>
 					</button>
-				}
+				</ng-container>
 			</div>
 		</header>
 
@@ -82,27 +84,25 @@
 			<!-- ─── RE-ALIGNED LAYER: FORCES ABSOLUTE BILATERAL SYMMETRY FOR ALL ELEMENT BLOCKS ─── -->
 			<main class="fluid-main-viewport max-w-5xl mx-auto space-y-6">
 				<!-- AUTENTICAÇÃO GATEWAY -->
-				@if (!svc.isAuthenticated()) {
-					<div class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
-						<h1 class="text-xl font-black text-slate-100 mb-1">{{ svc.t()['operatorAccess'] || '[operatorAccess]' }}</h1>
-						<p class="text-slate-400 text-xs mb-4 font-mono">{{ svc.t()['gatewayDesc'] || '[gatewayDesc]' }}</p>
-						<form (submit)="handleLogin($event)" class="space-y-4">
-							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['email'] || '[email]' }}</label>
-								<input type="email" name="email" [(ngModel)]="credentials.email" required>
-							</div>
-							<div class="flex flex-col gap-1">
-								<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['password'] || '[password]' }}</label>
-								<input type="password" name="password" [(ngModel)]="credentials.password" required>
-							</div>
-							<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
-								{{ svc.t()['requestToken'] || '[requestToken]' }}
-							</button>
-						</form>
-					</div>
-				}
+				<div *ngIf="!svc.isAuthenticated()" class="rounded-2xl border border-slate-800 bg-slate-900 p-6 max-w-md mx-auto mt-8 shadow-2xl">
+					<h1 class="text-xl font-black text-slate-100 mb-1">{{ svc.t()['operatorAccess'] || '[operatorAccess]' }}</h1>
+					<p class="text-slate-400 text-xs mb-4 font-mono">{{ svc.t()['gatewayDesc'] || '[gatewayDesc]' }}</p>
+					<form (submit)="handleLogin($event)" class="space-y-4">
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['email'] || '[email]' }}</label>
+							<input type="email" name="email" [(ngModel)]="credentials.email" required>
+						</div>
+						<div class="flex flex-col gap-1">
+							<label class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ svc.t()['password'] || '[password]' }}</label>
+							<input type="password" name="password" [(ngModel)]="credentials.password" required>
+						</div>
+						<button type="submit" class="w-full rounded-lg bg-emerald-500 p-3 text-sm font-black uppercase text-slate-950 hover:bg-emerald-400 cursor-pointer border-none shadow-lg">
+							{{ svc.t()['requestToken'] || '[requestToken]' }}
+						</button>
+					</form>
+				</div>
 				<!-- SUBCOMPONENTS INTERFACES PROXY LAYER -->
-				@if (svc.isAuthenticated()) {
+				<div *ngIf="svc.isAuthenticated()">
 					<app-master-dashboard 
 						[currentSegment]="currentMenuSegment()" 
 						[scope]="svc.currentScope() || ''"
@@ -148,7 +148,7 @@
 						(onRequestAdvance)="handleRequestAdvance($event)"
 						(onQueryLedger)="loadLedgerStatementHistory($event.tenantId, $event.userId)">
 					</app-telemetry-drawer>
-				}
+				</div>
 			</main>
 		</div>
 	</div>
