@@ -1,6 +1,7 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Tenant, PricingTierInput } from '../../core/models';
 
 @Component({
 	selector: 'app-master-dashboard-dashboard',
@@ -9,13 +10,13 @@ import { FormsModule } from '@angular/forms';
 	templateUrl: './master-dashboard-dashboard.component.html'
 })
 export class MasterDashboardDashboardComponent {
-	public t = input.required<any>();
+	public t = input.required<Record<string, string>>();
 	public metrics = input<any>({});
-	public tenants = input<any[]>([]);
+	public tenants = input<Tenant[]>([]);
 	public searchTerm = input<string>('');
 	public tenantForm = input<any>({});
 	public tenantFormChange = output<any>();
-	public activePricingMatrix = input<any[]>([]);
+	public activePricingMatrix = input<PricingTierInput[]>([]);
 
 	public onFuzzySearch = output<string>();
 	public onSelectTenant = output<string>();

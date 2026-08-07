@@ -49,7 +49,7 @@
         <div class="w-full flex box-border relative">
             <input 
                 type="text" 
-                [value]="searchTerm"
+                [value]="searchTerm()"
                 (input)="onSearchChange($event)"
                 [placeholder]="t()['searchPartnerPlaceholder'] || '[searchPartnerPlaceholder]'" 
                 style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;"
@@ -171,7 +171,7 @@
                     {{ t()['btnBack'] || '[btnBack]' }}
                 </button>
                 <button (click)="onNextPage.emit()" class="flex-1 sm:flex-none text-center px-4 py-2 rounded-lg border border-slate-800 bg-slate-900 font-bold hover:bg-slate-800 transition cursor-pointer">
-                    {{ t()['btnNext'] || '[btnNext]' }}
+                    {{ t()['btnNext'] || '[btnNext]' }} ▶
                 </button>
             </div>
         </div>
